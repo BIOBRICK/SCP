@@ -1,27 +1,27 @@
 #' AnnotateFeatures
+#' Annotate features in a Seurat object with additional metadata from databases or a GTF file.
+#' @param srt Seurat object to be annotated.
+#' @param species Name of the species to be used for annotation. Default is "Homo_sapiens".
+#' @param IDtype Type of identifier to use for annotation. Default is "symbol" with options "symbol", "ensembl_id", and "entrez_id".
+#' @param db Vector of database names to be used for annotation. Default is NULL.
+#' @param db_update Logical value indicating whether to update the database. Default is FALSE.
+#' @param db_version Version of the database to use. Default is "latest".
+#' @param convert_species A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.
+#' @param Ensembl_version Version of the Ensembl database to use. Default is 103.
+#' @param mirror URL of the mirror to use for Ensembl database. Default is NULL.
+#' @param gtf Path to the GTF file to be used for annotation. Default is NULL.
+#' @param merge_gtf_by Column name to merge the GTF file by. Default is "gene_name".
+#' @param columns Vector of column names to be used from the GTF file. Default is
+#'     "seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type".
+#' @param assays Character vector of assay names to be annotated. Default is "RNA".
+#' @param overwrite Logical value indicating whether to overwrite existing metadata. Default is FALSE.
 #'
-#' @param srt
-#' @param gtf
-#' @param attribute
-#' @param assays
-#' @param overwrite
-#' @param species
-#' @param merge_gtf_by
-#' @param IDtype
-#' @param db
-#' @param db_update
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param convert_species
-#'
-#' @return
-#'
+#' @seealso \code{\link{PrepareDB}} \code{\link{ListDB}}
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- AnnotateFeatures(pancreas_sub,
 #'   species = "Mus_musculus", IDtype = "symbol",
-#'   db = c("Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk")
+#'   db = c("Chromosome", "GeneType", "Enzyme", "TF", "CSPA", "VerSeDa")
 #' )
 #' head(pancreas_sub[["RNA"]]@meta.features)
 #'
@@ -31,7 +31,7 @@
 #' @importFrom data.table fread rbindlist
 #' @export
 AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol", "ensembl_id", "entrez_id"),
-                             db = NULL, db_update = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
+                             db = NULL, db_update = FALSE, db_version = "latest", convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
                              gtf = NULL, merge_gtf_by = "gene_name", columns = c(
                                "seqname", "feature", "start", "end", "strand",
                                "gene_id", "gene_name", "gene_type"
@@ -46,7 +46,11 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
       species = species, db = db, db_update = db_update, db_version = db_version, convert_species = convert_species,
       db_IDtypes = IDtype, Ensembl_version = Ensembl_version, mirror = mirror
     )
-    for (single_db in db) {
+    db_notfound <- setdiff(db, names(db_list[[species]]))
+    if (length(db_notfound) > 0) {
+      warning(paste0("The following databases are not found:", paste0(db_notfound, collapse = ",")))
+    }
+    for (single_db in names(db_list[[species]])) {
       TERM2GENE <- unique(db_list[[species]][[single_db]][["TERM2GENE"]])
       TERM2NAME <- unique(db_list[[species]][[single_db]][["TERM2NAME"]])
       rownames(TERM2NAME) <- TERM2NAME[, 1]
@@ -66,7 +70,7 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
         }
         db_sub <- db_df[rownames(db_df) %in% rownames(meta.features), , drop = FALSE]
         if (nrow(db_sub) == 0) {
-          stop(paste0("No db data found in the seurat object. Please check if the species name is correct. The expected feature names are ", paste(head(rownames(db_df), 10), collapse = ","), "."))
+          stop(paste0("No data to append was found in the Seurat object. Please check if the species name is correct. The expected feature names are ", paste(head(rownames(db_df), 10), collapse = ","), "."))
         }
         meta.features <- cbind(meta.features, db_sub[rownames(meta.features), setdiff(colnames(db_sub), colnames(meta.features)), drop = FALSE])
         srt[[assay]]@meta.features <- meta.features

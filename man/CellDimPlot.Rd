@@ -12,7 +12,7 @@ CellDimPlot(
   split.by = NULL,
   cells = NULL,
   show_na = FALSE,
-  show_stat = TRUE,
+  show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
   pt.size = NULL,
   pt.alpha = 1,
   palette = "Paired",
@@ -39,6 +39,11 @@ CellDimPlot(
   density_filled = FALSE,
   density_filled_palette = "Greys",
   density_filled_palcolor = NULL,
+  add_mark = FALSE,
+  mark_type = c("hull", "ellipse", "rect", "circle"),
+  mark_expand = unit(3, "mm"),
+  mark_alpha = 0.1,
+  mark_linetype = 1,
   lineages = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
@@ -55,7 +60,7 @@ CellDimPlot(
   stat_type = "percent",
   stat_plot_type = "pie",
   stat_plot_position = c("stack", "dodge"),
-  stat_plot_size = 0.1,
+  stat_plot_size = 0.15,
   stat_plot_palette = "Set1",
   stat_palcolor = NULL,
   stat_plot_alpha = 1,
@@ -87,12 +92,11 @@ CellDimPlot(
   velocity_cutoff_perc = 5,
   velocity_arrow_color = "black",
   velocity_arrow_angle = 20,
-  velocity_arrow_flank = 0.8,
   streamline_L = 5,
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamlinewidth = c(0, 0.8),
+  streamline_width = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",
@@ -226,7 +230,7 @@ CellDimPlot(
 
 \item{stat_plot_size}{Set the statistical plot size. Defaults to 0.1}
 
-\item{stat_plot_palette}{Color palette used in statistical plot}
+\item{stat_plot_palette}{Color palette used in statistical plot.}
 
 \item{stat_palcolor}{Custom colors used in statistical plot}
 
@@ -288,8 +292,6 @@ CellDimPlot(
 
 \item{velocity_arrow_angle}{Angle of arrows in velocity plot.}
 
-\item{velocity_arrow_flank}{Flank of arrows in velocity plot.}
-
 \item{streamline_L}{Typical length of a streamline in x and y units}
 
 \item{streamline_minL}{Minimum length of segments to show.}
@@ -298,7 +300,7 @@ CellDimPlot(
 
 \item{streamline_n}{Number of points to draw.}
 
-\item{streamlinewidth}{Size of streamline.}
+\item{streamline_width}{Size of streamline.}
 
 \item{streamline_alpha}{Transparency of streamline.}
 
@@ -356,33 +358,58 @@ CellDimPlot(
 
 \item{seed}{Random seed set for reproducibility}
 }
-\value{
-A single ggplot/patchwork object if combine = TRUE; otherwise, a list of ggplot objects
-}
 \description{
 Plotting cell points on a reduced 2D plane and coloring according to the groups.
 }
 \examples{
-library(dplyr)
 data("pancreas_sub")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
-# Label and highlight cell points
+# Highlight cells
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+  group.by = "SubCellType", reduction = "UMAP",
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 )
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
+  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
+# Add group labels
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label.fg = "orange", label.bg = "red", label.size = 5
+)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label_insitu = TRUE
+)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label_insitu = TRUE, label_repel = TRUE, label_segment_color = "red"
+)
+
+# Add various shape of marks
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "rect")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "circle")
+
 # Add a density layer
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE, density_filled = TRUE)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  add_density = TRUE, density_filled = TRUE, density_filled_palette = "Blues",
+  cells.highlight = TRUE
+)
 
 # Add statistical charts
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
@@ -414,7 +441,7 @@ CellDimPlot(pancreas_sub,
   group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2,
   label = TRUE, label_repel = TRUE, label_insitu = TRUE, label_segment_color = "transparent",
   paga = pancreas_sub@misc$paga, paga_edge_threshold = 0.1, paga_edge_color = "black", paga_edge_alpha = 1,
-  show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+  legend.position = "none", theme_use = "theme_blank"
 )
 
 # Show RNA velocity results on the plot
@@ -429,6 +456,9 @@ CellDimPlot(pancreas_sub,
   label = TRUE, label_insitu = TRUE,
   velocity = "stochastic", velocity_plot_type = "stream", velocity_arrow_color = "yellow",
   velocity_density = 2, velocity_smooth = 1, streamline_n = 20, streamline_color = "black",
-  show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+  legend.position = "none", theme_use = "theme_blank"
 )
+}
+\seealso{
+\code{\link{FeatureDimPlot}}
 }

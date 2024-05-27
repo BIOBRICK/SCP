@@ -66,7 +66,7 @@ if (!require("devtools", quietly = TRUE)) {
 devtools::install_github("zhanghao-njmu/SCP")
 ```
 
-#### Create SCP python environment
+#### Create a python environment for SCP
 
 To run functions such as `RunPAGA` or `RunSCVELO`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
@@ -234,6 +234,9 @@ data](https://doi.org/10.1242/dev.173849).
 
 ``` r
 library(SCP)
+library(BiocParallel)
+register(MulticoreParam(workers = 8, progressbar = TRUE))
+
 data("pancreas_sub")
 print(pancreas_sub)
 #> An object of class Seurat 
@@ -250,7 +253,7 @@ CellDimPlot(
 )
 ```
 
-<img src="README/README-EDA-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/EDA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 CellDimPlot(
@@ -259,7 +262,7 @@ CellDimPlot(
 )
 ```
 
-<img src="README/README-EDA-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/EDA-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 FeatureDimPlot(
@@ -268,7 +271,7 @@ FeatureDimPlot(
 )
 ```
 
-<img src="README/README-EDA-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/EDA-3.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 FeatureDimPlot(
@@ -278,7 +281,7 @@ FeatureDimPlot(
 )
 ```
 
-<img src="README/README-EDA-4.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/EDA-4.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ht <- GroupHeatmap(
@@ -300,7 +303,7 @@ ht <- GroupHeatmap(
 print(ht$plot)
 ```
 
-<img src="README/README-EDA-5.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/EDA-5.png" width="100%" style="display: block; margin: auto;" />
 
 ### CellQC
 
@@ -309,13 +312,13 @@ pancreas_sub <- RunCellQC(srt = pancreas_sub)
 CellDimPlot(srt = pancreas_sub, group.by = "CellQC", reduction = "UMAP")
 ```
 
-<img src="README/README-RunCellQC-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunCellQC-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 CellStatPlot(srt = pancreas_sub, stat.by = "CellQC", group.by = "CellType", label = TRUE)
 ```
 
-<img src="README/README-RunCellQC-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunCellQC-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 CellStatPlot(
@@ -328,7 +331,7 @@ CellStatPlot(
 )
 ```
 
-<img src="README/README-RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### Standard pipeline
 
@@ -340,19 +343,19 @@ CellDimPlot(
 )
 ```
 
-<img src="README/README-Standard_SCP-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/Standard_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 CellDimPlot3D(srt = pancreas_sub, group.by = "SubCellType")
 ```
 
-![CellDimPlot3D](README/README-CellDimPlot3D-1.png)
+![CellDimPlot3D](man/figures/CellDimPlot3D-1.png)
 
 ``` r
 FeatureDimPlot3D(srt = pancreas_sub, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 ```
 
-![FeatureDimPlot3D](README/README-FeatureDimPlot3D-1.png)
+![FeatureDimPlot3D](man/figures/FeatureDimPlot3D-1.png)
 
 ### Integration pipeline
 
@@ -368,16 +371,20 @@ CellDimPlot(
 )
 ```
 
-<img src="README/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
 UMAP embeddings based on different integration methods in SCP:
 
-![Integration-all](README/README-Integration-all.png)
+![Integration-all](man/figures/Integration-all.png)
 
 ### Cell projection between single-cell datasets
 
 ``` r
-panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
+panc8_rename <- RenameFeatures(
+  srt = panc8_sub,
+  newnames = make.unique(capitalize(rownames(panc8_sub[["RNA"]]), force_tolower = TRUE)),
+  assays = "RNA"
+)
 srt_query <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
   srt_query = srt_query, srt_ref = panc8_rename,
@@ -385,7 +392,7 @@ ProjectionPlot(
 )
 ```
 
-<img src="README/README-RunKNNMap-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunKNNMap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell annotation using bulk RNA-seq datasets
 
@@ -395,7 +402,7 @@ pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, bulk_ref = ref_scMCA, fi
 CellDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
-<img src="README/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell annotation using single-cell datasets
 
@@ -407,7 +414,7 @@ pancreas_sub <- RunKNNPredict(
 CellDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
-<img src="README/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -419,7 +426,7 @@ pancreas_sub <- RunKNNPredict(
 CellDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
-<img src="README/README-RunKNNPredict-scrna-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunKNNPredict-scrna-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -432,7 +439,7 @@ ht <- CellCorHeatmap(
 print(ht$plot)
 ```
 
-<img src="README/README-RunKNNPredict-scrna-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunKNNPredict-scrna-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### PAGA analysis
 
@@ -444,9 +451,16 @@ pancreas_sub <- RunPAGA(
 PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
 
-<img src="README/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Velocity analysis
+
+> To estimate RNA velocity, you need to have both “spliced” and
+> “unspliced” assays in your Seurat object. You can generate these
+> matrices using [velocyto](http://velocyto.org/velocyto.py/index.html),
+> [bustools](https://bustools.github.io/BUS_notebooks_R/velocity.html),
+> or
+> [alevin](https://combine-lab.github.io/alevin-fry-tutorials/2021/alevin-fry-velocity/).
 
 ``` r
 pancreas_sub <- RunSCVELO(
@@ -456,13 +470,13 @@ pancreas_sub <- RunSCVELO(
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 ```
 
-<img src="README/README-RunSCVELO-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunSCVELO-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", plot_type = "stream")
 ```
 
-<img src="README/README-RunSCVELO-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunSCVELO-2.png" width="100%" style="display: block; margin: auto;" />
 
 ### Differential expression analysis
 
@@ -471,30 +485,30 @@ pancreas_sub <- RunDEtest(srt = pancreas_sub, group_by = "CellType", fc.threshol
 VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 ```
 
-<img src="README/README-RunDEtest-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunDEtest-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 # Annotate features with transcription factors and surface proteins
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 ht <- FeatureHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", db = c("GO_BP", "KEGG", "WikiPathway"), anno_terms = TRUE,
-  feature_annotation = c("TF", "SP"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation = c("TF", "CSPA"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   height = 5, width = 4
 )
 print(ht$plot)
 ```
 
-<img src="README/README-FeatureHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/FeatureHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Enrichment analysis(over-representation)
 
 ``` r
 pancreas_sub <- RunEnrichment(
   srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
-  DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05"
+  DE_threshold = "avg_log2FC > log2(1.5) & p_val_adj < 0.05"
 )
 EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
@@ -502,7 +516,7 @@ EnrichmentPlot(
 )
 ```
 
-<img src="README/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 EnrichmentPlot(
@@ -511,7 +525,7 @@ EnrichmentPlot(
 )
 ```
 
-<img src="README/README-RunEnrichment-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunEnrichment-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 EnrichmentPlot(
@@ -520,13 +534,34 @@ EnrichmentPlot(
 )
 ```
 
-<img src="README/README-RunEnrichment-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunEnrichment-3.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "network"
+)
+```
+
+<img src="man/figures/RunEnrichment-4.png" width="100%" style="display: block; margin: auto;" />
+
+> To ensure that labels are visible, you can adjust the size of the
+> viewer panel on Rstudio IDE.
+
+``` r
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "enrichmap"
+)
+```
+
+<img src="man/figures/Enrichment_enrichmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 EnrichmentPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 ```
 
-<img src="README/README-Enrichment_comparison-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/Enrichment_comparison-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Enrichment analysis(GSEA)
 
@@ -535,16 +570,25 @@ pancreas_sub <- RunGSEA(
   srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
   DE_threshold = "p_val_adj < 0.05"
 )
-GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = "GO:0007186")
+GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", id_use = "GO:0007186")
 ```
 
-<img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+GSEAPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", plot_type = "bar",
+  direction = "both", topTerm = 20
+)
+```
+
+<img src="man/figures/GSEA_bar-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 ```
 
-<img src="README/README-GSEA_comparison-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/GSEA_comparison-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Trajectory inference
 
@@ -552,19 +596,19 @@ GSEAPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 pancreas_sub <- RunSlingshot(srt = pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 ```
 
-<img src="README/README-RunSlingshot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunSlingshot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 FeatureDimPlot(pancreas_sub, features = paste0("Lineage", 1:3), reduction = "UMAP", theme_use = "theme_blank")
 ```
 
-<img src="README/README-RunSlingshot-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunSlingshot-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 ```
 
-<img src="README/README-RunSlingshot-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/RunSlingshot-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### Dynamic features
 
@@ -576,14 +620,14 @@ ht <- DynamicHeatmap(
   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   heatmap_palette = "viridis", cell_annotation = "SubCellType",
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")), separate_annotation_palette = c("Paired", "Set1"),
-  feature_annotation = c("TF", "SP"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation = c("TF", "CSPA"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25, pseudotime_label_color = "red",
   height = 5, width = 2
 )
 print(ht$plot)
 ```
 
-<img src="README/README-DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 DynamicPlot(
@@ -593,7 +637,7 @@ DynamicPlot(
 )
 ```
 
-<img src="README/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/DynamicPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 FeatureStatPlot(
@@ -607,7 +651,7 @@ FeatureStatPlot(
 )
 ```
 
-<img src="README/README-FeatureStatPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/FeatureStatPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Interactive data visualization with SCExplorer
 
@@ -621,15 +665,15 @@ if (interactive()) {
 }
 ```
 
-![SCExplorer1](README/README-SCExplorer-1.png)
-![SCExplorer2](README/README-SCExplorer-2.png)
+![SCExplorer1](man/figures/SCExplorer-1.png)
+![SCExplorer2](man/figures/SCExplorer-2.png)
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg)
-[**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg)
-[**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg)
-[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
+[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](man/figures/Example-1.jpg)
+[**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg)
+[**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg)
+[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](man/figures/Example-4.jpg)
 
 You can also find more examples in the documentation of the function:
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),

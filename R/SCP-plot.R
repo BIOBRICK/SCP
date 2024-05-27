@@ -13,7 +13,6 @@
 #' p + theme_scp()
 #' @importFrom ggplot2 theme element_blank element_text element_rect margin
 #' @export
-#'
 theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
   text_size_scale <- base_size / 12
   args1 <- list(
@@ -33,10 +32,10 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
     legend.title = element_text(size = 12 * text_size_scale, colour = "black", hjust = 0),
     legend.text = element_text(size = 11 * text_size_scale, colour = "black"),
     legend.key = element_rect(fill = "transparent", color = "transparent"),
+    legend.key.size = unit(10, "pt"),
     legend.background = element_blank(),
     panel.background = element_rect(fill = "white", color = "white"),
-    panel.border = element_rect(fill = "transparent", colour = "black", linewidth = 1),
-    complete = TRUE
+    panel.border = element_rect(fill = "transparent", colour = "black", linewidth = 1)
   )
   args2 <- as.list(match.call())[-1]
   call.envir <- parent.frame(1)
@@ -62,6 +61,9 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
 
 #' Blank theme
 #'
+#' This function creates a theme with all elements blank except for axis lines and labels.
+#' It can optionally add coordinate axes in the plot.
+#'
 #' @param add_coord Whether to add coordinate arrows. Default is \code{TRUE}.
 #' @param xlen_npc The length of the x-axis arrow in "npc".
 #' @param ylen_npc The length of the y-axis arrow in "npc".
@@ -69,6 +71,7 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
 #' @param ylab y-axis label.
 #' @param lab_size Label size.
 #' @param ... Arguments passed to the \code{\link[ggplot2]{theme}}.
+#'
 #' @examples
 #' library(ggplot2)
 #' p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
@@ -79,16 +82,6 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
 #' @importFrom grid grobTree gList linesGrob textGrob arrow gpar
 #' @export
 theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab = "", ylab = "", lab_size = 12, ...) {
-  if (isTRUE(add_coord) && isTRUE(xlab != "")) {
-    x_space <- lab_size + 2
-  } else {
-    x_space <- 0
-  }
-  if (isTRUE(add_coord) && isTRUE(ylab != "")) {
-    y_space <- lab_size + 2
-  } else {
-    y_space <- 0
-  }
   args1 <- list(
     panel.border = element_blank(),
     panel.grid = element_blank(),
@@ -99,8 +92,8 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
     legend.background = element_blank(),
     legend.box.margin = margin(0, 0, 0, 0),
     legend.margin = margin(0, 0, 0, 0),
-    plot.margin = margin(0, 0, x_space, y_space, unit = "points"),
-    complete = FALSE
+    legend.key.size = unit(10, "pt"),
+    plot.margin = margin(lab_size + 2, lab_size + 2, lab_size + 2, lab_size + 2, unit = "points")
   )
   args2 <- as.list(match.call())[-1]
   call.envir <- parent.frame(1)
@@ -152,8 +145,7 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #' @param NA_keep Whether to keep the color assignment to NA in \code{x}.
 #' @param NA_color Color assigned to NA if NA_keep is \code{TRUE}.
 #'
-#' @seealso
-#' \code{\link{show_palettes}}
+#' @seealso \code{\link{show_palettes}} \code{\link{palette_list}}
 #'
 #' @examples
 #' x <- c(1:3, NA, 3:5)
@@ -169,155 +161,19 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #' all_palettes <- show_palettes(return_palettes = TRUE)
 #' names(all_palettes)
 #'
-#' \dontrun{
-#' if (interactive()) {
-#'   check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
-#'   library(stringr)
-#'   library(RColorBrewer)
-#'   library(ggsci)
-#'   library(Redmonder)
-#'   library(rcartocolor)
-#'   library(nord)
-#'   library(viridis)
-#'   library(pals)
-#'   library(dichromat)
-#'   library(jcolors)
-#'   brewer.pal.info <- RColorBrewer::brewer.pal.info
-#'   ggsci_db <- ggsci:::ggsci_db
-#'   redmonder.pal.info <- Redmonder::redmonder.pal.info
-#'   metacartocolors <- rcartocolor::metacartocolors
-#'   rownames(metacartocolors) <- metacartocolors$Name
-#'   nord_palettes <- nord::nord_palettes
-#'   viridis_names <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")
-#'   viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
-#'   ocean_names <- names(pals:::syspals)[grep("ocean", names(pals:::syspals))]
-#'   ocean_palettes <- pals:::syspals[ocean_names]
-#'   dichromat_palettes <- dichromat::colorschemes
-#'   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
-#'   custom_names <- c("jet", "simspec")
-#'   custom_palettes <- list(
-#'     oompaBase::jetColors(N = 100),
-#'     c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61")
-#'   )
-#'   names(custom_palettes) <- custom_names
-#'
-#'   palette_list <- list()
-#'   all_colors <- c(
-#'     rownames(brewer.pal.info), names(ggsci_db), rownames(redmonder.pal.info),
-#'     rownames(metacartocolors), names(nord_palettes), names(viridis_palettes),
-#'     ocean_names, names(dichromat_palettes), jcolors_names,
-#'     custom_names
-#'   )
-#'   for (pal in all_colors) {
-#'     if (!pal %in% all_colors) {
-#'       stop(paste0("Invalid pal Must be one of ", paste0(all_colors, collapse = ",")))
-#'     }
-#'     if (pal %in% rownames(brewer.pal.info)) {
-#'       pal_n <- brewer.pal.info[pal, "maxcolors"]
-#'       pal_category <- brewer.pal.info[pal, "category"]
-#'       if (pal_category == "div") {
-#'         palcolor <- rev(brewer.pal(name = pal, n = pal_n))
-#'       } else {
-#'         if (pal == "Paired") {
-#'           palcolor <- brewer.pal(12, "Paired")[c(1:4, 7, 8, 5, 6, 9, 10, 11, 12)]
-#'         } else {
-#'           palcolor <- brewer.pal(name = pal, n = pal_n)
-#'         }
-#'       }
-#'       if (pal_category == "qual") {
-#'         attr(palcolor, "type") <- "discrete"
-#'       } else {
-#'         attr(palcolor, "type") <- "continuous"
-#'       }
-#'     } else if (pal %in% names(ggsci_db)) {
-#'       if (pal %in% c("d3", "uchicago", "material")) {
-#'         for (subpal in names(ggsci_db[[pal]])) {
-#'           palcolor <- ggsci_db[[pal]][[subpal]]
-#'           if (pal == "material") {
-#'             attr(palcolor, "type") <- "continuous"
-#'           } else {
-#'             attr(palcolor, "type") <- "discrete"
-#'           }
-#'           palette_list[[paste0(pal, "-", subpal)]] <- palcolor
-#'         }
-#'         next
-#'       } else {
-#'         palcolor <- ggsci_db[[pal]][[1]]
-#'         if (pal == "gsea") {
-#'           attr(palcolor, "type") <- "continuous"
-#'         } else {
-#'           attr(palcolor, "type") <- "discrete"
-#'         }
-#'       }
-#'     } else if (pal %in% rownames(redmonder.pal.info)) {
-#'       pal_n <- redmonder.pal.info[pal, "maxcolors"]
-#'       pal_category <- redmonder.pal.info[pal, "category"]
-#'       if (pal_category == "div") {
-#'         palcolor <- rev(redmonder.pal(name = pal, n = pal_n))
-#'       } else {
-#'         palcolor <- redmonder.pal(name = pal, n = pal_n)
-#'       }
-#'       if (pal_category == "qual") {
-#'         attr(palcolor, "type") <- "discrete"
-#'       } else {
-#'         attr(palcolor, "type") <- "continuous"
-#'       }
-#'     } else if (pal %in% rownames(metacartocolors)) {
-#'       pal_n <- metacartocolors[pal, "Max_n"]
-#'       palcolor <- carto_pal(name = pal, n = pal_n)
-#'       if (pal_category == "qualitative") {
-#'         attr(palcolor, "type") <- "discrete"
-#'       } else {
-#'         attr(palcolor, "type") <- "continuous"
-#'       }
-#'     } else if (pal %in% names(nord_palettes)) {
-#'       palcolor <- nord_palettes[[pal]]
-#'       attr(palcolor, "type") <- "discrete"
-#'     } else if (pal %in% names(viridis_palettes)) {
-#'       palcolor <- viridis_palettes[[pal]]
-#'       attr(palcolor, "type") <- "continuous"
-#'     } else if (pal %in% names(ocean_palettes)) {
-#'       palcolor <- ocean_palettes[[pal]]
-#'       attr(palcolor, "type") <- "continuous"
-#'     } else if (pal %in% names(dichromat_palettes)) {
-#'       palcolor <- dichromat_palettes[[pal]]
-#'       if (pal %in% c("Categorical.12", "SteppedSequential.5")) {
-#'         attr(palcolor, "type") <- "discrete"
-#'       } else {
-#'         attr(palcolor, "type") <- "continuous"
-#'       }
-#'     } else if (pal %in% jcolors_names) {
-#'       palcolor <- jcolors(palette = gsub("jcolors-", "", pal))
-#'       if (pal %in% paste0("jcolors-", c("pal10", "pal11", "pal12", "rainbow"))) {
-#'         attr(palcolor, "type") <- "continuous"
-#'       } else {
-#'         attr(palcolor, "type") <- "discrete"
-#'       }
-#'     } else if (pal %in% custom_names) {
-#'       palcolor <- custom_palettes[[pal]]
-#'       if (pal %in% c("jet")) {
-#'         attr(palcolor, "type") <- "continuous"
-#'       } else {
-#'         attr(palcolor, "type") <- "discrete"
-#'       }
-#'     }
-#'     palette_list[[pal]] <- palcolor
-#'   }
-#'   # usethis::use_data(palette_list, internal = TRUE)
-#' }
-#' }
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats setNames
 #' @export
 #'
 palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = "auto",
                         matched = FALSE, reverse = FALSE, NA_keep = FALSE, NA_color = "grey80") {
+  palette_list <- SCP::palette_list
   if (missing(x)) {
     x <- 1:n
     type <- "continuous"
   }
   if (!palette %in% names(palette_list)) {
-    stop("The palette name is invalid! You can check the available palette names with 'show_palettes()'. Or pass palette colors via the 'palcolor' parameter.")
+    stop("The palette name (", palette, ") is invalid! You can check the available palette names with 'show_palettes()'. Or pass palette colors via the 'palcolor' parameter.")
   }
   if (is.list(palcolor)) {
     palcolor <- unlist(palcolor)
@@ -330,7 +186,7 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
   }
   if (!is.null(names(palcolor))) {
     if (all(x %in% names(palcolor))) {
-      palcolor <- palcolor[unique(x)]
+      palcolor <- palcolor[intersect(names(palcolor), x)]
     }
   }
   pal_n <- length(palcolor)
@@ -416,12 +272,16 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 
 #' Show the color palettes
 #'
-#' @param palettes A list of custom color palettes to be shown.
-#' @param type Specifies the type of color palettes collected in SCP.
-#' @param index The index of the palette in SCP palette list. If \code{NULL}, show all palettes collected in SCP.
-#' @param palette_names Specifies name of the color palettes collected in SCP.
-#' @param return_names Whether to return the palette names.
-#' @param return_palettes Whether to return the palettes.
+#' This function displays color palettes using ggplot2.
+#'
+#' @param palettes A list of color palettes. If `NULL`, uses default palettes.
+#' @param type A character vector specifying the type of palettes to include. Default is "discrete".
+#' @param index A numeric vector specifying the indices of the palettes to include. Default is `NULL`.
+#' @param palette_names A character vector specifying the names of the SCP palettes to include. Default is `NULL`.
+#' @param return_names A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.
+#' @param return_palettes A logical value indicating whether to return the colors of selected palettes. Default is `FALSE`.
+#'
+#' @seealso \code{\link{palette_scp}} \code{\link{palette_list}}
 #'
 #' @examples
 #' show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
@@ -433,10 +293,10 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 #' show_palettes(type = "continuous", index = 1:10)
 #' show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
 #'
-#' @importFrom rlang %||%
-#' @importFrom graphics par text rect
+#' @importFrom ggplot2 ggplot geom_col scale_fill_manual scale_x_continuous element_blank
 #' @export
 show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), index = NULL, palette_names = NULL, return_names = TRUE, return_palettes = FALSE) {
+  palette_list <- SCP::palette_list
   if (!is.null(palettes)) {
     palette_list <- palettes
   } else {
@@ -457,21 +317,23 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
   }
   palette_list <- palette_list[palette_names]
 
-  par(mar = c(0, 0, 0, 0) + 0.1)
-  plot(0, 0,
-    type = "n", axes = FALSE, bty = "n", xlab = "", ylab = "",
-    xlim = c(0, 1), ylim = c(-length(palette_list) - 1, -1)
-  )
-  for (i in seq_len(length(palette_list))) {
-    colors_len <- length(palette_list[[i]])
-    breaks <- seq(from = 0, to = 1, length = colors_len + 1)
-    text(0, -i, palette_names[i], pos = 4)
-    rect(
-      xleft = breaks[1:colors_len], xright = breaks[1:colors_len + 1],
-      ytop = -0.15 - i, ybottom = -0.8 - i,
-      col = palette_list[[i]], border = NA
+  df <- data.frame(palette = rep(names(palette_list), sapply(palette_list, length)), color = unlist(palette_list))
+  df[["palette"]] <- factor(df[["palette"]], levels = rev(unique(df[["palette"]])))
+  df[["color_order"]] <- factor(seq_len(nrow(df)), levels = seq_len(nrow(df)))
+  df[["proportion"]] <- as.numeric(1 / table(df$palette)[df$palette])
+
+  p <- ggplot(data = df, aes(y = .data[["palette"]], x = .data[["proportion"]], fill = .data[["color_order"]])) +
+    geom_col(show.legend = FALSE) +
+    scale_fill_manual(values = df[["color"]]) +
+    scale_x_continuous(expand = c(0, 0), trans = "reverse") +
+    theme_scp(
+      axis.title = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text.x = element_blank(),
+      panel.border = element_blank()
     )
-  }
+  print(p)
+
   if (isTRUE(return_palettes)) {
     return(palette_list)
   }
@@ -489,9 +351,10 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @param x A ggplot object, a grob object, or a combined plot made by patchwork or cowplot package.
 #' @param panel_index Specify the panel to be fixed. If NULL, will fix all panels.
 #' @param respect If a logical, this indicates whether row heights and column widths should respect each other.
-#' @param width The width of the panel.
-#' @param height The height of the panel.
-#' @param margin Margins around the plot.
+#' @param width The desired width of the fixed panels.
+#' @param height The desired height of the fixed panels.
+#' @param margin The margin to add around each panel, in inches. The default is 1 inch.
+#' @param padding The padding to add around each panel, in inches. The default is 0 inches.
 #' @param units The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{in}, etc. See \code{\link[grid]{unit}}.
 #' @param raster Whether to rasterize the panel.
 #' @param dpi Plot resolution.
@@ -500,8 +363,7 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @param save NULL or the file name used to save the plot.
 #' @param bg_color Plot background color.
 #' @param verbose Whether to print messages.
-#' @param device
-#' @param ...
+#' @param ... Unused.
 #'
 #' @examples
 #' library(ggplot2)
@@ -537,14 +399,15 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' panel_fix(p, height = 1)
 #'
 #' # fix the panel of the plot combined by plot_grid
-#' library(cowplot)
-#' p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
-#' p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
-#' p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
-#' # fix the size of panel for each plot
-#' panel_fix(p, height = 1)
-#' # rasterize the panel while keeping all labels and text in vector format
-#' panel_fix(p, height = 1, raster = TRUE, dpi = 30)
+#' if (requireNamespace("cowplot", quietly = TRUE)) {
+#'   p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
+#'   p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
+#'   p <- cowplot::plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
+#'   # fix the size of panel for each plot
+#'   panel_fix(p, height = 1)
+#'   # rasterize the panel while keeping all labels and text in vector format
+#'   panel_fix(p, height = 1, raster = TRUE, dpi = 30)
+#' }
 #'
 #' # fix the panel of the heatmap
 #' ht1 <- GroupHeatmap(pancreas_sub,
@@ -588,7 +451,7 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @export
 #'
 panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
-                      width = NULL, height = NULL, margin = 0, units = "in",
+                      width = NULL, height = NULL, margin = 1, padding = 0, units = "in",
                       raster = FALSE, dpi = 300, BPPARAM = BiocParallel::SerialParam(),
                       return_grob = FALSE, bg_color = "white", save = NULL, verbose = FALSE, ...) {
   if (!inherits(x, "gtable")) {
@@ -617,6 +480,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
   if (length(panel_index) == 0 && length(gtable$grobs) == 1) {
     panel_index <- 1
   }
+  add_margin <- TRUE
   for (i in panel_index) {
     geom_index <- grep("GeomDrawGrob", names(gtable$grobs[[i]][["children"]]))
     if (length(geom_index) > 0) {
@@ -627,16 +491,16 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
         subgrob <- gtable$grobs[[i]][["children"]][[j]][["children"]][[1]][["children"]][[1]]
         # print(subgrob$grobs[[1]][["children"]])
         if (length(subgrob$grobs[[1]][["children"]]) > 0 && all(sapply(subgrob$grobs[[1]][["children"]], function(x) inherits(x, "recordedGrob")))) {
-          subgrob <- panel_fix_single(subgrob$grobs[[1]][["children"]], width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
+          subgrob <- panel_fix_overall(subgrob$grobs[[1]][["children"]], width = width, height = height, margin = padding, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
         } else {
-          subgrob <- panel_fix(subgrob, width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE, verbose = verbose, depth = depth + 1)
+          subgrob <- panel_fix(subgrob, width = width, height = height, margin = padding, units = units, raster = raster, dpi = dpi, return_grob = TRUE, verbose = verbose, depth = depth + 1)
         }
         gtable$grobs[[i]][["children"]][[j]][["children"]][[1]][["children"]][[1]] <- subgrob
         # print(paste0("plot_width:",plot_width," plot_height:",plot_height))
       }
       sum_width <- convertWidth(sum(subgrob[["widths"]]), unitTo = units, valueOnly = TRUE) / as.numeric(gtable$grobs[[i]][["children"]][[j]]$vp$width)
       sum_height <- convertHeight(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE) / as.numeric(gtable$grobs[[i]][["children"]][[j]]$vp$height)
-      gtable <- panel_fix_single(gtable, panel_index = i, width = sum_width, height = sum_height, margin = ifelse(depth == 1, margin, 0), units = units, raster = FALSE, return_grob = TRUE)
+      gtable <- panel_fix_overall(gtable, panel_index = i, width = sum_width, height = sum_height, margin = ifelse(depth == 1, margin, 0), units = units, raster = FALSE, return_grob = TRUE)
     } else if (gtable$grobs[[i]]$name == "layout" || inherits(x, "patchwork")) {
       if (isTRUE(verbose)) {
         message("panel ", i, " is detected as generated by patchwork.")
@@ -646,17 +510,38 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       # }
       subgrob <- gtable$grobs[[i]]
       if (length(subgrob[["children"]]) > 0 && all(sapply(subgrob[["children"]], function(x) inherits(x, "recordedGrob")))) {
-        subgrob <- panel_fix_single(subgrob[["children"]], width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
+        subgrob <- panel_fix_overall(subgrob[["children"]], width = width, height = height, margin = 0, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
       } else {
-        subgrob <- panel_fix(subgrob, width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE, verbose = verbose, depth = depth + 1)
+        subgrob <- panel_fix(subgrob, width = width, height = height, margin = 0, units = units, raster = raster, dpi = dpi, return_grob = TRUE, verbose = verbose, depth = depth + 1)
       }
       gtable$grobs[[i]] <- subgrob
+      layout <- gtable$layout
+      layout[["rowranges"]] <- lapply(seq_len(nrow(layout)), function(n) layout$t[n]:layout$b[n])
+      layout[["colranges"]] <- lapply(seq_len(nrow(layout)), function(n) layout$l[n]:layout$r[n])
+      p_row <- c(layout$t[i], layout$b[i])
+      p_col <- c(layout$l[i], layout$r[i])
+      background_index <- grep("background", layout$name)
+      background_index <- background_index[order(layout$z[background_index], decreasing = TRUE)]
+      for (bgi in background_index) {
+        if (all(p_row %in% layout[["rowranges"]][[bgi]]) && all(p_col %in% layout[["colranges"]][[bgi]])) {
+          p_background_index <- bgi
+          break
+        }
+      }
+      gtable <- gtable_add_rows(gtable, heights = unit(padding, units), pos = layout$t[p_background_index] - 1)
+      gtable <- gtable_add_rows(gtable, heights = unit(padding, units), pos = layout$b[p_background_index])
+      gtable <- gtable_add_cols(gtable, widths = unit(padding, units), pos = layout$l[p_background_index] - 1)
+      gtable <- gtable_add_cols(gtable, widths = unit(padding, units), pos = layout$r[p_background_index])
       sum_width <- convertWidth(sum(subgrob[["widths"]]), unitTo = units, valueOnly = TRUE)
       sum_height <- convertHeight(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE)
-      gtable <- panel_fix_single(gtable, panel_index = i, width = sum_width, height = sum_height, margin = ifelse(depth == 1, margin, 0), units = units, raster = FALSE, respect = TRUE, return_grob = TRUE)
+
+      gtable <- panel_fix_overall(gtable, panel_index = i, width = sum_width, height = sum_height, margin = ifelse(depth == 1 & add_margin, margin, 0), units = units, raster = FALSE, respect = TRUE, return_grob = TRUE)
+      if (depth == 1 & add_margin) {
+        add_margin <- FALSE
+      }
     } else {
       # print("fix the gtable")
-      gtable <- panel_fix_single(gtable, panel_index = i, width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
+      gtable <- panel_fix_overall(gtable, panel_index = i, width = width, height = height, margin = margin, units = units, raster = raster, dpi = dpi, return_grob = TRUE)
     }
   }
 
@@ -678,7 +563,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       if (units == "null") {
         stop("units can not be 'null' if want to save the plot.")
       }
-      filename <- R.utils::getAbsolutePath(save)
+      filename <- normalizePath(save)
       if (isTRUE(verbose)) {
         message("Save the plot to the file: ", filename)
       }
@@ -693,19 +578,17 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
   }
 }
 
-#' Fix the width/height of panels in a single plot object.
-#'
-#' @inheritParams panel_fix
-#'
+#' @rdname panel_fix
 #' @importFrom ggplot2 ggsave zeroGrob
 #' @importFrom gtable gtable_add_padding
 #' @importFrom grid grob unit unitType convertWidth convertHeight convertUnit viewport grid.draw rasterGrob grobTree addGrob
 #' @importFrom patchwork wrap_plots
+#' @importFrom grDevices dev.off
 #' @export
-panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
-                             width = NULL, height = NULL, margin = 0, units = "in",
-                             raster = FALSE, dpi = 300, BPPARAM = BiocParallel::SerialParam(),
-                             return_grob = FALSE, bg_color = "white", save = NULL, verbose = TRUE) {
+panel_fix_overall <- function(x, panel_index = NULL, respect = NULL,
+                              width = NULL, height = NULL, margin = 1, units = "in",
+                              raster = FALSE, dpi = 300, BPPARAM = BiocParallel::SerialParam(),
+                              return_grob = FALSE, bg_color = "white", save = NULL, verbose = TRUE) {
   if (!inherits(x, "gtable")) {
     if (inherits(x, "gTree")) {
       x <- x[["children"]]
@@ -853,20 +736,10 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
   # print(paste0("height:", height))
 
   if (isTRUE(raster)) {
-    check_R(c("png", "ragg", "grDevices"))
+    check_R(c("png", "ragg"))
     for (i in seq_along(panel_index)) {
       index <- panel_index[i]
-      do_sub <- TRUE
-      depth <- 1
-      while (isTRUE(do_sub) && depth <= 10) {
-        g <- gtable$grobs[[index]]
-        if (!inherits(gtable$grobs[[index]], "gtable")) {
-          do_sub <- FALSE
-          g_new <- g
-        }
-        depth <- depth + 1
-      }
-      # g <- g_bk
+      g <- g_new <- gtable$grobs[[index]]
       vp <- g$vp
       childrenOrder <- g$childrenOrder
       if (is.null(g$vp)) {
@@ -892,7 +765,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
       temp <- tempfile(fileext = "png")
       ragg::agg_png(temp, width = width[i], height = height[i], bg = "transparent", res = dpi, units = units)
       grid.draw(g)
-      grDevices::dev.off()
+      dev.off()
       g_ras <- rasterGrob(png::readPNG(temp, native = TRUE))
       unlink(temp)
       # g <- do.call(grobTree, c(list(g_ras), child_list))
@@ -923,7 +796,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
       if (units == "null") {
         stop("units can not be 'null' if want to save the plot.")
       }
-      filename <- R.utils::getAbsolutePath(save)
+      filename <- normalizePath(save)
       if (isTRUE(verbose)) {
         message("Save the plot to the file: ", filename)
       }
@@ -1052,10 +925,12 @@ slim_data <- function(p) {
 #' @method slim_data ggplot
 slim_data.ggplot <- function(p) {
   vars <- get_vars(p)
-  p$data <- p$data[, intersect(colnames(p$data), vars), drop = FALSE]
-  for (i in seq_along(p$layers)) {
-    if (length(p$layers[[i]]$data) > 0) {
-      p$layers[[i]]$data <- p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE]
+  if (length(vars) > 0) {
+    p$data <- p$data[, intersect(colnames(p$data), vars), drop = FALSE]
+    for (i in seq_along(p$layers)) {
+      if (length(p$layers[[i]]$data) > 0) {
+        p$layers[[i]]$data <- p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE]
+      }
     }
   }
   return(p)
@@ -1089,6 +964,7 @@ get_vars <- function(p, reverse, verbose = FALSE) {
   mappings <- c(
     as.character(p$mapping),
     unlist(lapply(p$layers, function(x) as.character(x$mapping))),
+    unlist(lapply(p$layers, function(x) names(p$layers[[1]]$aes_params))),
     names(p$facet$params$facets), names(p$facet$params$rows), names(p$facet$params$cols)
   )
   vars <- unique(unlist(strsplit(gsub("[~\\[\\]\\\"\\(\\)]", " ", unique(mappings), perl = TRUE), " ")))
@@ -1104,16 +980,21 @@ get_vars <- function(p, reverse, verbose = FALSE) {
 
 #' Convert a color with arbitrary transparency to a fixed color
 #'
+#' This function takes a vector of colors and an alpha level and converts the colors
+#' to fixed colors with the specified alpha level.
+#'
 #' @param colors Color vectors.
 #' @param alpha Alpha level in [0,1]
 #' @examples
 #' colors <- c("red", "blue", "green")
 #' adjcolors(colors, 0.5)
+#' ggplot2::alpha(colors, 0.5)
 #'
-#' library(scales)
-#' alpha(colors, 0.5)
-#'
-#' show_palettes(list(colors, adjcolors(colors, 0.5), alpha(colors, 0.5)))
+#' show_palettes(list(
+#'   "raw" = colors,
+#'   "adjcolors" = adjcolors(colors, 0.5),
+#'   "ggplot2::alpha" = ggplot2::alpha(colors, 0.5)
+#' ))
 #'
 #' @export
 adjcolors <- function(colors, alpha) {
@@ -1127,8 +1008,13 @@ adjcolors <- function(colors, alpha) {
 
 #' Blend colors
 #'
+#' This function blends a list of colors using the specified blend mode.
+#'
 #' @param colors Color vectors.
-#' @param mode Blend mode.
+#' @param mode Blend mode. One of "blend", "average", "screen", or "multiply".
+#'
+#' @seealso \code{\link{FeatureDimPlot}}
+#'
 #' @examples
 #' blend <- c("red", "green", blendcolors(c("red", "green"), mode = "blend"))
 #' average <- c("red", "green", blendcolors(c("red", "green"), mode = "average"))
@@ -1266,7 +1152,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param stat_type Set stat types ("percent" or "count").
 #' @param stat_plot_type Set the statistical plot type.
 #' @param stat_plot_size Set the statistical plot size. Defaults to 0.1
-#' @param stat_plot_palette Color palette used in statistical plot
+#' @param stat_plot_palette Color palette used in statistical plot.
 #' @param stat_palcolor Custom colors used in statistical plot
 #' @param stat_plot_position Position adjustment in statistical plot.
 #' @param stat_plot_alpha Transparency of the statistical plot.
@@ -1298,12 +1184,11 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param velocity_cutoff_perc Set the cutoff_perc value used in velocity plot.
 #' @param velocity_arrow_color Color of arrows in velocity plot.
 #' @param velocity_arrow_angle Angle of arrows in velocity plot.
-#' @param velocity_arrow_flank Flank of arrows in velocity plot.
 #' @param streamline_L Typical length of a streamline in x and y units
 #' @param streamline_minL Minimum length of segments to show.
 #' @param streamline_res Resolution parameter (higher numbers increases the resolution).
 #' @param streamline_n Number of points to draw.
-#' @param streamlinewidth Size of streamline.
+#' @param streamline_width Size of streamline.
 #' @param streamline_alpha Transparency of streamline.
 #' @param streamline_color Color of streamline.
 #' @param streamline_palette Color palette used for streamline.
@@ -1328,29 +1213,57 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param theme_args Other arguments passed to the \code{theme_use}.
 #' @param seed Random seed set for reproducibility
 #'
-#' @return A single ggplot/patchwork object if combine = TRUE; otherwise, a list of ggplot objects
+#' @seealso \code{\link{FeatureDimPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
 #'
-#' # Label and highlight cell points
+#' # Highlight cells
 #' CellDimPlot(pancreas_sub,
-#'   group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+#'   group.by = "SubCellType", reduction = "UMAP",
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 #' )
 #' CellDimPlot(pancreas_sub,
-#'   group.by = "SubCellType", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
+#'   group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
 #'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 #' )
 #'
+#' # Add group labels
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label.fg = "orange", label.bg = "red", label.size = 5
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE, label_repel = TRUE, label_segment_color = "red"
+#' )
+#'
+#' # Add various shape of marks
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "rect")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "circle")
+#'
 #' # Add a density layer
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   add_density = TRUE, density_filled = TRUE, density_filled_palette = "Blues",
+#'   cells.highlight = TRUE
+#' )
 #'
 #' # Add statistical charts
 #' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
@@ -1382,7 +1295,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2,
 #'   label = TRUE, label_repel = TRUE, label_insitu = TRUE, label_segment_color = "transparent",
 #'   paga = pancreas_sub@misc$paga, paga_edge_threshold = 0.1, paga_edge_color = "black", paga_edge_alpha = 1,
-#'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+#'   legend.position = "none", theme_use = "theme_blank"
 #' )
 #'
 #' # Show RNA velocity results on the plot
@@ -1397,7 +1310,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   label = TRUE, label_insitu = TRUE,
 #'   velocity = "stochastic", velocity_plot_type = "stream", velocity_arrow_color = "yellow",
 #'   velocity_density = 2, velocity_smooth = 1, streamline_n = 20, streamline_color = "black",
-#'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+#'   legend.position = "none", theme_use = "theme_blank"
 #' )
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by "%>%" .data
@@ -1405,25 +1318,27 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
 #' @importFrom gtable gtable_add_cols gtable_add_grob
+#' @importFrom ggforce geom_mark_hull geom_mark_ellipse geom_mark_circle geom_mark_rect
+#' @importFrom grid arrow unit
 #' @importFrom patchwork wrap_plots
 #' @importFrom stats median loess aggregate
 #' @importFrom utils askYesNo
-#' @importFrom rlang %||%
 #' @export
 #'
 CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.by = NULL, cells = NULL,
-                        show_na = FALSE, show_stat = TRUE,
+                        show_na = FALSE, show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
                         pt.size = NULL, pt.alpha = 1, palette = "Paired", palcolor = NULL, bg_color = "grey80",
                         label = FALSE, label.size = 4, label.fg = "white", label.bg = "black", label.bg.r = 0.1,
                         label_insitu = FALSE, label_repel = FALSE, label_repulsion = 20,
                         label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                         cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
+                        add_mark = FALSE, mark_type = c("hull", "ellipse", "rect", "circle"), mark_expand = unit(3, "mm"), mark_alpha = 0.1, mark_linetype = 1,
                         lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
                         lineages_whiskers = FALSE, lineages_whiskers_linewidth = 0.5, lineages_whiskers_alpha = 0.5,
-                        stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_position = c("stack", "dodge"), stat_plot_size = 0.1,
+                        stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_position = c("stack", "dodge"), stat_plot_size = 0.15,
                         stat_plot_palette = "Set1", stat_palcolor = NULL, stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
                         graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
                         paga = NULL, paga_type = "connectivities", paga_node_size = 4,
@@ -1431,9 +1346,9 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         paga_transition_threshold = 0.01, paga_transition_size = c(0.2, 1), paga_transition_color = "black", paga_transition_alpha = 1, paga_show_transition = FALSE,
                         velocity = NULL, velocity_plot_type = "raw", velocity_n_neighbors = ceiling(ncol(srt@assays[[1]]) / 50),
                         velocity_density = 1, velocity_smooth = 0.5, velocity_scale = 1, velocity_min_mass = 1, velocity_cutoff_perc = 5,
-                        velocity_arrow_color = "black", velocity_arrow_angle = 20, velocity_arrow_flank = 0.8,
+                        velocity_arrow_color = "black", velocity_arrow_angle = 20,
                         streamline_L = 5, streamline_minL = 1, streamline_res = 1, streamline_n = 15,
-                        streamlinewidth = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
+                        streamline_width = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
                         streamline_bg_color = "white", streamline_bg_stroke = 0.5,
                         hex = FALSE, hex.linewidth = 0.5, hex.count = TRUE, hex.bins = 50, hex.binwidth = NULL,
                         raster = NULL, raster.dpi = c(512, 512),
@@ -1442,9 +1357,10 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         theme_use = "theme_scp", theme_args = list(),
                         combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
+  mark_type <- match.arg(mark_type)
 
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   for (i in unique(c(group.by, split.by))) {
@@ -1529,8 +1445,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       palette = stat_plot_palette, palcolor = stat_palcolor, alpha = stat_plot_alpha,
       label = stat_plot_label, label.size = stat_plot_label_size,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
-      stat_single = TRUE, combine = FALSE
+      theme_use = theme_use, theme_args = theme_args,
+      individual = TRUE, combine = FALSE
     )
   }
   if (!is.null(lineages)) {
@@ -1543,13 +1459,13 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     lineages_layers <- lineages_layers[!names(lineages_layers) %in% c("lab_layer", "theme_layer")]
   }
   if (!is.null(paga)) {
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       stop("paga can only plot on the non-split data")
     }
     paga_layers <- PAGAPlot(srt,
@@ -1560,22 +1476,22 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       transition_threshold = paga_transition_threshold, transition_size = paga_transition_size, transition_color = paga_transition_color, transition_alpha = paga_transition_alpha, show_transition = paga_show_transition,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     paga_layers <- paga_layers[!names(paga_layers) %in% c("lab_layer", "theme_layer")]
   }
   if (!is.null(velocity)) {
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       stop("velocity can only plot on the non-split data")
     }
     velocity_layers <- VelocityPlot(srt,
       cells = cells,
       reduction = reduction, dims = dims, velocity = velocity, plot_type = velocity_plot_type, group_by = group.by, group_palette = palette, group_palcolor = palcolor,
       n_neighbors = velocity_n_neighbors, density = velocity_density, smooth = velocity_smooth, scale = velocity_scale, min_mass = velocity_min_mass, cutoff_perc = velocity_cutoff_perc,
-      arrow_color = velocity_arrow_color, arrow_angle = velocity_arrow_angle, arrow_flank = velocity_arrow_flank,
+      arrow_color = velocity_arrow_color, arrow_angle = velocity_arrow_angle,
       streamline_L = streamline_L, streamline_minL = streamline_minL, streamline_res = streamline_res, streamline_n = streamline_n,
-      streamlinewidth = streamlinewidth, streamline_alpha = streamline_alpha, streamline_color = streamline_color, streamline_palette = streamline_palette, streamline_palcolor = streamline_palcolor,
+      streamline_width = streamline_width, streamline_alpha = streamline_alpha, streamline_color = streamline_color, streamline_palette = streamline_palette, streamline_palcolor = streamline_palcolor,
       streamline_bg_color = streamline_bg_color, streamline_bg_stroke = streamline_bg_stroke,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
@@ -1600,7 +1516,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     colors <- palette_scp(levels(dat_use[[g]]), palette = palette, palcolor = palcolor, NA_keep = TRUE)
     dat <- dat_use
     cells_mask <- dat[[split.by]] != s
-    dat[[split.by]] <- NULL
+    # dat[[split.by]] <- NULL
     dat[[g]][cells_mask] <- NA
     legend_list <- list()
     labels_tb <- table(dat[[g]])
@@ -1630,11 +1546,9 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         }
       }
     }
-    var_nm <- setNames(
-      object = c("x", "y", "group.by"),
-      nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), g)
-    )
-    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+    dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+    dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
+    dat[["group.by"]] <- dat[[g]]
     dat[, "split.by"] <- s
     dat <- dat[order(dat[, "group.by"], decreasing = FALSE, na.last = FALSE), , drop = FALSE]
     naindex <- which(is.na(dat[, "group.by"]))
@@ -1645,27 +1559,34 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     } else {
       subtitle_use <- subtitle
     }
-    if (isTRUE(add_density)) {
-      if (isTRUE(density_filled)) {
-        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
-        density <- list(
-          stat_density_2d(
-            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
-            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+
+    if (isTRUE(add_mark)) {
+      mark_fun <- switch(mark_type,
+        "ellipse" = "geom_mark_ellipse",
+        "hull" = "geom_mark_hull",
+        "rect" = "geom_mark_rect",
+        "circle" = "geom_mark_circle"
+      )
+      mark <- list(
+        do.call(
+          mark_fun,
+          list(
+            data = dat[!is.na(dat[["group.by"]]), , drop = FALSE],
+            mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]], fill = .data[["group.by"]]),
+            expand = mark_expand, alpha = mark_alpha, linetype = mark_linetype, show.legend = FALSE, inherit.aes = FALSE
           ),
-          scale_fill_gradientn(name = "Density", colours = filled_color),
-          new_scale_fill()
-        )
-      } else {
-        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
-          color = density_color, inherit.aes = FALSE, show.legend = FALSE
-        )
-      }
+        ),
+        scale_fill_manual(values = colors[names(labels_tb)]),
+        scale_color_manual(values = colors[names(labels_tb)]),
+        new_scale_fill(),
+        new_scale_color()
+      )
     } else {
-      density <- NULL
+      mark <- NULL
     }
+
     if (!is.null(graph)) {
-      net_mat <- as.matrix(x = graph)[rownames(dat), rownames(dat)]
+      net_mat <- as_matrix(graph)[rownames(dat), rownames(dat)]
       net_mat[net_mat == 0] <- NA
       net_mat[upper.tri(net_mat)] <- NA
       net_df <- reshape2::melt(net_mat, na.rm = TRUE, stringsAsFactors = FALSE)
@@ -1687,7 +1608,28 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       net <- NULL
     }
 
+    if (isTRUE(add_density)) {
+      if (isTRUE(density_filled)) {
+        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
+        density <- list(
+          stat_density_2d(
+            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
+            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+          ),
+          scale_fill_gradientn(name = "Density", colours = filled_color),
+          new_scale_fill()
+        )
+      } else {
+        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
+          color = density_color, inherit.aes = FALSE, show.legend = FALSE
+        )
+      }
+    } else {
+      density <- NULL
+    }
+
     p <- ggplot(dat) +
+      mark +
       net +
       density +
       labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
@@ -1699,7 +1641,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         legend.position = legend.position,
         legend.direction = legend.direction
       )
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       p <- p + facet_grid(. ~ split.by)
     }
 
@@ -1707,11 +1649,11 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       p <- p + scattermore::geom_scattermore(
         data = dat[is.na(dat[, "group.by"]), , drop = FALSE],
         mapping = aes(x = .data[["x"]], y = .data[["y"]]), color = bg_color,
-        pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
       ) + scattermore::geom_scattermore(
         data = dat[!is.na(dat[, "group.by"]), , drop = FALSE],
         mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
-        pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
       )
     } else if (isTRUE(hex)) {
       check_R("hexbin")
@@ -1732,6 +1674,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         size = pt.size, alpha = pt.alpha
       )
     }
+
     if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
       cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
       if (nrow(cell_df) > 0) {
@@ -1763,11 +1706,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       na.value = bg_color,
       guide = guide_legend(
         title.hjust = 0,
-        keywidth = 0,
-        keyheight = 0,
-        default.unit = "inch",
         order = 1,
-        override.aes = list(size = 4.5, alpha = 1)
+        override.aes = list(size = 4, alpha = 1)
       )
     ) + scale_fill_manual(
       name = paste0(g, ":"),
@@ -1776,9 +1716,6 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       na.value = bg_color,
       guide = guide_legend(
         title.hjust = 0,
-        keywidth = 0,
-        keyheight = 0,
-        default.unit = "inch",
         order = 1
       )
     )
@@ -1878,7 +1815,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         p <- p + geom_text_repel(
           data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
           fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-          point.size = NA, max.overlaps = 100,
+          point.size = NA, max.overlaps = 100, force = 0,
           color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE
         )
       }
@@ -1918,7 +1855,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' Plotting cell points on a reduced 2D plane and coloring according to the values of the features.
 #'
 #' @param srt A Seurat object.
-#' @param features Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.
+#' @param features A character vector or a named list of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.
 #' @param reduction Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.
 #' @param split.by Name of a column in meta.data to split plot by.
 #' @param palette Name of a color palette name collected in SCP.
@@ -2002,17 +1939,18 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @param theme_args Other arguments passed to the \code{theme_use}.
 #' @param seed Random seed set for reproducibility
 #'
-#' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
+#' @seealso \code{\link{CellDimPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cutoff = -Inf)
-#' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+#' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank")
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
+#'
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' FeatureDimPlot(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "UMAP", bg_cutoff = -Inf)
 #'
 #' # Label and highlight cell points
 #' FeatureDimPlot(pancreas_sub,
@@ -2020,8 +1958,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 #' )
 #' FeatureDimPlot(pancreas_sub,
-#'   features = "Rbp4", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
-#'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
+#'   features = "Rbp4", split.by = "Phase", reduction = "UMAP",
+#'   cells.highlight = TRUE, theme_use = "theme_blank"
 #' )
 #'
 #' # Add a density layer
@@ -2038,15 +1976,32 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_whiskers = TRUE)
 #' FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 #'
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", keep_scale = "all")
-#' FeatureDimPlot(pancreas_sub, c("Sst", "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
-#'
+#' # Input a named feature list
+#' markers <- list(
+#'   "Ductal" = c("Sox9", "Anxa2", "Bicc1"),
+#'   "EPs" = c("Neurog3", "Hes6"),
+#'   "Pre-endocrine" = c("Fev", "Neurod1"),
+#'   "Endocrine" = c("Rbp4", "Pyy"),
+#'   "Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl"
+#' )
 #' FeatureDimPlot(pancreas_sub,
-#'   features = c("Ins1", "Gcg", "Sst", "Ghrl"), pt.size = 1,
+#'   features = markers, reduction = "UMAP",
+#'   theme_use = "theme_blank",
+#'   theme_args = list(plot.subtitle = ggplot2::element_text(size = 10), strip.text = ggplot2::element_text(size = 8))
+#' )
+#'
+#' # Plot multiple features with different scales
+#' endocrine_markers <- c("Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl")
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP")
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", keep_scale = "all")
+#' FeatureDimPlot(pancreas_sub, c("Delta" = "Sst", "Epsilon" = "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
+#'
+#' # Plot multiple features on one picture
+#' FeatureDimPlot(pancreas_sub,
+#'   features = endocrine_markers, pt.size = 1,
 #'   compare_features = TRUE, color_blend_mode = "blend",
 #'   label = TRUE, label_insitu = TRUE
 #' )
@@ -2074,21 +2029,21 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
+#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colorbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom gtable gtable_add_cols
-#' @importFrom ggrepel geom_text_repel
+#' @importFrom ggrepel geom_text_repel GeomTextRepel
+#' @importFrom grid arrow unit
 #' @importFrom patchwork wrap_plots
 #' @importFrom Matrix t
-#' @importFrom rlang %||%
 #' @importFrom methods slot
+#' @importFrom reshape2 melt
 #' @export
-#'
 FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by = NULL, cells = NULL, slot = "data", assay = NULL,
-                           show_stat = TRUE,
+                           show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
                            palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"), palcolor = NULL,
                            pt.size = NULL, pt.alpha = 1, bg_cutoff = 0, bg_color = "grey80",
-                           keep_scale = NULL, lower_quantile = 0, upper_quantile = 0.99, lower_cutoff = NULL, upper_cutoff = NULL,
+                           keep_scale = "feature", lower_quantile = 0, upper_quantile = 0.99, lower_cutoff = NULL, upper_cutoff = NULL,
                            add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
                            cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                            calculate_coexp = FALSE, compare_features = FALSE, color_blend_mode = c("blend", "average", "screen", "multiply"),
@@ -2107,12 +2062,17 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            theme_use = "theme_scp", theme_args = list(),
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
-
   color_blend_mode <- match.arg(color_blend_mode)
-  require("ggrepel", quietly = TRUE)
+  if (!is.null(keep_scale)) {
+    keep_scale <- match.arg(keep_scale, choices = c("feature", "all"))
+  }
 
-  if (is.null(features)) {
-    stop("'features' must be provided.")
+  if (is.list(features)) {
+    if (is.null(names(features))) {
+      features <- unlist(features)
+    } else {
+      features <- setNames(unlist(features), nm = rep(names(features), sapply(features, length)))
+    }
   }
   if (!inherits(features, "character")) {
     stop("'features' is not a character vectors")
@@ -2120,7 +2080,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   for (i in c(split.by)) {
@@ -2160,8 +2120,11 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     cells.highlight <- intersect(cells.highlight, colnames(srt@assays[[1]]))
   }
 
+  feature_input <- features
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data))]
+  embeddings <- lapply(srt@reductions, function(x) colnames(x@cell.embeddings))
+  embeddings <- setNames(rep(names(embeddings), sapply(embeddings, length)), nm = unlist(embeddings))
+  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data), names(embeddings))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -2169,8 +2132,12 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  features_embedding <- features[features %in% names(embeddings)]
   if (length(intersect(features_gene, features_meta)) > 0) {
-    warning("Features appear in both gene names and metadata names:", paste0(intersect(features_gene, features_meta), collapse = ","))
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
+  if (length(c(features_gene, features_meta, features_embedding)) == 0) {
+    stop("There are no valid features present.")
   }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
@@ -2189,31 +2156,53 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
+
   if (length(features_gene) > 0) {
     if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
-      dat_gene <- t(slot(srt@assays[[assay]], slot))
+      dat_gene <- t(as_matrix(slot(srt@assays[[assay]], slot)))
     } else {
-      dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
+      dat_gene <- t(as_matrix(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE]))
     }
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
   if (length(features_meta) > 0) {
-    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
+    dat_meta <- as_matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  dat_exp <- cbind(dat_gene, dat_meta)
-  features <- unique(features[features %in% c(features_gene, features_meta)])
+  if (length(features_embedding) > 0) {
+    dat_embedding <- as_matrix(FetchData(srt, vars = features_embedding))
+  } else {
+    dat_embedding <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
+  }
+  dat_exp <- as_matrix(do.call(cbind, list(dat_gene, dat_meta, dat_embedding)))
+  features <- unique(features[features %in% c(features_gene, features_meta, features_embedding)])
 
   if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
   }
+  dat_exp[, features][dat_exp[, features] <= bg_cutoff] <- NA
+
   if (length(features) > 50 && !isTRUE(force)) {
     warning("More than 50 features to be plotted", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(invisible(NULL))
+    }
+  }
+
+  if (is.null(subtitle)) {
+    if (!is.null(names(feature_input))) {
+      subtitle <- setNames(names(feature_input), nm = feature_input)
+    }
+  } else {
+    if (length(subtitle) == 1) {
+      subtitle <- setNames(rep(subtitle, length(features)), nm = features)
+    } else if (length(subtitle) == length(features)) {
+      subtitle <- setNames(subtitle, nm = features)
+    } else {
+      stop(paste0("Subtitle length must be 1 or length of features(", length(features), ")"))
     }
   }
 
@@ -2247,9 +2236,9 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
       linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
       whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
-      aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
+      aspect.ratio = aspect.ratio, xlab = xlab, ylab = ylab,
       legend.position = legend.position, legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     lineages_layers <- lineages_layers[!names(lineages_layers) %in% c("lab_layer", "theme_layer")]
@@ -2267,22 +2256,18 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
     dat_split <- split.data.frame(dat_all, dat_all[[split.by]])
     plist <- lapply(levels(dat_sp[[split.by]]), function(s) {
-      dat <- dat_split[[ifelse(split.by == "All_cells", 1, s)]][, , drop = FALSE]
+      dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, , drop = FALSE]
       for (f in features) {
-        dat[, f][dat[, f] <= bg_cutoff] <- NA
         if (any(is.infinite(dat[, f]))) {
           dat[, f][which(dat[, f] == max(dat[, f], na.rm = TRUE))] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
           dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         }
       }
-      var_nm <- setNames(
-        object = c("x", "y"),
-        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]))
-      )
-      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+      dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+      dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
       dat[, "split.by"] <- s
       dat[, "features"] <- paste(features, collapse = "|")
-      subtitle_use <- subtitle %||% s
+      subtitle_use <- paste0(subtitle, collapse = "|") %||% s
       colors <- palette_scp(features, type = "discrete", palette = palette, palcolor = palcolor)
       colors_list <- list()
       value_list <- list()
@@ -2294,22 +2279,35 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         pal_list[[i]] <- palette_scp(dat[, names(colors)[i]], type = "continuous", NA_color = NA, NA_keep = FALSE, matched = FALSE, palcolor = c(adjcolors(colors[i], 0.1), colors[i]))
         value_list[[i]] <- seq(min(dat[, names(colors)[i]], na.rm = TRUE), max(dat[, names(colors)[i]], na.rm = TRUE), length.out = 100)
         temp_geom[[i]] <- list(
-          geom_point(data = dat, mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[[names(colors)[i]]])),
-          scale_color_gradientn(
+          geom_point(data = dat, mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[[names(colors)[i]]]))
+        )
+        if (all(is.na(colors_list[[i]]))) {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_colour_gradient(
+            na.value = bg_color,
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+          ))
+        } else if (length(colors_list[[i]]) == 1) {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_colour_gradient(
+            low = colors_list[[i]], na.value = bg_color,
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+          ))
+        } else {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_color_gradientn(
             colours = pal_list[[i]],
             values = rescale(value_list[[i]]), na.value = bg_color,
-            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0)
-          ),
-          new_scale_color()
-        )
-        legend_list[[i]] <- get_legend(ggplot(dat, aes(x = .data[["x"]], y = .data[["y"]])) +
-          temp_geom[[i]] +
-          do.call(theme_use, theme_args) +
-          theme(
-            aspect.ratio = aspect.ratio,
-            legend.position = legend.position,
-            legend.direction = legend.direction
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
           ))
+        }
+        legend_list[[i]] <- get_legend(
+          ggplot(dat, aes(x = .data[["x"]], y = .data[["y"]])) +
+            temp_geom[[i]] +
+            do.call(theme_use, theme_args) +
+            theme(
+              aspect.ratio = aspect.ratio,
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            )
+        )
       }
       for (j in seq_len(nrow(dat))) {
         dat[j, "color_blend"] <- blendcolors(sapply(colors_list, function(x) x[j]), mode = color_blend_mode)
@@ -2323,10 +2321,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         cells.highlight_use <- rownames(dat)[dat[["color_blend"]] != bg_color]
       }
       if (!is.null(graph)) {
-        net_mat <- as.matrix(x = graph)[rownames(dat), rownames(dat)]
+        net_mat <- as_matrix(graph)[rownames(dat), rownames(dat)]
         net_mat[net_mat == 0] <- NA
         net_mat[upper.tri(net_mat)] <- NA
-        net_df <- reshape2::melt(net_mat, na.rm = TRUE, stringsAsFactors = FALSE)
+        net_df <- melt(net_mat, na.rm = TRUE, stringsAsFactors = FALSE)
         net_df[, "value"] <- as.numeric(net_df[, "value"])
         net_df[, "Var1"] <- as.character(net_df[, "Var1"])
         net_df[, "Var2"] <- as.character(net_df[, "Var2"])
@@ -2367,10 +2365,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       p <- ggplot(dat) +
         net +
         density +
-        labs(title = title, subtitle = s, x = xlab, y = ylab) +
+        labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
         scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
         scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE)))
-      if (split.by == "All_cells") {
+      if (split.by == "All.groups") {
         p <- p + facet_grid(. ~ features)
       } else {
         p <- p + facet_grid(split.by ~ features)
@@ -2385,12 +2383,12 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         p <- p + scattermore::geom_scattermore(
           data = dat[dat[, "color_blend"] == bg_color, , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
-          pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+          pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) +
           scattermore::geom_scattermore(
             data = dat[dat[, "color_blend"] != bg_color, , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           ) +
           scale_color_identity() +
           new_scale_color()
@@ -2435,10 +2433,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 
       legend2 <- NULL
       if (isTRUE(label)) {
-        label_df <- reshape2::melt(p$data, measure.vars = features)
+        label_df <- melt(p$data, measure.vars = features)
         label_df <- label_df %>%
           group_by(variable) %>%
-          filter(value >= quantile(value, 0.95, na.rm = TRUE) & value <= quantile(value, 0.99, na.rm = TRUE)) %>%
+          filter(value >= quantile(value[is.finite(value)], 0.95, na.rm = TRUE) & value <= quantile(value[is.finite(value)], 0.99, na.rm = TRUE)) %>%
           reframe(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
           as.data.frame()
         colnames(label_df)[1] <- "label"
@@ -2459,7 +2457,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             p <- p + geom_text_repel(
               data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]], color = .data[["label"]]),
               fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-              point.size = NA, max.overlaps = 100,
+              point.size = NA, max.overlaps = 100, force = 0,
               color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE, show.legend = FALSE
             )
           }
@@ -2485,7 +2483,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             p <- p + geom_text_repel(
               data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["rank"]], color = .data[["label"]]),
               fontface = "bold", min.segment.length = 0, segment.colour = label_segment_color,
-              point.size = NA, max.overlaps = 100,
+              point.size = NA, max.overlaps = 100, force = 0,
               bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE, key_glyph = "point"
             )
           }
@@ -2562,17 +2560,14 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     plist <- lapply(setNames(rownames(comb), rownames(comb)), function(i) {
       f <- comb[i, "feature"]
       s <- comb[i, "split"]
-      dat <- dat_split[[ifelse(split.by == "All_cells", 1, s)]][, c(colnames(dat_use), f), drop = FALSE]
-      dat[, f][dat[, f] <= bg_cutoff] <- NA
+      dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, c(colnames(dat_use), f), drop = FALSE]
       if (any(is.infinite(dat[, f]))) {
         dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
       }
-      var_nm <- setNames(
-        object = c("x", "y", "value"),
-        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), f)
-      )
-      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+      dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+      dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
+      dat[["value"]] <- dat[[f]]
       dat <- dat[order(dat[, "value"], method = "radix", decreasing = FALSE, na.last = FALSE), , drop = FALSE]
       dat[, "features"] <- f
       cells.highlight_use <- cells.highlight
@@ -2581,32 +2576,32 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       }
       legend_list <- list()
       if (isTRUE(show_stat)) {
-        subtitle_use <- subtitle %||% paste0(s, " nPos:", sum(dat[["value"]] > 0, na.rm = TRUE), ", ", round(sum(dat[["value"]] > 0, na.rm = TRUE) / nrow(dat) * 100, 2), "%")
+        subtitle_use <- subtitle[f] %||% paste0(s, " nPos:", sum(dat[["value"]] > 0, na.rm = TRUE), ", ", round(sum(dat[["value"]] > 0, na.rm = TRUE) / nrow(dat) * 100, 2), "%")
       } else {
-        subtitle_use <- subtitle
+        subtitle_use <- subtitle[f]
       }
       if (all(is.na(dat[["value"]]))) {
         colors_value <- rep(0, 100)
       } else {
         if (is.null(keep_scale)) {
-          colors_value <- seq(lower_cutoff %||% quantile(dat[["value"]], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat[["value"]], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
+          colors_value <- seq(lower_cutoff %||% quantile(dat[is.finite(dat[, "value"]), "value"], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat[is.finite(dat[, "value"]), "value"], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
         } else {
           if (keep_scale == "feature") {
-            colors_value <- seq(lower_cutoff %||% quantile(dat_exp[, f], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat_exp[, f], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
+            colors_value <- seq(lower_cutoff %||% quantile(dat_exp[is.finite(dat_exp[, f]), f], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat_exp[is.finite(dat_exp[, f]), f], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
           }
           if (keep_scale == "all") {
-            all_values <- as.matrix(dat_exp[, features])
-            colors_value <- seq(lower_cutoff %||% quantile(all_values, lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(all_values, upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
+            all_values <- as_matrix(dat_exp[, features])
+            colors_value <- seq(lower_cutoff %||% quantile(all_values[is.finite(all_values)], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(all_values, upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
           }
         }
       }
       dat[which(dat[, "value"] > max(colors_value, na.rm = TRUE)), "value"] <- max(colors_value, na.rm = TRUE)
       dat[which(dat[, "value"] < min(colors_value, na.rm = TRUE)), "value"] <- min(colors_value, na.rm = TRUE)
       if (!is.null(graph)) {
-        net_mat <- as.matrix(x = graph)[rownames(dat), rownames(dat)]
+        net_mat <- as_matrix(graph)[rownames(dat), rownames(dat)]
         net_mat[net_mat == 0] <- NA
         net_mat[upper.tri(net_mat)] <- NA
-        net_df <- reshape2::melt(net_mat, na.rm = TRUE, stringsAsFactors = FALSE)
+        net_df <- melt(net_mat, na.rm = TRUE, stringsAsFactors = FALSE)
         net_df[, "value"] <- as.numeric(net_df[, "value"])
         net_df[, "Var1"] <- as.character(net_df[, "Var1"])
         net_df[, "Var2"] <- as.character(net_df[, "Var2"])
@@ -2650,12 +2645,6 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
         scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
         scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE))) +
-        guides(color = guide_colourbar(
-          barwidth = 0.9,
-          barheight = 4,
-          frame.colour = "black",
-          ticks.colour = "black"
-        )) +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
@@ -2666,12 +2655,12 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         p <- p + scattermore::geom_scattermore(
           data = dat[is.na(dat[, "value"]), , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
-          pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+          pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) +
           scattermore::geom_scattermore(
             data = dat[!is.na(dat[, "value"]), , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           )
       } else if (isTRUE(hex)) {
         check_R("hexbin")
@@ -2734,7 +2723,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         }
       }
       if (nrow(dat) > 0) {
-        if (split.by == "All_cells") {
+        if (split.by == "All.groups") {
           p <- p + facet_grid(. ~ features)
         } else {
           p <- p + facet_grid(formula(paste0(split.by, "~features")))
@@ -2750,7 +2739,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         )
       }
       p <- p + guides(
-        color = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        color = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       )
       p_base <- p
 
@@ -2773,7 +2762,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       }
       if (isTRUE(label)) {
         label_df <- p$data %>%
-          filter(value >= quantile(value, 0.95, na.rm = TRUE) & value <= quantile(value, 0.99, na.rm = TRUE)) %>%
+          filter(value >= quantile(value[is.finite(value)], 0.95, na.rm = TRUE) & value <= quantile(value[is.finite(value)], 0.99, na.rm = TRUE)) %>%
           reframe(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
           as.data.frame()
         label_df[, "label"] <- f
@@ -2783,16 +2772,16 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             geom = "point", x = label_df[["x"]], y = label_df[["y"]],
             color = "black", size = pt.size + 1
           ) + annotate(
-            geom = "text_repel", x = label_df[["x"]], y = label_df[["y"]], label = label_df[["label"]],
+            geom = GeomTextRepel, x = label_df[["x"]], y = label_df[["y"]], label = label_df[["label"]],
             fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
             point.size = pt.size + 1, max.overlaps = 100, force = label_repulsion,
             color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size
           )
         } else {
           p <- p + annotate(
-            geom = "text_repel", x = label_df[["x"]], y = label_df[["y"]], label = label_df[["label"]],
+            geom = GeomTextRepel, x = label_df[["x"]], y = label_df[["y"]], label = label_df[["label"]],
             fontface = "bold",
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size
           )
         }
@@ -2830,9 +2819,14 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #' Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
 #'
 #' @inheritParams CellDimPlot
+#' @param dims Dimensions to plot, must be a three-length numeric vector specifying x-, y- and z-dimensions
+#' @param axis_labs A character vector of length 3 indicating the labels for the axes.
+#' @param span A numeric value specifying the span of the loess smoother for lineages line.
 #' @param shape.highlight Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}
 #' @param width Width in pixels, defaults to automatic sizing.
 #' @param height Height in pixels, defaults to automatic sizing.
+#' @param save The name of the file to save the plot to. Must end in ".html".
+#' @seealso \code{\link{CellDimPlot}} \code{\link{FeatureDimPlot3D}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -2841,15 +2835,16 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #'
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #' CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
+#'
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom utils askYesNo
+#' @importFrom plotly plot_ly add_trace layout as_widget
 #' @export
 CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
                           palette = "Paired", palcolor = NULL, bg_color = "grey80", pt.size = 1.5,
                           cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
-                          lineages = NULL, lineage_palette = "Dark2", span = 0.75, arrow_reverse = FALSE,
+                          lineages = NULL, lineages_palette = "Dark2", span = 0.75,
                           width = NULL, height = NULL, save = NULL, force = FALSE) {
-  check_R("plotly")
   bg_color <- col2hex(bg_color)
   cols.highlight <- col2hex(cols.highlight)
 
@@ -2920,9 +2915,6 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
     dat_lineages <- srt@meta.data[, unique(lineages), drop = FALSE]
     dat_use <- cbind(dat_use, dat_lineages[row.names(dat_use), , drop = FALSE])
   }
-  if (!is.factor(dat_use[[group.by]])) {
-    dat_use[[group.by]] <- factor(dat_use[[group.by]], levels = unique(dat_use[[group.by]]))
-  }
   dat_use[["group.by"]] <- dat_use[[group.by]]
   if (any(is.na(dat_use[[group.by]]))) {
     n <- as.character(dat_use[[group.by]])
@@ -2945,8 +2937,8 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
     dat_use_highlight <- dat_use[cells.highlight_use, , drop = FALSE]
   }
 
-  p <- plotly::plot_ly(data = dat_use, width = width, height = height)
-  p <- plotly::add_trace(
+  p <- plot_ly(data = dat_use, width = width, height = height)
+  p <- add_trace(
     p = p,
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
@@ -2966,7 +2958,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
     visible = TRUE
   )
   if (!is.null(cells.highlight_use)) {
-    p <- plotly::add_trace(
+    p <- add_trace(
       p = p,
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -2997,7 +2989,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
       dat_smooth <- dat_smooth[dat_smooth[["y"]] <= max(dat_use[[paste0(reduction_key, dims[2], "All_cells")]], na.rm = TRUE) & dat_smooth[["y"]] >= min(dat_use[[paste0(reduction_key, dims[2], "All_cells")]], na.rm = TRUE), , drop = FALSE]
       dat_smooth <- dat_smooth[dat_smooth[["z"]] <= max(dat_use[[paste0(reduction_key, dims[3], "All_cells")]], na.rm = TRUE) & dat_smooth[["z"]] >= min(dat_use[[paste0(reduction_key, dims[3], "All_cells")]], na.rm = TRUE), , drop = FALSE]
       dat_smooth <- unique(na.omit(dat_smooth))
-      p <- plotly::add_trace(
+      p <- add_trace(
         p = p,
         x = dat_smooth[, "x"],
         y = dat_smooth[, "y"],
@@ -3007,7 +2999,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
         ),
         type = "scatter3d",
         mode = "lines",
-        line = list(width = 6, color = palette_scp(x = lineages, palette = lineage_palette)[l], reverscale = FALSE),
+        line = list(width = 6, color = palette_scp(x = lineages, palette = lineages_palette)[l], reverscale = FALSE),
         name = l,
         showlegend = TRUE,
         visible = TRUE
@@ -3015,7 +3007,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
     }
   }
 
-  p <- plotly::layout(
+  p <- layout(
     p = p,
     title = list(
       text = paste0("Total", " (nCells:", nrow(dat_use), ")"),
@@ -3042,7 +3034,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
 
   if ((!is.null(save) && is.character(save) && nchar(save) > 0)) {
     htmlwidgets::saveWidget(
-      widget = plotly::as_widget(p),
+      widget = as_widget(p),
       file = save
     )
     unlink(gsub("\\.html", "_files", save), recursive = TRUE)
@@ -3054,32 +3046,41 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
 #' 3D-Dimensional reduction plot for gene expression visualization.
 #'
 #' Plotting cell points on a reduced 3D space and coloring according to the gene expression in the cells.
+#' @inheritParams FeatureDimPlot
+#' @inheritParams CellDimPlot3D
+#'
+#' @seealso \code{\link{FeatureDimPlot}} \code{\link{CellDimPlot3D}}
 #'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
-#' @inheritParams FeatureDimPlot
-#' @inheritParams CellDimPlot3D
+#' FeatureDimPlot3D(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "StandardpcaUMAP3D")
 #'
+#' @importFrom Seurat Reductions Embeddings Key FetchData
+#' @importFrom Matrix t
 #' @importFrom methods slot
-#' @importFrom rlang "%||%"
+#' @importFrom utils askYesNo
+#' @importFrom plotly plot_ly add_trace layout as_widget
 #' @export
-FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
+FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
                              split.by = NULL, slot = "data", assay = NULL,
                              calculate_coexp = FALSE,
                              pt.size = 1.5, cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
                              width = NULL, height = NULL, save = NULL, force = FALSE) {
-  check_R("plotly")
   cols.highlight <- col2hex(cols.highlight)
 
-  if (is.null(features)) {
-    stop("'features' must be provided.")
+  if (is.list(features)) {
+    features <- unlist(features)
   }
+  if (!inherits(features, "character")) {
+    stop("'features' is not a character vectors")
+  }
+
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
-    srt@meta.data[[split.by]] <- factor("All_cells")
+    split.by <- "All.cells"
+    srt@meta.data[[split.by]] <- factor("All.cells")
   }
   for (i in split.by) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -3130,7 +3131,9 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
   }
 
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data))]
+  embeddings <- lapply(srt@reductions, function(x) colnames(x@cell.embeddings))
+  embeddings <- setNames(rep(names(embeddings), sapply(embeddings, length)), nm = unlist(embeddings))
+  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data), names(embeddings))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -3138,6 +3141,13 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  features_embedding <- features[features %in% names(embeddings)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
+  if (length(c(features_gene, features_meta, features_embedding)) == 0) {
+    stop("There are no valid features present.")
+  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
     if (length(features_meta) > 0) {
@@ -3155,18 +3165,28 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
-  if (length(features_gene > 0)) {
-    dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
+
+  if (length(features_gene) > 0) {
+    if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
+      dat_gene <- t(as_matrix(slot(srt@assays[[assay]], slot)))
+    } else {
+      dat_gene <- t(as_matrix(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE]))
+    }
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
-    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
+  if (length(features_meta) > 0) {
+    dat_meta <- as_matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  dat_exp <- cbind(dat_gene, dat_meta)
-  features <- unique(features[features %in% c(features_gene, features_meta)])
+  if (length(features_embedding) > 0) {
+    dat_embedding <- as_matrix(FetchData(srt, vars = features_embedding))
+  } else {
+    dat_embedding <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
+  }
+  dat_exp <- as_matrix(do.call(cbind, list(dat_gene, dat_meta, dat_embedding)))
+  features <- unique(features[features %in% c(features_gene, features_meta, features_embedding)])
 
   if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
@@ -3203,8 +3223,8 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     }
   }
 
-  p <- plotly::plot_ly(data = dat_use, width = width, height = height)
-  p <- plotly::add_trace(
+  p <- plot_ly(data = dat_use, width = width, height = height)
+  p <- add_trace(
     p = p,
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
@@ -3212,8 +3232,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     z = dat_use[[paste0(reduction_key, dims[3], "All_cells")]],
     text = paste0(
       "Cell:", rownames(dat_use),
-      "\nExp:", round(dat_use[[features[1]]], 3),
-      "\nsplit.by:", dat_use[[split.by]]
+      "\nExp:", round(dat_use[[features[1]]], 3)
     ),
     type = "scatter3d",
     mode = "markers",
@@ -3227,16 +3246,16 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     showlegend = TRUE,
     visible = TRUE
   )
+
   if (!is.null(cells.highlight)) {
-    p <- plotly::add_trace(
+    p <- add_trace(
       p = p,
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
       text = paste0(
         "Cell:", rownames(dat_use_highlight),
-        "\nExp:", round(dat_use_highlight[[features[1]]], 3),
-        "\nsplit.by:", dat_use_highlight[[split.by]]
+        "\nExp:", round(dat_use_highlight[[features[1]]], 3)
       ),
       type = "scatter3d",
       mode = "markers",
@@ -3250,9 +3269,9 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
   split_option <- list()
   genes_option <- list()
   for (i in 0:nlevels(dat_use[[split.by]])) {
-    sp <- ifelse(i == 0, "All_cells", levels(dat_use[[split.by]])[i])
+    sp <- ifelse(i == 0, "All.cells", levels(dat_use[[split.by]])[i])
     ncells <- ifelse(i == 0, nrow(dat_use), table(dat_use[[split.by]])[sp])
-    if (i != 0 && sp == "All_cells") {
+    if (i != 0 && sp == "All.cells") {
       next
     }
     x <- list(dat_use[[paste0(reduction_key, dims[1], sp)]])
@@ -3297,8 +3316,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
       args = list(list(
         text = list(paste0(
           "Cell:", rownames(dat_use),
-          "\nExp:", round(dat_use[[features[j]]], 3),
-          "\nsplit.by:", dat_use[[split.by]]
+          "\nExp:", round(dat_use[[features[j]]], 3)
         )),
         marker = marker
       )),
@@ -3306,7 +3324,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     )
   }
 
-  p <- plotly::layout(
+  p <- layout(
     p = p,
     title = list(
       text = paste0("All_cells", " (nCells:", nrow(dat_use), ")"),
@@ -3341,7 +3359,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
   if ((!is.null(save) && is.character(save) && nchar(save) > 0)) {
     htmlwidgets::saveWidget(
-      widget = plotly::as_widget(p),
+      widget = as_widget(p),
       file = save
     )
     unlink(gsub("\\.html", "_files", save), recursive = TRUE)
@@ -3352,75 +3370,81 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
 #' Statistical plot of features
 #'
-#' @param srt
-#' @param group.by
-#' @param split.by
-#' @param bg.by
-#' @param cells
-#' @param keep_empty
-#' @param slot
-#' @param assay
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param add_box
-#' @param box_width
-#' @param add_point
-#' @param pt.color
-#' @param pt.size
-#' @param pt.alpha
-#' @param jitter.width
-#' @param cells.highlight
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param calculate_coexp
-#' @param compare_features
-#' @param y.max
-#' @param same.y.lims
-#' @param y.trans
-#' @param sort
-#' @param stack
-#' @param fill.by
-#' @param flip
-#' @param comparisons
-#' @param ref_group
-#' @param pairwise_method
-#' @param multiplegroup_comparisons
-#' @param multiple_method
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param stat_single
-#' @param plot_type
-#' @param y.nbreaks
-#' @param y.min
-#' @param stat.by
-#' @param box_color
-#' @param box_ptsize
-#' @param add_trend
-#' @param trend_color
-#' @param trend_linewidth
-#' @param trend_ptsize
-#' @param sig_label
-#' @param theme_args
-#' @param seed
+#' This function generates a statistical plot for features.
+#'
+#' @param srt A Seurat object.
+#' @param stat.by A character vector specifying the features to plot.
+#' @param group.by A character vector specifying the groups to group by. Default is NULL.
+#' @param split.by A character vector specifying the variable to split the plot by. Default is NULL.
+#' @param plot.by A character vector specifying how to plot the data, by group or feature. Possible values are "group", "feature". Default is "group".
+#' @param bg.by A character vector specifying the variable to use as the background color. Default is NULL.
+#' @param fill.by A string specifying what to fill the plot by. Possible values are "group", "feature", or "expression". Default is "group".
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#' @param slot A string specifying which slot of the Seurat object to use. Default is "data".
+#' @param assay A string specifying which assay to use. Default is NULL.
+#' @param keep_empty A logical indicating whether to keep empty levels in the plot. Default is FALSE.
+#' @param individual A logical indicating whether to create individual plots for each group. Default is FALSE.
+#' @param plot_type A string specifying the type of plot to create. Possible values are "violin", "box", "bar", "dot", or "col". Default is "violin".
+#' @param palette A string specifying the color palette to use for filling. Default is "Paired".
+#' @param palcolor A character vector specifying specific colors to use for filling. Default is NULL.
+#' @param alpha A numeric value specifying the transparency of the plot. Default is 1.
+#' @param bg_palette A string specifying the color palette to use for the background. Default is "Paired".
+#' @param bg_palcolor A character vector specifying specific colors to use for the background. Default is NULL.
+#' @param bg_alpha A numeric value specifying the transparency of the background. Default is 0.2.
+#' @param add_box A logical indicating whether to add a box plot to the plot. Default is FALSE.
+#' @param box_color A string specifying the color of the box plot. Default is "black".
+#' @param box_width A numeric value specifying the width of the box plot. Default is 0.1.
+#' @param box_ptsize A numeric value specifying the size of the points of the box plot. Default is 2.
+#' @param add_point A logical indicating whether to add individual data points to the plot. Default is FALSE.
+#' @param pt.color A string specifying the color of the data points. Default is "grey30".
+#' @param pt.size A numeric value specifying the size of the data points. If NULL, the size is automatically determined. Default is NULL.
+#' @param pt.alpha A numeric value specifying the transparency of the data points. Default is 1.
+#' @param jitter.width A numeric value specifying the width of the jitter. Default is 0.5.
+#' @param jitter.height A numeric value specifying the height of the jitter. Default is 0.1.
+#' @param add_trend A logical indicating whether to add a trend line to the plot. Default is FALSE.
+#' @param trend_color A string specifying the color of the trend line. Default is "black".
+#' @param trend_linewidth A numeric value specifying the width of the trend line. Default is 1.
+#' @param trend_ptsize A numeric value specifying the size of the points of the trend line. Default is 2.
+#' @param add_stat A string specifying which statistical summary to add to the plot. Possible values are "none", "mean", or "median". Default is "none".
+#' @param stat_color A string specifying the color of the statistical summary. Default is "black".
+#' @param stat_size A numeric value specifying the size of the statistical summary. Default is 1.
+#' @param cells.highlight A logical or character vector specifying the cells to highlight in the plot. If TRUE, all cells are highlighted. If FALSE, no cells are highlighted. Default is NULL.
+#' @param cols.highlight A string specifying the color of the highlighted cells. Default is "red".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted cells. Default is 1.
+#' @param alpha.highlight A numeric value specifying the transparency of the highlighted cells. Default is 1.
+#' @param calculate_coexp A logical indicating whether to calculate co-expression values. Default is FALSE.
+#' @param same.y.lims A logical indicating whether to use the same y-axis limits for all plots. Default is FALSE.
+#' @param y.min A numeric or character value specifying the minimum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit. Default is NULL.
+#' @param y.max A numeric or character value specifying the maximum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit. Default is NULL.
+#' @param y.trans A string specifying the transformation to apply to the y-axis. Possible values are "identity" or "log2". Default is "identity".
+#' @param y.nbreaks An integer specifying the number of breaks to use for the y-axis. Default is 5.
+#' @param sort A logical or character value specifying whether to sort the groups on the x-axis. If TRUE, groups are sorted in increasing order. If FALSE, groups are not sorted. If "increasing", groups are sorted in increasing order. If "decreasing", groups are sorted in decreasing order. Default is FALSE.
+#' @param stack A logical specifying whether to stack the plots on top of each other. Default is FALSE.
+#' @param flip A logical specifying whether to flip the plot vertically. Default is FALSE.
+#' @param comparisons A list of length-2 vectors. The entries in the vector are either the names of 2 values on the x-axis or the 2 integers that correspond to the index of the groups of interest, to be compared.
+#' @param ref_group A string specifying the reference group for pairwise comparisons. Default is NULL.
+#' @param pairwise_method A string specifying the method to use for pairwise comparisons. Default is "wilcox.test".
+#' @param multiplegroup_comparisons A logical indicating whether to add multiple group comparisons to the plot. Default is FALSE.
+#' @param multiple_method A string specifying the method to use for multiple group comparisons. Default is "kruskal.test".
+#' @param sig_label A string specifying the label to use for significant comparisons. Possible values are "p.signif" or "p.format". Default is "p.format".
+#' @param sig_labelsize A numeric value specifying the size of the significant comparison labels. Default is 3.5.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot. Default is NULL.
+#' @param title A string specifying the title of the plot. Default is NULL.
+#' @param subtitle A string specifying the subtitle of the plot. Default is NULL.
+#' @param xlab A string specifying the label of the x-axis. Default is NULL.
+#' @param ylab A string specifying the label of the y-axis. Default is "Expression level".
+#' @param legend.position A string specifying the position of the legend. Possible values are "right", "left", "top", "bottom", or "none". Default is "right".
+#' @param legend.direction A string specifying the direction of the legend. Possible values are "vertical" or "horizontal". Default is "vertical".
+#' @param theme_use A string specifying the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Default is an empty list.
+#' @param combine A logical indicating whether to combine the individual plots into a single plot. Default is TRUE.
+#' @param nrow An integer specifying the number of rows for the combined plot. Default is NULL.
+#' @param ncol An integer specifying the number of columns for the combined plot. Default is NULL.
+#' @param byrow A logical specifying whether to fill the combined plot by row or by column. Default is TRUE.
+#' @param force A logical indicating whether to force the plot creation even if there are more than 100 levels in a variable. Default is FALSE.
+#' @param seed An integer specifying the random seed to use for generating jitter. Default is 11.
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType") %>% panel_fix(height = 1, width = 2)
@@ -3431,6 +3455,8 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_box = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_point = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_trend = TRUE)
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_stat = "mean")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_line = 0.2, line_type = 2)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
@@ -3460,53 +3486,289 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   ),
 #'   fill.by = "feature", plot_type = "box",
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-#' ) %>% panel_fix_single(width = 8, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
-#' @importFrom Seurat DefaultAssay GetAssayData
+#' ) %>% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
+#'
+#' FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "group")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature")
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   multiplegroup_comparisons = TRUE, sig_label = "p.format", sig_labelsize = 4
+#' )
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   comparisons = list(c("Neurog3", "Rbp4"), c("Rbp4", "Ins1")),
+#'   stack = TRUE
+#' )
+#' FeatureStatPlot(pancreas_sub, stat.by = c(
+#'   "Sox9", "Anxa2", "Bicc1", # Ductal
+#'   "Neurog3", "Hes6", # EPs
+#'   "Fev", "Neurod1", # Pre-endocrine
+#'   "Rbp4", "Pyy", # Endocrine
+#'   "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+#' ), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
+#'
+#' library(Matrix)
+#' data <- pancreas_sub@assays$RNA@data
+#' pancreas_sub@assays$RNA@scale.data <- as_matrix(data / rowMeans(data))
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType",
+#'   slot = "scale.data", ylab = "FoldChange", same.y.lims = TRUE, y.max = 4
+#' )
+#'
+#' @importFrom Seurat FetchData
+#' @importFrom reshape2 melt
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
 #' @importFrom grid grobHeight grobWidth
-#' @importFrom rlang %||%
 #' @importFrom patchwork wrap_plots
-#' @importFrom Matrix rowSums
 #' @export
-FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, fill.by = c("group", "feature", "expression"),
-                            cells = NULL, slot = c("data", "counts"), assay = NULL, keep_empty = FALSE, stat_single = FALSE,
+FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, plot.by = c("group", "feature"), fill.by = c("group", "feature", "expression"),
+                            cells = NULL, slot = "data", assay = NULL, keep_empty = FALSE, individual = FALSE,
                             plot_type = c("violin", "box", "bar", "dot", "col"),
                             palette = "Paired", palcolor = NULL, alpha = 1,
-                            bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                            bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                             add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
-                            add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5,
+                            add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
+                            add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
+                            add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
-                            calculate_coexp = FALSE, compare_features = FALSE,
+                            calculate_coexp = FALSE,
                             same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
                             sort = FALSE, stack = FALSE, flip = FALSE,
-                            comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test", sig_label = "p.signif",
+                            comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test",
                             multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
+                            sig_label = c("p.signif", "p.format"), sig_labelsize = 3.5,
                             aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression level",
                             legend.position = "right", legend.direction = "vertical",
                             theme_use = "theme_scp", theme_args = list(),
                             combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
-  set.seed(seed)
-
-  plot_type <- match.arg(plot_type)
-  fill.by <- match.arg(fill.by)
-  slot <- match.arg(slot)
+  if (is.null(group.by)) {
+    group.by <- "All.groups" # avoid having the same name with split.by. split.by will be All.groups by default
+    xlab <- "All groups"
+    srt[[group.by]] <- factor("All groups")
+  }
 
   meta.data <- srt@meta.data
+  meta.data[["cells"]] <- rownames(meta.data)
   assay <- assay %||% DefaultAssay(srt)
   exp.data <- slot(srt@assays[[assay]], slot)
+  plot.by <- match.arg(plot.by)
+
+  if (plot.by == "feature") {
+    if (length(group.by) > 1) {
+      stop("The 'group.by' must have a length of 1 when 'plot.by' is set to 'feature'")
+    }
+    if (!is.null(bg.by)) {
+      message("'bg.by' is invalid when plot.by is set to 'feature'")
+    }
+    message("Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'")
+    srt@assays[setdiff(names(srt@assays), assay)] <- NULL
+    meta.reshape <- FetchData(srt, vars = c(stat.by, group.by, split.by), cells = cells %||% rownames(meta.data), slot = slot)
+    meta.reshape[["cells"]] <- rownames(meta.reshape)
+    meta.reshape <- melt(meta.reshape, measure.vars = stat.by, variable.name = "Features", value.name = "Stat.by")
+    rownames(meta.reshape) <- paste0(meta.reshape[["cells"]], "-", meta.reshape[["Features"]])
+    exp.data <- matrix(0, nrow = 1, ncol = nrow(meta.reshape), dimnames = list("Stat.by", rownames(meta.reshape)))
+    plist <- list()
+    for (g in unique(meta.reshape[[group.by]])) {
+      if (length(rownames(meta.reshape)[meta.reshape[[group.by]] == g]) > 0) {
+        meta.use <- meta.reshape
+        meta.use[[group.by]] <- NULL
+        colnames(meta.use)[colnames(meta.use) == "Stat.by"] <- g
+        p <- ExpressionStatPlot(
+          exp.data = exp.data, meta.data = meta.use, stat.by = g, group.by = "Features", split.by = split.by, bg.by = NULL, plot.by = "group", fill.by = fill.by,
+          cells = rownames(meta.reshape)[meta.reshape[[group.by]] == g], keep_empty = keep_empty, individual = individual,
+          plot_type = plot_type,
+          palette = palette, palcolor = palcolor, alpha = alpha,
+          bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
+          add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
+          add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
+          add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
+          add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
+          add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
+          cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
+          calculate_coexp = calculate_coexp,
+          same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
+          sort = sort, stack = stack, flip = flip,
+          comparisons = comparisons, ref_group = ref_group, pairwise_method = pairwise_method,
+          multiplegroup_comparisons = multiplegroup_comparisons, multiple_method = multiple_method,
+          sig_label = sig_label, sig_labelsize = sig_labelsize,
+          aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
+          legend.position = legend.position, legend.direction = legend.direction,
+          theme_use = theme_use, theme_args = theme_args,
+          force = force, seed = seed
+        )
+        plist <- append(plist, p)
+      }
+    }
+    group.by <- "Features"
+  } else {
+    plist <- ExpressionStatPlot(
+      exp.data = exp.data, meta.data = meta.data, stat.by = stat.by, group.by = group.by, split.by = split.by, bg.by = bg.by, plot.by = "group", fill.by = fill.by,
+      cells = cells, keep_empty = keep_empty, individual = individual,
+      plot_type = plot_type,
+      palette = palette, palcolor = palcolor, alpha = alpha,
+      bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
+      add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
+      add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
+      add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
+      add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
+      add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
+      cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
+      calculate_coexp = calculate_coexp,
+      same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
+      sort = sort, stack = stack, flip = flip,
+      comparisons = comparisons, ref_group = ref_group, pairwise_method = pairwise_method,
+      multiplegroup_comparisons = multiplegroup_comparisons, multiple_method = multiple_method,
+      sig_label = sig_label, sig_labelsize = sig_labelsize,
+      aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
+      legend.position = legend.position, legend.direction = legend.direction,
+      theme_use = theme_use, theme_args = theme_args,
+      force = force, seed = seed
+    )
+  }
+
+  plist_stack <- list()
+  if (isTRUE(stack) && length(stat.by) > 1 && isFALSE(individual)) {
+    for (g in group.by) {
+      plist_g <- plist[sapply(strsplit(names(plist), ":"), function(x) x[2]) == g]
+      legend <- get_legend(plist_g[[1]])
+      if (isTRUE(flip)) {
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), hjust = 0.5)
+        plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
+          p <- plist_g[[i]]
+          if (i != 1) {
+            suppressWarnings(p <- p + theme(
+              legend.position = "none",
+              panel.grid = element_blank(),
+              plot.title = element_blank(),
+              plot.subtitle = element_blank(),
+              axis.title = element_blank(),
+              axis.text.y = element_blank(),
+              axis.text.x = element_text(vjust = c(1, 0)),
+              axis.ticks.length.y = unit(0, "pt"),
+              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
+            ))
+          } else {
+            suppressWarnings(p <- p + theme(
+              legend.position = "none",
+              panel.grid = element_blank(),
+              axis.title.x = element_blank(),
+              axis.text.x = element_text(vjust = c(1, 0)),
+              axis.ticks.length.y = unit(0, "pt"),
+              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
+            ))
+          }
+          return(as_grob(p))
+        })
+        gtable <- do.call(cbind, plist_g)
+        gtable <- add_grob(gtable, lab, "bottom", clip = "off")
+        gtable <- add_grob(gtable, legend, legend.position)
+      } else {
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
+        plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
+          p <- plist_g[[i]]
+          if (i != length(plist_g)) {
+            suppressWarnings(p <- p + theme(
+              legend.position = "none",
+              panel.grid = element_blank(),
+              axis.title = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_text(vjust = c(0, 1)),
+              axis.ticks.length.x = unit(0, "pt"),
+              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
+            ))
+            if (i == 1) {
+              p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
+            }
+          } else {
+            suppressWarnings(p <- p + theme(
+              legend.position = "none",
+              panel.grid = element_blank(),
+              axis.title.y = element_blank(),
+              axis.text.y = element_text(vjust = c(0, 1)),
+              axis.ticks.length.x = unit(0, "pt"),
+              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
+            ))
+          }
+          return(as_grob(p))
+        })
+        gtable <- do.call(rbind, plist_g)
+        gtable <- add_grob(gtable, lab, "left", clip = "off")
+        gtable <- add_grob(gtable, legend, legend.position)
+      }
+      gtable <- gtable_add_padding(gtable, unit(c(1, 1, 1, 1), units = "cm"))
+      plot <- wrap_plots(gtable)
+      plist_stack[[g]] <- plot
+    }
+  }
+
+  if (length(plist_stack) > 0) {
+    plist <- plist_stack
+  }
+  if (isTRUE(combine)) {
+    if (length(plist) > 1) {
+      plot <- wrap_plots(plotlist = plist, nrow = nrow, ncol = ncol, byrow = byrow)
+    } else {
+      plot <- plist[[1]]
+    }
+    return(plot)
+  } else {
+    return(plist)
+  }
+}
+
+#' @importFrom Seurat DefaultAssay GetAssayData
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat scale_shape_identity
+#' @importFrom Matrix rowSums
+ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, plot.by = c("group", "feature"), fill.by = c("group", "feature", "expression"),
+                               cells = NULL, keep_empty = FALSE, individual = FALSE,
+                               plot_type = c("violin", "box", "bar", "dot", "col"),
+                               palette = "Paired", palcolor = NULL, alpha = 1,
+                               bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
+                               add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
+                               add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
+                               add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
+                               add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
+                               add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
+                               cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
+                               calculate_coexp = FALSE,
+                               same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
+                               sort = FALSE, stack = FALSE, flip = FALSE,
+                               comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test",
+                               multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
+                               sig_label = c("p.signif", "p.format"), sig_labelsize = 3.5,
+                               aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression level",
+                               legend.position = "right", legend.direction = "vertical",
+                               theme_use = "theme_scp", theme_args = list(),
+                               force = FALSE, seed = 11) {
+  set.seed(seed)
+
+  plot.by <- match.arg(plot.by)
+  plot_type <- match.arg(plot_type)
+  fill.by <- match.arg(fill.by)
+  sig_label <- match.arg(sig_label)
+  add_stat <- match.arg(add_stat)
+  if (!is.null(add_line)) {
+    stopifnot(is.numeric(add_line))
+  }
+
+  if (missing(exp.data)) {
+    exp.data <- matrix(0, nrow = 1, ncol = nrow(meta.data), dimnames = list("", rownames(meta.data)))
+  }
+
+  allfeatures <- rownames(exp.data)
+  allcells <- rownames(meta.data)
 
   if (plot_type == "col") {
-    if (isTRUE(add_box) || isTRUE(add_point) || isTRUE(add_trend)) {
+    if (isTRUE(add_box) || isTRUE(add_point) || isTRUE(add_trend) || isTRUE(add_stat != "none")) {
       warning("Cannot add other layers when plot_type is 'col'", immediate. = TRUE)
       add_box <- add_point <- add_trend <- FALSE
     }
-    if (isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) {
-      warning("Cannot add comparison when plot_type is 'col'", immediate. = TRUE)
-      multiplegroup_comparisons <- FALSE
-      comparisons <- NULL
-    }
+  }
+  if ((isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) && plot_type %in% c("col")) {
+    warning("Cannot add comparison when plot_type is 'col'", immediate. = TRUE)
+    multiplegroup_comparisons <- FALSE
+    comparisons <- NULL
   }
   if (isTRUE(comparisons) && is.null(split.by)) {
     stop("'split.by' must provided when comparisons=TRUE")
@@ -3516,17 +3778,20 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     stop("meta.data is empty.")
   }
   if (is.null(group.by)) {
-    group.by <- "No.group.by"
+    group.by <- "All.groups"
     xlab <- ""
-    meta.data[[group.by]] <- factor("All")
+    meta.data[[group.by]] <- factor("")
   }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     meta.data[[split.by]] <- factor("")
+  }
+  if (group.by == split.by && group.by == "All.groups") {
+    legend.position <- "none"
   }
   for (i in unique(c(group.by, split.by, bg.by))) {
     if (!i %in% colnames(meta.data)) {
-      stop(paste0(i, " is not in the meta.data of srt object."))
+      stop(paste0(i, " is not in the meta.data."))
     }
     if (!is.factor(meta.data[[i]])) {
       meta.data[[i]] <- factor(meta.data[[i]], levels = unique(meta.data[[i]]))
@@ -3548,16 +3813,16 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     }
   }
   if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
-    if (!any(cells.highlight %in% colnames(srt@assays[[1]]))) {
+    if (!any(cells.highlight %in% allcells)) {
       stop("No cells in 'cells.highlight' found.")
     }
-    if (!all(cells.highlight %in% colnames(srt@assays[[1]]))) {
+    if (!all(cells.highlight %in% allcells)) {
       warning("Some cells in 'cells.highlight' not found.", immediate. = TRUE)
     }
-    cells.highlight <- intersect(cells.highlight, colnames(srt@assays[[1]]))
+    cells.highlight <- intersect(cells.highlight, allcells)
   }
   if (isTRUE(cells.highlight)) {
-    cells.highlight <- colnames(srt@assays[[1]])
+    cells.highlight <- allcells
   }
   if (!is.null(cells.highlight) && isFALSE(add_point)) {
     warning("'cells.highlight' is valid only when add_point=TRUE.", immediate. = TRUE)
@@ -3568,7 +3833,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   }
   if (isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) {
     check_R("ggpubr")
-    require("ggpubr", quietly = TRUE)
     ncomp <- sapply(comparisons, length)
     if (any(ncomp > 2)) {
       stop("'comparisons' must be a list in which all elements must be vectors of length 2")
@@ -3578,19 +3842,22 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   stat.by <- unique(stat.by)
   features_drop <- stat.by[!stat.by %in% c(rownames(exp.data), colnames(meta.data))]
   if (length(features_drop) > 0) {
-    warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
+    warning(paste0(features_drop, collapse = ","), " are not found.", immediate. = TRUE)
     stat.by <- stat.by[!stat.by %in% features_drop]
   }
 
   features_gene <- stat.by[stat.by %in% rownames(exp.data)]
   features_meta <- stat.by[stat.by %in% colnames(meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 1) {
     if (length(features_meta) > 0) {
       warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression", immediate. = TRUE)
     }
     status <- check_DataType(data = exp.data)
-    message("Data type detected in ", slot, " slot: ", status)
+    message("Data type: ", status)
     if (status %in% c("raw_counts", "raw_normalized_counts")) {
       meta.data[["CoExp"]] <- apply(exp.data[features_gene, , drop = FALSE], 2, function(x) exp(mean(log(x))))
     } else if (status == "log_normalized_counts") {
@@ -3602,18 +3869,18 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     features_meta <- c(features_meta, "CoExp")
   }
   if (length(features_gene) > 0) {
-    if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
+    if (all(allfeatures %in% features_gene)) {
       dat_gene <- t(exp.data)
     } else {
       dat_gene <- t(exp.data[features_gene, , drop = FALSE])
     }
   } else {
-    dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
+    dat_gene <- matrix(nrow = length(allcells), ncol = 0)
   }
   if (length(features_meta) > 0) {
-    dat_meta <- as.matrix(meta.data[, features_meta, drop = FALSE])
+    dat_meta <- as_matrix(meta.data[, features_meta, drop = FALSE])
   } else {
-    dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
+    dat_meta <- matrix(nrow = length(allcells), ncol = 0)
   }
   dat_exp <- cbind(dat_gene, dat_meta)
   stat.by <- unique(stat.by[stat.by %in% c(features_gene, features_meta)])
@@ -3621,11 +3888,14 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'stat.by' must be type of numeric variable.")
   }
-  dat_group <- meta.data[, unique(c(group.by, bg.by, split.by)), drop = FALSE]
+  dat_group <- meta.data[, unique(c("cells", group.by, bg.by, split.by)), drop = FALSE]
   dat_use <- cbind(dat_group, dat_exp[row.names(dat_group), , drop = FALSE])
   if (!is.null(cells)) {
     dat_group <- dat_group[intersect(rownames(dat_group), cells), , drop = FALSE]
     dat_use <- dat_use[intersect(rownames(dat_use), cells), , drop = FALSE]
+  }
+  if (nrow(dat_group) == 0) {
+    stop("No specified cells found.")
   }
 
   if (is.null(pt.size)) {
@@ -3641,19 +3911,28 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       return(invisible(NULL))
     }
   }
-  if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(as.matrix(dat_use[, stat.by, drop = FALSE])[is.finite(as.matrix(dat_use[, stat.by, drop = FALSE]))], na.rm = TRUE)
-  }
-  if (isTRUE(same.y.lims) && is.null(y.min)) {
-    y.min <- min(as.matrix(dat_use[, stat.by, drop = FALSE])[is.finite(as.matrix(dat_use[, stat.by, drop = FALSE]))], na.rm = TRUE)
+
+  if (isTRUE(same.y.lims)) {
+    valus <- as_matrix(dat_use[, stat.by, drop = FALSE])[is.finite(as_matrix(dat_use[, stat.by, drop = FALSE]))]
+    if (is.null(y.max)) {
+      y.max <- max(valus, na.rm = TRUE)
+    } else if (is.character(y.max)) {
+      q.max <- as.numeric(sub("(^q)(\\d+)", "\\2", y.max)) / 100
+      y.max <- quantile(values, q.max, na.rm = TRUE)
+    }
+    if (is.null(y.min)) {
+      y.min <- min(valus, na.rm = TRUE)
+    } else if (is.character(y.min)) {
+      q.min <- as.numeric(sub("(^q)(\\d+)", "\\2", y.min)) / 100
+      y.min <- quantile(values, q.min, na.rm = TRUE)
+    }
   }
 
   plist <- list()
-  plist_stack <- list()
 
   comb_list <- list()
   comb <- expand.grid(group_name = group.by, stat_name = stat.by, stringsAsFactors = FALSE)
-  if (isTRUE(stat_single)) {
+  if (isTRUE(individual)) {
     for (g in group.by) {
       comb_list[[g]] <- merge(comb, expand.grid(
         group_name = g, group_element = levels(dat_use[[g]]),
@@ -3694,7 +3973,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       colors <- palette_scp(stat.by, palette = palette, palcolor = palcolor)
     }
     if (fill.by == "group") {
-      if (split.by != "All_cells") {
+      if (split.by != "All.groups") {
         colors <- palette_scp(levels(dat_use[[split.by]]), palette = palette, palcolor = palcolor)
       } else {
         colors <- palette_scp(levels(dat_use[[g]]), palette = palette, palcolor = palcolor)
@@ -3714,22 +3993,24 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       bg_color <- palette_scp(levels(dat[[bg]]), palette = bg_palette, palcolor = bg_palcolor)
     } else {
       bg <- g
-      bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey80"), nlevels(dat[[bg]])))
+      bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat[[bg]])))
     }
     dat[["bg.by"]] <- dat[[bg]]
-    var_nm <- setNames(
-      object = c("value", "group.by", "split.by"),
-      nm = c(f, g, split.by)
-    )
-    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
-    stat <- table(dat[, "group.by"], dat[, "split.by"])
-    stat_drop <- which(stat == 1, arr.ind = TRUE)
-    if (nrow(stat_drop) > 0) {
-      for (j in 1:nrow(stat_drop)) {
-        dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[j, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[j, 2]]), , drop = FALSE]
-        rownames(stat)[stat_drop[j, 1]]
-      }
+    dat[["value"]] <- dat[[f]]
+    dat[["group.by"]] <- dat[[g]]
+    dat[["split.by"]] <- dat[[split.by]]
+    if (split.by == g) {
+      dat[["split.by"]] <- dat[["group.by"]]
     }
+    # stat <- table(dat[, "group.by"], dat[, "split.by"])
+    # stat_drop <- which(stat == 1, arr.ind = TRUE)
+    # if (nrow(stat_drop) > 0) {
+    #   for (j in 1:nrow(stat_drop)) {
+    #     dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[j, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[j, 2]]), , drop = FALSE]
+    #     rownames(stat)[stat_drop[j, 1]]
+    #   }
+    # }
+
     dat[, "features"] <- rep(f, nrow(dat))
     if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
       df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), median)
@@ -3746,14 +4027,14 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       keynm <- "Features"
     }
     if (fill.by == "group") {
-      dat[, "fill.by"] <- if (split.by == "All_cells") dat[, "group.by"] else dat[, "split.by"]
-      keynm <- ifelse(split.by == "All_cells", g, split.by)
+      dat[, "fill.by"] <- if (split.by == "All.groups") dat[, "group.by"] else dat[, "split.by"]
+      keynm <- ifelse(split.by == "All.groups", g, split.by)
     }
     if (fill.by == "expression") {
       dat[, "fill.by"] <- median_values[paste0(dat[["group.by"]], "-", dat[["split.by"]]), f]
       keynm <- "Median expression"
     }
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       levels_order <- levels(dat[["split.by"]])
     } else {
       levels_order <- levels(dat[["group.by"]])
@@ -3769,10 +4050,25 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       ),
       nrow(dat)
     )
-    y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
-    y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
-    dat <- dat[dat[["value"]] >= y_min_use & dat[["value"]] <= y_max_use, , drop = FALSE]
     dat <- dat[order(dat[["group.unique"]]), , drop = FALSE]
+
+    values <- dat[, "value"][is.finite(x = dat[, "value"])]
+    if (is.null(y.max)) {
+      y_max_use <- max(values, na.rm = TRUE)
+    } else if (is.character(y.max)) {
+      q.max <- as.numeric(sub("(^q)(\\d+)", "\\2", y.max)) / 100
+      y_max_use <- quantile(values, q.max, na.rm = TRUE)
+    } else {
+      y_max_use <- y.max
+    }
+    if (is.null(y.min)) {
+      y_min_use <- min(values, na.rm = TRUE)
+    } else if (is.character(y.min)) {
+      q.min <- as.numeric(sub("(^q)(\\d+)", "\\2", y.min)) / 100
+      y_min_use <- quantile(values, q.min, na.rm = TRUE)
+    } else {
+      y_min_use <- y.min
+    }
 
     if (isTRUE(flip)) {
       dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
@@ -3796,28 +4092,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         x = .data[["group.by"]], y = .data[["value"]], fill = .data[["fill.by"]]
       ))
     }
-    if (isTRUE(flip)) {
-      p <- p + do.call(theme_use, theme_args) +
-        theme(
-          aspect.ratio = aspect.ratio,
-          strip.text.x = element_text(angle = 45),
-          panel.grid.major.x = element_line(color = "grey", linetype = 2),
-          legend.position = legend.position,
-          legend.direction = legend.direction
-        ) + coord_flip()
-    } else {
-      p <- p + do.call(theme_use, theme_args) +
-        theme(
-          aspect.ratio = aspect.ratio,
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-          strip.text.y = element_text(angle = 0),
-          panel.grid.major.y = element_line(color = "grey", linetype = 2),
-          legend.position = legend.position,
-          legend.direction = legend.direction
-        )
-    }
 
-    if (isFALSE(stat_single)) {
+    if (isFALSE(individual)) {
       if (plot_type == "col") {
         x_index <- split(dat[["cell"]], dat[["group.by"]])
         bg_data <- as.data.frame(t(sapply(x_index, range)))
@@ -3837,7 +4113,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         bg_data[["ymax"]] <- Inf
         bg_data[["fill"]] <- bg_color[bg_map[[g]][as.character(bg_data[["group.by"]])]]
       }
-      bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_apha, inherit.aes = FALSE)
+      bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_alpha, inherit.aes = FALSE)
       p <- p + bg_layer
     }
 
@@ -3867,7 +4143,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", mapping = aes(group = .data[["split.by"]]),
           position = position_dodge(width = 0.9), width = 0.2, color = "black"
         )
-      p <<- p
       y_min_use <- layer_scales(p)$y$range$range[1]
     }
     if (plot_type == "dot") {
@@ -3886,12 +4161,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       } else {
         p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
       }
-      if (isFALSE(stat_single) && isTRUE(nlevels(dat[["group.by"]]) > 1)) {
+      if (isFALSE(individual) && isTRUE(nlevels(dat[["group.by"]]) > 1)) {
         x_index <- split(dat[["cell"]], dat[["group.by"]])
         border_data <- as.data.frame(sapply(x_index, min) - 0.5)
         colnames(border_data) <- "xintercept"
         border_data <- border_data[2:nrow(border_data), , drop = FALSE]
-        border_layer <- geom_vline(xintercept = border_data[["xintercept"]], linetype = 2)
+        border_layer <- geom_vline(xintercept = border_data[["xintercept"]], linetype = 2, alpha = 0.5)
         p <- p + border_layer
       }
     }
@@ -3900,53 +4175,47 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       if (isTRUE(comparisons)) {
         group_use <- names(which(rowSums(table(dat[["group.by"]], dat[["split.by"]]) >= 2) >= 2))
         if (any(rowSums(table(dat[["group.by"]], dat[["split.by"]]) >= 2) >= 3)) {
-          warning("Detected more than 2 groups. Use multiple_method for comparison", immediate. = TRUE)
+          message("Detected more than 2 groups. Use multiple_method for comparison")
           method <- multiple_method
         } else {
           method <- pairwise_method
         }
-        if (sig_label == "p.format") {
-          p <- p + stat_compare_means(
-            data = dat[dat[["group.by"]] %in% group_use, , drop = FALSE],
-            mapping = aes(x = .data[["group.by"]], y = .data[["value"]], label = after_stat(p.format)),
-            size = 3.5,
-            step.increase = 0.1,
-            tip.length = 0.03,
-            vjust = 1,
-            method = method
-          )
-        } else {
-          p <- p + stat_compare_means(
-            data = dat[dat[["group.by"]] %in% group_use, , drop = FALSE],
-            mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]], label = after_stat(p.signif)),
-            size = 3.5,
-            step.increase = 0.1,
-            tip.length = 0.03,
-            vjust = 1,
-            method = method
-          )
-        }
+        p <- p + ggpubr::stat_compare_means(
+          data = dat[dat[["group.by"]] %in% group_use, , drop = FALSE],
+          mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
+          label = sig_label,
+          label.y = y_max_use,
+          size = sig_labelsize,
+          step.increase = 0.1,
+          tip.length = 0.03,
+          vjust = 1,
+          method = method
+        )
+
         y_max_use <- layer_scales(p)$y$range$range[2]
       } else {
-        p <- p + stat_compare_means(
-          aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
+        p <- p + ggpubr::stat_compare_means(
+          mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
           label = sig_label,
-          size = 3.5,
+          label.y = y_max_use,
+          size = sig_labelsize,
           step.increase = 0.1,
           tip.length = 0.03,
           vjust = 0,
-          comparisons = comparisons, ref.group = ref_group, method = pairwise_method
+          comparisons = comparisons,
+          ref.group = ref_group,
+          method = pairwise_method
         )
         y_max_use <- layer_scales(p)$y$range$range[1] + (layer_scales(p)$y$range$range[2] - layer_scales(p)$y$range$range[1]) * 1.15
       }
     }
     if (isTRUE(multiplegroup_comparisons)) {
-      p <- p + stat_compare_means(
+      p <- p + ggpubr::stat_compare_means(
         aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
         method = multiple_method,
         label = sig_label,
-        label.y = Inf,
-        size = 3.5,
+        label.y = y_max_use,
+        size = sig_labelsize,
         vjust = 1.2,
         hjust = 0
       )
@@ -3958,7 +4227,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(dat)), group = .data[["group.unique"]]),
         inherit.aes = FALSE,
         color = pt.color, size = pt.size, alpha = pt.alpha,
-        position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+        position = position_jitterdodge(jitter.width = jitter.width, jitter.height = jitter.height, dodge.width = 0.9, seed = 11), show.legend = FALSE
       ))
       if (!is.null(cells.highlight)) {
         cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight)
@@ -3966,7 +4235,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           p <- p + geom_point(
             data = cell_df, aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(cell_df)), group = .data[["group.unique"]]), inherit.aes = FALSE,
             color = cols.highlight, size = sizes.highlight, alpha = alpha.highlight,
-            position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+            position = position_jitterdodge(jitter.width = jitter.width, jitter.height = jitter.height, dodge.width = 0.9, seed = 11), show.legend = FALSE
           )
         }
       }
@@ -4036,6 +4305,18 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         }
       }
     }
+    if (add_stat != "none") {
+      p <- p + stat_summary(
+        fun = add_stat, geom = "point", mapping = aes(group = .data[["split.by"]], shape = stat_shape),
+        position = position_dodge(width = 0.9), color = stat_color, fill = stat_color, size = stat_size, stroke = stat_stroke,
+      ) + scale_shape_identity()
+    }
+    if (!is.null(add_line)) {
+      p <- p + geom_hline(
+        yintercept = add_line,
+        color = line_color, linetype = line_type, linewidth = line_size
+      )
+    }
 
     if (nrow(dat) == 0) {
       p <- p + facet_null()
@@ -4051,13 +4332,46 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       p <- p + scale_x_discrete(drop = !keep_empty)
     }
 
+    if (isTRUE(flip)) {
+      if (isTRUE(stack)) {
+        p <- p + do.call(theme_use, theme_args) +
+          theme(
+            aspect.ratio = aspect.ratio,
+            axis.text.x = element_text(angle = 90, hjust = 1),
+            strip.text.x = element_text(angle = 90),
+            panel.grid.major.x = element_line(color = "grey", linetype = 2),
+            legend.position = legend.position,
+            legend.direction = legend.direction
+          ) + coord_flip(ylim = c(y_min_use, y_max_use))
+      } else {
+        p <- p + do.call(theme_use, theme_args) +
+          theme(
+            aspect.ratio = aspect.ratio,
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+            strip.text.y = element_text(angle = 0),
+            panel.grid.major.x = element_line(color = "grey", linetype = 2),
+            legend.position = legend.position,
+            legend.direction = legend.direction
+          ) + coord_flip(ylim = c(y_min_use, y_max_use))
+      }
+    } else {
+      p <- p + do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+          strip.text.y = element_text(angle = 0),
+          panel.grid.major.y = element_line(color = "grey", linetype = 2),
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        ) + coord_cartesian(ylim = c(y_min_use, y_max_use))
+    }
+
     if (isTRUE(stack)) {
       p <- p + scale_y_continuous(
-        limits = c(y_min_use, y_max_use), trans = y.trans,
-        breaks = c(y_min_use, y_max_use), labels = c(round(y_min_use, 1), round(y_max_use, 1))
+        trans = y.trans, breaks = c(y_min_use, y_max_use), labels = c(round(y_min_use, 1), round(y_max_use, 1))
       )
     } else {
-      p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
+      p <- p + scale_y_continuous(trans = y.trans, n.breaks = y.nbreaks)
     }
 
     if (fill.by != "expression") {
@@ -4070,157 +4384,31 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       }
       p <- p + guides(fill = guide_legend(
         title.hjust = 0,
-        keywidth = 0.05,
-        keyheight = 0.05,
-        default.unit = "inch",
         order = 1,
-        override.aes = list(size = 4.5, color = "black", alpha = 1)
+        override.aes = list(size = 4, color = "black", alpha = 1)
       ))
     } else {
       p <- p + scale_fill_gradientn(
         name = paste0(keynm, ":"), colours = colors, limits = colors_limits
       ) + guides(
-        fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       )
     }
-    plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
+    # plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
   })
 
-  if (isTRUE(stack) && length(stat.by) > 1 && isFALSE(stat_single)) {
-    for (g in group.by) {
-      plist_g <- plist[sapply(strsplit(names(plist), ":"), function(x) x[2]) == g]
-      legend <- get_legend(plist_g[[1]])
-      if (isTRUE(flip)) {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), hjust = 0.5)
-        plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
-          p <- plist_g[[i]]
-          if (i != 1) {
-            suppressWarnings(p <- p + theme(
-              legend.position = "none",
-              panel.grid = element_blank(),
-              plot.title = element_blank(),
-              plot.subtitle = element_blank(),
-              axis.title = element_blank(),
-              axis.text.y = element_blank(),
-              axis.text.x = element_text(hjust = c(0, 1)),
-              axis.ticks.length.y = unit(0, "pt"),
-              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
-            ))
-          } else {
-            suppressWarnings(p <- p + theme(
-              legend.position = "none",
-              panel.grid = element_blank(),
-              axis.title.x = element_blank(),
-              axis.text.x = element_text(hjust = c(0, 1)),
-              axis.ticks.length.y = unit(0, "pt"),
-              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
-            ))
-          }
-          return(as_grob(p))
-        })
-        gtable <- do.call(cbind, plist_g)
-        gtable <- add_grob(gtable, lab, "bottom", clip = "off")
-        gtable <- add_grob(gtable, legend, legend.position)
-      } else {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
-        plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
-          p <- plist_g[[i]]
-          if (i != length(plist_g)) {
-            suppressWarnings(p <- p + theme(
-              legend.position = "none",
-              panel.grid = element_blank(),
-              axis.title = element_blank(),
-              axis.text.x = element_blank(),
-              axis.text.y = element_text(vjust = c(0, 1)),
-              axis.ticks.length.x = unit(0, "pt"),
-              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
-            ))
-            if (i == 1) {
-              p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
-            }
-          } else {
-            suppressWarnings(p <- p + theme(
-              legend.position = "none",
-              panel.grid = element_blank(),
-              axis.title.y = element_blank(),
-              axis.text.y = element_text(vjust = c(0, 1)),
-              axis.ticks.length.x = unit(0, "pt"),
-              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
-            ))
-          }
-          return(as_grob(p))
-        })
-        gtable <- do.call(rbind, plist_g)
-        gtable <- add_grob(gtable, lab, "left", clip = "off")
-        gtable <- add_grob(gtable, legend, legend.position)
-      }
-      gtable <- gtable_add_padding(gtable, unit(c(1, 1, 1, 1), units = "cm"))
-      plot <- wrap_plots(gtable)
-      plist_stack[[g]] <- plot
-    }
-  }
-
-  if (length(plist_stack) > 0) {
-    plist <- plist_stack
-  }
-  if (isTRUE(combine)) {
-    if (length(plist) > 1) {
-      plot <- wrap_plots(plotlist = plist, nrow = nrow, ncol = ncol, byrow = byrow)
-    } else {
-      plot <- plist[[1]]
-    }
-    return(plot)
-  } else {
-    return(plist)
-  }
+  return(plist)
 }
 
 #' Statistical plot of cells
 #'
+#' @inheritParams StatPlot
 #' @param srt A Seurat object.
-#' @param stat.by The name of a metadata column to be counted.
-#' @param group.by
-#' @param split.by
-#' @param cells
-#' @param keep_empty
-#' @param stat_single
-#' @param plot_type
-#' @param stat_type
-#' @param position
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param flip
-#' @param NA_color
-#' @param NA_stat
-#' @param stat_level
-#' @param bg.by
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param theme_args
-#' @param seed
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#'
+#' @seealso \code{\link{StatPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE)
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE) %>% panel_fix(height = 2, width = 3)
@@ -4240,7 +4428,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "dot")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "trend")
 #'
-#' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", stat_single = TRUE)
+#' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", individual = TRUE)
 #'
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "bar")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose")
@@ -4273,11 +4461,11 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' @importFrom Seurat Cells
 #' @export
 CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, cells = NULL, flip = FALSE,
-                         NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
+                         NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, individual = FALSE, stat_level = NULL,
                          plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                          stat_type = c("percent", "count"), position = c("stack", "dodge"),
                          palette = "Paired", palcolor = NULL, alpha = 1,
-                         bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                         bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                          label = FALSE, label.size = 3.5, label.fg = "black", label.bg = "white", label.bg.r = 0.1,
                          aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = NULL,
                          legend.position = "right", legend.direction = "vertical",
@@ -4288,10 +4476,10 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 
   plot <- StatPlot(
     meta.data = meta.data, stat.by = stat.by, group.by = group.by, split.by = split.by, bg.by = bg.by, flip = flip,
-    NA_color = NA_color, NA_stat = NA_stat, keep_empty = keep_empty, stat_single = stat_single, stat_level = stat_level,
+    NA_color = NA_color, NA_stat = NA_stat, keep_empty = keep_empty, individual = individual, stat_level = stat_level,
     plot_type = plot_type, stat_type = stat_type, position = position,
     palette = palette, palcolor = palcolor, alpha = alpha,
-    bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_apha = bg_apha,
+    bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
     label = label, label.size = label.size, label.fg = label.fg, label.bg = label.bg, label.bg.r = label.bg.r,
     aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
     legend.position = legend.position, legend.direction = legend.direction,
@@ -4303,47 +4491,50 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 
 #' StatPlot
 #'
-#' @param meta.data
+#' Visualizes data using various plot types such as bar plots, rose plots, ring plots, pie charts, trend plots, area plots, dot plots, sankey plots, chord plots, venn diagrams, and upset plots.
 #'
-#' @param stat.by
-#' @param group.by
-#' @param split.by
-#' @param flip
-#' @param NA_color
-#' @param NA_stat
-#' @param keep_empty
-#' @param stat_single
-#' @param stat_level
-#' @param plot_type
-#' @param stat_type
-#' @param position
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param bg.by
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param theme_args
-#' @param seed
+#' @param meta.data The data frame containing the data to be plotted.
+#' @param stat.by The column name(s) in \code{meta.data} specifying the variable(s) to be plotted.
+#' @param group.by The column name in \code{meta.data} specifying the grouping variable.
+#' @param split.by The column name in \code{meta.data} specifying the splitting variable.
+#' @param bg.by The column name in \code{meta.data} specifying the background variable for bar plots.
+#' @param flip Logical indicating whether to flip the plot.
+#' @param NA_color The color to use for missing values.
+#' @param NA_stat Logical indicating whether to include missing values in the plot.
+#' @param keep_empty Logical indicating whether to keep empty groups in the plot.
+#' @param individual Logical indicating whether to plot individual groups separately.
+#' @param stat_level The level(s) of the variable(s) specified in \code{stat.by} to include in the plot.
+#' @param plot_type The type of plot to create. Can be one of "bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", or "upset".
+#' @param stat_type The type of statistic to compute for the plot. Can be one of "percent" or "count".
+#' @param position The position adjustment for the plot. Can be one of "stack" or "dodge".
+#' @param palette The name of the color palette to use for the plot.
+#' @param palcolor The color to use in the color palette.
+#' @param alpha The transparency level for the plot.
+#' @param bg_palette The name of the background color palette to use for bar plots.
+#' @param bg_palcolor The color to use in the background color palette.
+#' @param bg_alpha The transparency level for the background color in bar plots.
+#' @param label Logical indicating whether to add labels on the plot.
+#' @param label.size The size of the labels.
+#' @param label.fg The foreground color of the labels.
+#' @param label.bg The background color of the labels.
+#' @param label.bg.r The radius of the rounded corners of the label background.
+#' @param aspect.ratio The aspect ratio of the plot.
+#' @param title The main title of the plot.
+#' @param subtitle The subtitle of the plot.
+#' @param xlab The x-axis label of the plot.
+#' @param ylab The y-axis label of the plot.
+#' @param legend.position The position of the legend in the plot. Can be one of "right", "left", "bottom", "top", or "none".
+#' @param legend.direction The direction of the legend in the plot. Can be one of "vertical" or "horizontal".
+#' @param theme_use The name of the theme to use for the plot. Can be one of the predefined themes or a custom theme.
+#' @param theme_args A list of arguments to be passed to the theme function.
+#' @param combine Logical indicating whether to combine multiple plots into a single plot.
+#' @param nrow The number of rows in the combined plot.
+#' @param ncol The number of columns in the combined plot.
+#' @param byrow Logical indicating whether to fill the plot by row or by column.
+#' @param force Logical indicating whether to force the plot even if some variables have more than 100 levels.
+#' @param seed The random seed to use for reproducible results.
+#'
+#' @seealso \code{\link{CellStatPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -4368,14 +4559,14 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 #' @importFrom circlize chordDiagram circos.clear
 #' @importFrom patchwork wrap_plots
 #' @importFrom gtable gtable_add_rows gtable_add_cols gtable_add_grob
-#' @importFrom rlang %||%
+#' @importFrom grDevices png dev.control recordPlot dev.off
 #' @export
 StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, flip = FALSE,
-                     NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
+                     NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, individual = FALSE, stat_level = NULL,
                      plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                      stat_type = c("percent", "count"), position = c("stack", "dodge"),
                      palette = "Paired", palcolor = NULL, alpha = 1,
-                     bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                     bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                      label = FALSE, label.size = 3.5, label.fg = "black", label.bg = "white", label.bg.r = 0.1,
                      aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = NULL,
                      legend.position = "right", legend.direction = "vertical",
@@ -4391,12 +4582,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     stop("meta.data is empty.")
   }
   if (is.null(group.by)) {
-    group.by <- "No.group.by"
+    group.by <- "All.groups"
     xlab <- ""
-    meta.data[[group.by]] <- factor("All")
+    meta.data[[group.by]] <- factor("")
   }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     meta.data[[split.by]] <- factor("")
   }
 
@@ -4482,8 +4673,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     aspect.ratio <- 1
   }
 
-  if (any(group.by != "No.group.by") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
+  if (any(group.by != "All.groups") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
     warning("group.by is not used when plot sankey, chord, venn or upset", immediate. = TRUE)
+  }
+  if (stat_type == "percent" && plot_type %in% c("sankey", "chord", "venn", "upset")) {
+    warning("stat_type is forcibly set to 'count' when plot sankey, chord, venn or upset", immediate. = TRUE)
+    stat_type <- "count"
   }
   dat_all <- meta.data[, unique(c(stat.by, group.by, split.by, bg.by)), drop = FALSE]
   nlev <- sapply(dat_all, nlevels)
@@ -4512,7 +4707,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 
     comb_list <- list()
     comb <- expand.grid(stat_name = stat.by, group_name = group.by, stringsAsFactors = FALSE)
-    if (isTRUE(stat_single)) {
+    if (isTRUE(individual)) {
       for (g in group.by) {
         comb_list[[g]] <- merge(comb, expand.grid(
           group_name = g, group_element = levels(dat_all[[g]]),
@@ -4543,12 +4738,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
       sp <- comb[i, "split_name"]
       g <- comb[i, "group_name"]
       single_group <- comb[[i, "group_element"]]
-      colors_use <- colors[names(colors) %in% dat_split[[ifelse(split.by == "All_cells", 1, sp)]][[stat.by]]]
-      if (any(is.na(dat_split[[ifelse(split.by == "All_cells", 1, sp)]][[stat.by]])) && isTRUE(NA_stat)) {
+      colors_use <- colors[names(colors) %in% dat_split[[ifelse(split.by == "All.groups", 1, sp)]][[stat.by]]]
+      if (any(is.na(dat_split[[ifelse(split.by == "All.groups", 1, sp)]][[stat.by]])) && isTRUE(NA_stat)) {
         colors_use <- c(colors_use, colors["NA"])
       }
       if (stat_type == "percent") {
-        dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]] %>%
+        dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]] %>%
           xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
           as.data.frame() %>%
           group_by(across(all_of(g)), .drop = FALSE) %>%
@@ -4557,7 +4752,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
           mutate(value = Freq / groupn) %>%
           as.data.frame()
       } else {
-        dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]] %>%
+        dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]] %>%
           xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
           as.data.frame() %>%
           mutate(value = Freq)
@@ -4570,7 +4765,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
         bg_color <- palette_scp(levels(dat_all[[bg]]), palette = bg_palette, palcolor = bg_palcolor)
       } else {
         bg <- g
-        bg_color <- palette_scp(levels(dat_all[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey80"), nlevels(dat_all[[bg]])))
+        bg_color <- palette_scp(levels(dat_all[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat_all[[bg]])))
       }
 
       if (isTRUE(flip)) {
@@ -4620,7 +4815,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
         bg_data[["ymin"]] <- -Inf
         bg_data[["ymax"]] <- Inf
         bg_data[["fill"]] <- bg_color[bg_map[[g]][as.character(bg_data[[g]])]]
-        bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_apha, inherit.aes = FALSE)
+        bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_alpha, inherit.aes = FALSE)
       }
 
       if (plot_type == "bar") {
@@ -4644,7 +4839,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
           bg_layer +
           geom_area(
             data = dat_area, mapping = aes(x = .data[[g]], fill = .data[[stat.by]]),
-            alpha = alpha / 2, color = "black", linetype = 2, position = position_use
+            alpha = alpha / 2, color = "grey50", position = position_use
           ) +
           geom_col(aes(fill = .data[[stat.by]]),
             width = 0.6,
@@ -4714,7 +4909,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             ),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100, min.segment.length = 0,
+            point.size = NA, max.overlaps = 100, min.segment.length = 0, force = 0,
             position = position_use
           )
         } else {
@@ -4725,7 +4920,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             ),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100, min.segment.length = 0,
+            point.size = NA, max.overlaps = 100, min.segment.length = 0, force = 0,
             position = position_use
           )
         }
@@ -4739,6 +4934,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
       } else {
         axis.text.x <- element_text(angle = 45, hjust = 1, vjust = 1)
       }
+      title <- title %||% sp
       p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab) +
         scale_fill_manual(
           name = paste0(stat.by, ":"), values = colors_use, na.value = colors_use["NA"], drop = FALSE,
@@ -4753,11 +4949,8 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
           panel.grid.major = if (plot_type == "trend" & stat_type == "percent") element_blank() else element_line(colour = "grey80", linetype = 2)
         ) + guides(fill = guide_legend(
           title.hjust = 0,
-          keywidth = 0.05,
-          keyheight = 0.05,
-          default.unit = "inch",
           order = 1,
-          override.aes = list(size = 4.5, color = "black", alpha = 1)
+          override.aes = list(size = 4, color = "black", alpha = 1)
         ))
       if (isTRUE(flip) && !plot_type %in% c("pie", "rose")) {
         p <- p + coord_flip()
@@ -4768,8 +4961,8 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     colors <- palette_scp(stat.by, palette = palette, palcolor = palcolor)
     if (plot_type == "chord" && isTRUE(combine)) {
       temp <- tempfile(fileext = "png")
-      grDevices::png(temp)
-      grDevices::dev.control("enable")
+      png(temp)
+      dev.control("enable")
       nlev <- nlevels(dat_all[[split.by]])
       if (is.null(nrow) && is.null(ncol)) {
         nrow <- ceiling(sqrt(nlev))
@@ -4784,9 +4977,9 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
       par(mfrow = c(nrow, ncol))
     }
     for (sp in levels(dat_all[[split.by]])) {
-      dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]]
+      dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]]
       if (plot_type == "venn") {
-        check_R("ggVennDiagram")
+        check_R(c("ggVennDiagram", "sf"))
         dat_list <- as.list(dat_use[, stat.by])
         dat_list <- lapply(setNames(names(dat_list), names(dat_list)), function(x) {
           lg <- dat_list[[x]]
@@ -4826,14 +5019,14 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             fontface = "bold",
             colour = label.fg, size = label.size + 0.5,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           geom_text_repel(
             data = dat_stat, aes(label = label, x = x, y = y),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           scale_fill_identity() +
@@ -4860,7 +5053,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             stat = "count",
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           labs(title = title, subtitle = subtitle, x = sp, y = "Intersection size") +
@@ -4880,7 +5073,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
         colors <- palette_scp(c(unique(unlist(lapply(dat_all[, stat.by, drop = FALSE], levels))), NA), palette = palette, palcolor = palcolor, NA_keep = TRUE, NA_color = NA_color)
         legend_list <- list()
         for (l in stat.by) {
-          df <- data.frame(levels(dat_use[[l]]))
+          df <- data.frame(factor(levels(dat_use[[l]]), levels = levels(dat_use[[l]])))
           colnames(df) <- l
           legend_list[[l]] <- get_legend(ggplot(data = df) +
             geom_col(aes(x = 1, y = 1, fill = .data[[l]]), color = "black") +
@@ -4888,11 +5081,8 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             guides(fill = guide_legend(
               title.hjust = 0,
               title.vjust = 0,
-              keywidth = 0.05,
-              keyheight = 0.05,
-              default.unit = "inch",
               order = 1,
-              override.aes = list(size = 4.5, color = "black", alpha = 1)
+              override.aes = list(size = 4, color = "black", alpha = 1)
             )) +
             theme_scp(
               legend.position = "bottom",
@@ -4935,7 +5125,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
           link.border = 1
         )
         circos.clear()
-        p <- grDevices::recordPlot()
+        p <- recordPlot()
 
         # library(grid)
         # library(gridBase)
@@ -4951,8 +5141,8 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     }
   }
   if (isTRUE(combine) && plot_type == "chord") {
-    plot <- grDevices::recordPlot()
-    grDevices::dev.off()
+    plot <- recordPlot()
+    dev.off()
     unlink(temp)
     return(plot)
   }
@@ -4969,69 +5159,81 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 }
 
 #' Features correlation plot
+#' This function creates a correlation plot to visualize the pairwise correlations between selected features in a Seurat object.
 #'
-#' @param srt
-#' @param features
-#' @param group.by
-#' @param split.by
-#' @param slot
-#' @param assay
-#' @param cor_method
-#' @param adjust
-#' @param margin
-#' @param reverse
-#' @param add_equation
-#' @param add_r2
-#' @param add_pvalue
-#' @param add_smooth
-#' @param palette
-#' @param palcolor
-#' @param bg_color
-#' @param pt.size
-#' @param pt.alpha
-#' @param cells.highlight
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param stroke.highlight
-#' @param calculate_coexp
-#' @param raster
-#' @param raster.dpi
-#' @param theme_use
-#' @param title
-#' @param subtitle
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param cells
-#' @param aspect.ratio
-#' @param theme_args
-#' @param seed
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to compare. Should be present in both the assay data and the metadata of the Seurat object.
+#' @param group.by A character string specifying the column in the metadata to group cells by.
+#' @param split.by A character string specifying the column in the metadata to split the plot by.
+#' @param cells A character vector specifying the cells to include in the plot. If NULL (default), all cells will be included.
+#' @param slot A character string specifying the slot in the Seurat object to use. Defaults to "data".
+#' @param assay A character string specifying the assay to use. Defaults to the default assay in the Seurat object.
+#' @param cor_method A character string specifying the correlation method to use. Can be "pearson" (default) or "spearman".
+#' @param adjust A numeric value specifying the adjustment factor for the width of the violin plots. Defaults to 1.
+#' @param margin A numeric value specifying the margin size for the plot. Defaults to 1.
+#' @param reverse A logical value indicating whether to reverse the order of the features in the plot. Defaults to FALSE.
+#' @param add_equation A logical value indicating whether to add the equation of the linear regression line to each scatter plot. Defaults to FALSE.
+#' @param add_r2 A logical value indicating whether to add the R-squared value of the linear regression line to each scatter plot. Defaults to TRUE.
+#' @param add_pvalue A logical value indicating whether to add the p-value of the linear regression line to each scatter plot. Defaults to TRUE.
+#' @param add_smooth A logical value indicating whether to add a smoothed line to each scatter plot. Defaults to TRUE.
+#' @param palette A character string specifying the name of the color palette to use for the groups. Defaults to "Paired".
+#' @param palcolor A character string specifying the color for the groups. Defaults to NULL.
+#' @param cor_palette A character string specifying the name of the color palette to use for the correlation. Defaults to "RuBu".
+#' @param cor_palcolor A character string specifying the color for the correlation. Defaults to "RuBu".
+#' @param cor_range A two-length numeric vector specifying the range for the correlation.
+#' @param pt.size A numeric value specifying the size of the points in the scatter plots. If NULL (default), the size will be automatically determined based on the number of cells.
+#' @param pt.alpha A numeric value between 0 and 1 specifying the transparency of the points in the scatter plots. Defaults to 1.
+#' @param cells.highlight A logical value or a character vector specifying the cells to highlight in the scatter plots. If TRUE, all cells will be highlighted. Defaults to NULL.
+#' @param cols.highlight A character string specifying the color for the highlighted cells. Defaults to "black".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted cells in the scatter plots. Defaults to 1.
+#' @param alpha.highlight A numeric value between 0 and 1 specifying the transparency of the highlighted cells in the scatter plots. Defaults to 1.
+#' @param stroke.highlight A numeric value specifying the stroke size of the highlighted cells in the scatter plots. Defaults to 0.5.
+#' @param calculate_coexp A logical value indicating whether to calculate the co-expression of selected features. Defaults to FALSE.
+#' @param raster A logical value indicating whether to use raster graphics for scatter plots. Defaults to NULL.
+#' @param raster.dpi A numeric vector specifying the dpi (dots per inch) resolution for raster graphics in the scatter plots. Defaults to c(512, 512).
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the scatter plots. Defaults to 1.
+#' @param title A character string specifying the title for the correlation plot. Defaults to NULL.
+#' @param subtitle A character string specifying the subtitle for the correlation plot. Defaults to NULL.
+#' @param legend.position A character string specifying the position of the legend. Can be "right" (default), "left", "top", or "bottom".
+#' @param legend.direction A character string specifying the direction of the legend. Can be "vertical" (default) or "horizontal".
+#' @param theme_use A character string specifying the name of the theme to use for the plot. Defaults to "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Defaults to an empty list.
+#' @param combine A logical value indicating whether to combine the plots into a single plot. Defaults to TRUE.
+#' @param nrow A numeric value specifying the number of rows in the combined plot. If NULL (default), the number of rows will be automatically determined.
+#' @param ncol A numeric value specifying the number of columns in the combined plot. If NULL (default), the number of columns will be automatically determined.
+#' @param byrow A logical value indicating whether to fill the combined plot byrow (top to bottom, left to right). Defaults to TRUE.
+#' @param force A logical value indicating whether to force the creation of the plot, even if it contains more than 50 subplots. Defaults to FALSE.
+#' @param seed A numeric value specifying the random seed for reproducibility. Defaults to 11.
 #'
 #' @examples
 #' data("pancreas_sub")
-#' FeatureCorPlot(pancreas_sub, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
+#' pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+#' FeatureCorPlot(pancreas_sub, features = c("Neurog3", "Hes6", "Fev", "Neurod1", "Rbp4", "Pyy"), group.by = "SubCellType")
+#' FeatureCorPlot(pancreas_sub,
+#'   features = c("nFeature_RNA", "nCount_RNA", "nFeature_spliced", "nCount_spliced", "nFeature_unspliced", "nCount_unspliced"),
+#'   group.by = "SubCellType", cor_palette = "Greys", cor_range = c(0, 1)
+#' )
+#' FeatureCorPlot(pancreas_sub,
+#'   features = c("nFeature_RNA", "nCount_RNA"),
+#'   group.by = "SubCellType", add_equation = TRUE
+#' )
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom SeuratObject as.sparse
 #' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex
+#' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colorbar geom_hex stat_summary_hex
 #' @importFrom ggnewscale new_scale_color new_scale_fill
-#' @importFrom ggrepel geom_text_repel
+#' @importFrom ggrepel geom_text_repel GeomTextRepel
 #' @importFrom gtable gtable_add_cols
 #' @importFrom patchwork wrap_plots
 #' @importFrom Matrix t
-#' @importFrom rlang %||%
 #' @importFrom methods slot
 #' @export
 FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = NULL, slot = "data", assay = NULL,
                            cor_method = "pearson", adjust = 1, margin = 1, reverse = FALSE,
                            add_equation = FALSE, add_r2 = TRUE, add_pvalue = TRUE, add_smooth = TRUE,
-                           palette = "Paired", palcolor = NULL, bg_color = "grey80", pt.size = NULL, pt.alpha = 1,
+                           palette = "Paired", palcolor = NULL, cor_palette = "RdBu", cor_palcolor = NULL, cor_range = c(-1, 1),
+                           pt.size = NULL, pt.alpha = 1,
                            cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                            calculate_coexp = FALSE,
                            raster = NULL, raster.dpi = c(512, 512),
@@ -5041,7 +5243,6 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
 
-  require("ggrepel", quietly = TRUE)
   if (is.null(features)) {
     stop("'features' must be provided.")
   }
@@ -5050,12 +5251,12 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
   }
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   if (is.null(group.by)) {
-    group.by <- "All_cells"
-    srt@meta.data[[group.by]] <- factor("All_cells")
+    group.by <- "All.groups"
+    srt@meta.data[[group.by]] <- factor("")
   }
   for (i in c(split.by, group.by)) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -5086,23 +5287,8 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
-
-  status <- check_DataType(srt, slot = slot, assay = assay)
-  if (slot == "counts" && status != "raw_counts") {
-    stop("Data in the 'counts' slot is not raw counts.")
-  }
-  if (slot == "data" && status != "log_normalized_counts") {
-    if (status == "raw_counts") {
-      warning("Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
-    }
-    if (status == "raw_normalized_counts") {
-      warning("Data in the 'data' slot is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
-    }
-    if (status == "unknown") {
-      stop("Data in the 'data' slot is unknown. Please check the data type.")
-    }
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
   }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
@@ -5125,7 +5311,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
   if (length(features_meta) > 0) {
-    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
+    dat_meta <- as_matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
@@ -5139,7 +5325,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     stop("'features' must be type of numeric variable.")
   }
   if (!inherits(dat_exp, "dgCMatrix")) {
-    dat_exp <- as.sparse(as.matrix(dat_exp))
+    dat_exp <- as.sparse(as_matrix(dat_exp))
   }
   if (length(features) > 10 && !isTRUE(force)) {
     warning("More than 10 features to be paired compared which will generate more than 50 plots.", immediate. = TRUE)
@@ -5169,11 +5355,11 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
   plist <- list()
   colors <- palette_scp(levels(dat_use[[group.by]]), palette = palette, palcolor = palcolor)
-  cor_palette <- palette_scp(x = seq(-1, 1, length.out = 200), palette = "RdBu")
-  bound <- strsplit(gsub("\\(|\\)|\\[|\\]", "", names(cor_palette)), ",")
+  cor_colors <- palette_scp(x = seq(cor_range[1], cor_range[2], length.out = 200), palette = cor_palette, palcolor = cor_palcolor)
+  bound <- strsplit(gsub("\\(|\\)|\\[|\\]", "", names(cor_colors)), ",")
   bound <- lapply(bound, as.numeric)
   df_bound <- do.call(rbind, bound)
-  rownames(df_bound) <- cor_palette
+  rownames(df_bound) <- cor_colors
   df_bound[1, 1] <- df_bound[1, 1] - 0.01
 
   pair <- as.data.frame(t(combn(features, m = 2)))
@@ -5227,12 +5413,10 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       } else {
         p <- p + scale_x_continuous(
           n.breaks = 3, labels = scales::number_format(),
-          limits = c(min(dat_exp[rownames(dat), ], na.rm = TRUE), max(dat_exp[rownames(dat), ], na.rm = TRUE)),
           position = ifelse(isTRUE(reverse), "top", "bottom")
         ) +
           scale_y_continuous(
             n.breaks = 3, labels = scales::number_format(),
-            limits = c(min(dat_exp[rownames(dat), ], na.rm = TRUE), max(dat_exp[rownames(dat), ], na.rm = TRUE)),
             position = ifelse(isTRUE(reverse), "right", "left")
           )
       }
@@ -5240,7 +5424,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
         if (isTRUE(raster)) {
           p <- p + scattermore::geom_scattermore(
             mapping = aes(x = .data[[f1]], y = .data[[f2]], color = .data[[group.by]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           )
         } else {
           p <- p + geom_point(aes(x = .data[[f1]], y = .data[[f2]], color = .data[[group.by]]),
@@ -5290,12 +5474,14 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           vjusts <- c(1.3, 1.3 * 2, 1.3 * 2^2)
           i <- c(isTRUE(add_equation), isTRUE(add_r2), isTRUE(add_pvalue))
           p <- p + annotate(
-            geom = "text", x = -Inf, y = Inf, label = eqs[i], size = 3.5,
+            geom = GeomTextRepel, x = -Inf, y = Inf, label = eqs[i],
+            color = "black", bg.color = "white", bg.r = 0.1, size = 3.5, point.size = NA,
+            max.overlaps = 100, force = 0, min.segment.length = Inf,
             hjust = -0.05, vjust = vjusts[1:sum(i)], parse = TRUE
           )
         }
         if (!is.null(cells.highlight)) {
-          cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
+          cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight)
           if (nrow(cell_df) > 0) {
             # point_size <- p$layers[[1]]$aes_params$size
             if (isTRUE(raster)) {
@@ -5323,11 +5509,11 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       }
       if (f1_index > f2_index) {
         label <- paste0(f1, "\n", f2, "\nCor: ", round(pair_sim[f1, f2], 3)) # "\n","f1_index:",f1_index," ","f2_index:",f2_index
-        label_pos <- (max(dat_exp[rownames(dat), ], na.rm = TRUE) - min(dat_exp[rownames(dat), ], na.rm = TRUE)) / 2
+        label_pos <- (max(dat_exp[rownames(dat), ], na.rm = TRUE) + min(dat_exp[rownames(dat), ], na.rm = TRUE)) / 2
         fill <- rownames(df_bound)[df_bound[, 1] < pair_sim[f1, f2] & df_bound[, 2] >= pair_sim[f1, f2]]
         p <- p + annotate(geom = "rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = fill) +
           annotate(
-            geom = "text_repel", x = label_pos, y = label_pos, label = label,
+            geom = GeomTextRepel, x = label_pos, y = label_pos, label = label,
             fontface = "bold", color = "black", bg.color = "white", bg.r = 0.1, size = 3.5, point.size = NA
           )
       }
@@ -5353,25 +5539,39 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       p <- p + scale_color_manual(
         name = paste0(group.by, ":"),
         values = colors,
-        labels = names(colors),
-        na.value = bg_color
+        labels = names(colors)
       ) + scale_fill_manual(
         name = paste0(group.by, ":"),
         values = colors,
-        labels = names(colors),
-        na.value = bg_color
+        labels = names(colors)
       )
       return(p)
     }, x = order1, y = order2, SIMPLIFY = FALSE)
+
+    legend_list <- NULL
+    if (length(features) > 1) {
+      legend_list[["correlation"]] <- get_legend(ggplot(data.frame(range = cor_range, x = 1, y = 1), aes(x = x, y = y, fill = range)) +
+        geom_point() +
+        scale_fill_gradientn(
+          name = paste0("Correlation"),
+          limits = cor_range,
+          n.breaks = 3,
+          colors = cor_colors,
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+        ) +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        ))
+    }
     if (nlevels(dat[[group.by]]) > 1) {
-      legend <- suppressWarnings(get_legend(plotlist[[1]] +
+      legend_list[["group.by"]] <- suppressWarnings(get_legend(plotlist[[1]] +
         guides(fill = guide_legend(
           title.hjust = 0,
-          keywidth = 0.05,
-          keyheight = 0.05,
-          default.unit = "inch",
           order = 1,
-          override.aes = list(size = 4.5, color = "black", alpha = 1)
+          override.aes = list(size = 4, color = "black", alpha = 1)
         )) +
         do.call(theme_use, theme_args) +
         theme(
@@ -5379,16 +5579,21 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           legend.position = legend.position,
           legend.direction = legend.direction
         )))
-    } else {
-      legend <- NULL
     }
+
     grob_row <- list()
     plotlist <- suppressWarnings(lapply(plotlist, as_grob))
     for (i in seq(1, length(plotlist), length(features))) {
       grob_row[[paste0(i:(i + length(features) - 1), collapse = "-")]] <- do.call(cbind, plotlist[i:(i + length(features) - 1)])
     }
     gtable <- do.call(rbind, grob_row)
-    if (!is.null(legend)) {
+    if (length(legend_list) > 0) {
+      legend_list <- legend_list[!sapply(legend_list, is.null)]
+      if (legend.direction == "vertical") {
+        legend <- do.call(cbind, legend_list)
+      } else {
+        legend <- do.call(rbind, legend_list)
+      }
       gtable <- add_grob(gtable, legend, legend.position)
     }
     if (nlevels(dat_use[[split.by]]) > 1) {
@@ -5420,38 +5625,43 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
 #' CellDensityPlot
 #'
-#' @param srt
-#' @param features
-#' @param group.by
-#' @param split.by
-#' @param flip
-#' @param reverse
-#' @param x_order
-#' @param decreasing
-#' @param palette
-#' @param palcolor
-#' @param cells
-#' @param assay
-#' @param slot
-#' @param keep_empty
-#' @param y.nbreaks
-#' @param y.min
-#' @param y.max
-#' @param same.y.lims
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param theme_args
-#' @param seed
+#' Plots the density of specified features in a single or multiple groups,
+#' grouped by specified variables.
 #'
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to plot.
+#' @param group.by A character vector specifying the variables to group the data by.
+#' @param split.by A character vector specifying the variables to split the data by.
+#' Default is NULL, which means no splitting is performed.
+#' @param assay A character specifying the assay to use from the Seurat object.
+#'   Default is NULL, which means the default assay will be used.
+#' @param slot A character specifying the slot to use from the assay. Default is "data".
+#' @param flip A logical indicating whether to flip the x-axis. Default is FALSE.
+#' @param reverse A logical indicating whether to reverse the y-axis. Default is FALSE.
+#' @param x_order A character specifying how to order the x-axis. Can be "value" or "rank". Default is "value".
+#' @param decreasing A logical indicating whether to order the groups in decreasing order. Default is NULL.
+#' @param palette A character specifying the color palette to use for grouping variables. Default is "Paired".
+#' @param palcolor A character specifying the color to use for each group. Default is NULL.
+#' @param cells A character vector specifying the cells to plot. Default is NULL, which means all cells are included.
+#' @param keep_empty A logical indicating whether to keep empty groups. Default is FALSE.
+#' @param y.nbreaks An integer specifying the number of breaks on the y-axis. Default is 4.
+#' @param y.min A numeric specifying the minimum value on the y-axis. Default is NULL, which means the minimum value will be automatically determined.
+#' @param y.max A numeric specifying the maximum value on the y-axis. Default is NULL, which means the maximum value will be automatically determined.
+#' @param same.y.lims A logical indicating whether to use the same y-axis limits for all plots. Default is FALSE.
+#' @param aspect.ratio A numeric specifying the aspect ratio of the plot. Default is NULL, which means the aspect ratio will be automatically determined.
+#' @param title A character specifying the title of the plot. Default is NULL.
+#' @param subtitle A character specifying the subtitle of the plot. Default is NULL.
+#' @param legend.position A character specifying the position of the legend. Default is "right".
+#' @param legend.direction A character specifying the direction of the legend. Default is "vertical".
+#' @param theme_use A character specifying the theme to use. Default is "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function.
+#' @param combine A logical indicating whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow An integer specifying the number of rows in the combined plot.
+#'   Default is NULL, which means determined automatically based on the number of plots.
+#' @param ncol An integer specifying the number of columns in the combined plot.
+#'   Default is NULL, which means determined automatically based on the number of plots.
+#' @param byrow A logical indicating whether to add plots by row or by column in the combined plot. Default is TRUE.
+#' @param force A logical indicating whether to continue plotting if there are more than 50 features. Default is FALSE.
 #' @examples
 #' data("pancreas_sub")
 #' CellDensityPlot(pancreas_sub, features = "Sox9", group.by = "SubCellType")
@@ -5466,7 +5676,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 #' @importFrom patchwork wrap_plots
 #' @importFrom methods slot
 #' @export
-CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NULL, slot = "data",
+CellDensityPlot <- function(srt, features, group.by = NULL, split.by = NULL, assay = NULL, slot = "data",
                             flip = FALSE, reverse = FALSE, x_order = c("value", "rank"),
                             decreasing = NULL, palette = "Paired", palcolor = NULL,
                             cells = NULL, keep_empty = FALSE,
@@ -5474,9 +5684,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
                             aspect.ratio = NULL, title = NULL, subtitle = NULL,
                             legend.position = "right", legend.direction = "vertical",
                             theme_use = "theme_scp", theme_args = list(),
-                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
-  set.seed(seed)
-
+                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE) {
   check_R("ggridges")
   assay <- assay %||% DefaultAssay(srt)
   x_order <- match.arg(x_order)
@@ -5486,9 +5694,16 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
   if (!inherits(features, "character")) {
     stop("'features' is not a character vectors")
   }
+  if (is.null(group.by)) {
+    group.by <- "All.groups"
+    srt@meta.data[[group.by]] <- factor("")
+  }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
+  }
+  if (group.by == split.by & group.by == "All.groups") {
+    legend.position <- "none"
   }
   for (i in c(group.by, split.by)) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -5509,6 +5724,9 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (length(features_gene) > 0) {
     dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
@@ -5516,7 +5734,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
   if (length(features_meta) > 0) {
-    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
+    dat_meta <- as_matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
@@ -5540,10 +5758,10 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
   }
 
   if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
+    y.max <- max(as_matrix(dat_exp[, features])[is.finite(as_matrix(dat_exp[, features]))], na.rm = TRUE)
   }
   if (isTRUE(same.y.lims) && is.null(y.min)) {
-    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
+    y.min <- min(as_matrix(dat_exp[, features])[is.finite(as_matrix(dat_exp[, features]))], na.rm = TRUE)
   }
 
   plist <- list()
@@ -5565,11 +5783,11 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
         dat[, "features"] <- f
         dat[, "split.by"] <- s
         dat <- dat[!is.na(dat[[f]]), , drop = FALSE]
-        stat <- table(dat[[g]])
-        stat_drop <- names(which(stat <= 2))
-        if (length(stat_drop) > 0) {
-          dat <- dat[!dat[[g]] %in% stat_drop, , drop = FALSE]
-        }
+        # stat <- table(dat[[g]])
+        # stat_drop <- names(which(stat <= 2))
+        # if (length(stat_drop) > 0) {
+        #   dat <- dat[!dat[[g]] %in% stat_drop, , drop = FALSE]
+        # }
         y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
         y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
 
@@ -5607,7 +5825,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
             limits = limits, trans = y.trans, n.breaks = y.nbreaks,
             expand = c(0, 0)
           )
-        if (split.by != "All_cells") {
+        if (split.by != "All.groups") {
           p <- p + facet_grid(. ~ split.by)
         }
         p <- p + labs(title = title, subtitle = subtitle, x = f, y = g)
@@ -5655,33 +5873,37 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 
 #' LineagePlot
 #'
-#' @param srt
-#' @param lineages
-#' @param reduction
-#' @param dims
-#' @param trim
-#' @param span
-#' @param palette
-#' @param palcolor
-#' @param lineages_arrow
-#' @param linewidth
-#' @param line_bg
-#' @param line_bg_stroke
-#' @param whiskers
-#' @param whiskers_linewidth
-#' @param whiskers_alpha
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param cells
-#' @param theme_args
-#' @param seed
+#' Generate a lineage plot based on the pseudotime.
+#'
+#' @param srt An object of class Seurat.
+#' @param lineages A character vector that specifies the lineages to be included. Typically, use the pseudotime of cells.
+#' @param reduction An optional string specifying the dimensionality reduction method to use.
+#' @param dims A numeric vector of length 2 specifying the dimensions to plot.
+#' @param cells An optional character vector specifying the cells to include in the plot.
+#' @param trim A numeric vector of length 2 specifying the quantile range of lineages to include in the plot.
+#' @param span A numeric value specifying the span of the loess smoother.
+#' @param palette A character string specifying the color palette to use for the lineages.
+#' @param palcolor An optional string specifying the color for the palette.
+#' @param lineages_arrow An arrow object specifying the arrow for lineages.
+#' @param linewidth A numeric value specifying the linewidth for the lineages.
+#' @param line_bg A character string specifying the color for the background lines.
+#' @param line_bg_stroke A numeric value specifying the stroke width for the background lines.
+#' @param whiskers A logical value indicating whether to include whiskers in the plot.
+#' @param whiskers_linewidth A numeric value specifying the linewidth for the whiskers.
+#' @param whiskers_alpha A numeric value specifying the transparency for the whiskers.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot.
+#' @param title An optional character string specifying the plot title.
+#' @param subtitle An optional character string specifying the plot subtitle.
+#' @param xlab An optional character string specifying the x-axis label.
+#' @param ylab An optional character string specifying the y-axis label.
+#' @param legend.position A character string specifying the position of the legend.
+#' @param legend.direction A character string specifying the direction of the legend.
+#' @param theme_use A character string specifying the theme to use for the plot.
+#' @param theme_args A list of additional arguments to pass to the theme function.
+#' @param return_layer A logical value indicating whether to return the plot as a layer.
+#' @param seed An optional integer specifying the random seed for reproducibility.
+#'
+#' @seealso \code{\link{RunSlingshot}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5690,6 +5912,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 #' LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3), whiskers = TRUE)
 #' @importFrom Seurat Key Embeddings
 #' @importFrom ggplot2 aes geom_path geom_segment labs
+#' @importFrom grid arrow unit
 #' @importFrom stats loess quantile
 #' @export
 LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells = NULL,
@@ -5738,8 +5961,13 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
     index <- which(trim_pass & na_pass)
     index <- index[order(dat[index, l])]
     dat_sub <- dat[index, , drop = FALSE]
+    # if (is.null(weights)) {
+    weights_used <- rep(1, nrow(dat_sub))
+    # } else {
+    # weights_used <- dat_sub[[weights]]
+    # }
     fitted <- lapply(axes, function(x) {
-      loess(formula(paste(x, l, sep = "~")), data = dat_sub, span = span, degree = 2)$fitted
+      loess(formula(paste(x, l, sep = "~")), weights = weights_used, data = dat_sub, span = span, degree = 2)$fitted
     })
     names(fitted) <- axes
     fitted[["index"]] <- index
@@ -5804,66 +6032,69 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
 
 #' PAGA plot
 #'
+#' This function generates a PAGA plot based on the given Seurat object and PAGA result.
 #'
-#' @param srt
-#' @param paga
-#' @param reduction
-#' @param dims
-#' @param show_transition
-#' @param node_palette
-#' @param node_size
-#' @param node_alpha
-#' @param node_highlight
-#' @param node_highlight_color
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label_insitu
-#' @param label_repel
-#' @param label_repulsion
-#' @param label_point_size
-#' @param label_point_color
-#' @param label_segment_color
-#' @param edge_threshold
-#' @param edge_line
-#' @param edge_line_curvature
-#' @param edge_line_angle
-#' @param edge_size
-#' @param edge_color
-#' @param edge_alpha
-#' @param edge_shorten
-#' @param edge_offset
-#' @param edge_highlight
-#' @param edge_highlight_color
-#' @param transition_threshold
-#' @param transition_line
-#' @param transition_line_curvature
-#' @param transition_line_angle
-#' @param transition_size
-#' @param transition_color
-#' @param transition_alpha
-#' @param transition_arrow_type
-#' @param transition_arrow_angle
-#' @param transition_arrow_length
-#' @param transition_shorten
-#' @param transition_offset
-#' @param transition_highlight
-#' @param transition_highlight_color
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param type
-#' @param cells
-#' @param node_palcolor
-#' @param theme_args
+#' @param srt A Seurat object containing a PAGA result.
+#' @param paga The PAGA result from the Seurat object. Defaults to \code{srt\$misc\$paga}.
+#' @param type The type of plot to generate. Possible values are "connectivities" (default) and "connectivities_tree".
+#' @param reduction The type of reduction to use for the plot. Defaults to the default reduction in the Seurat object.
+#' @param dims The dimensions of the reduction to use for the plot. Defaults to the first two dimensions.
+#' @param cells The cells to include in the plot. Defaults to all cells.
+#' @param show_transition A logical value indicating whether to display transitions between different cell states. Defaults to \code{FALSE}.
+#' @param node_palette The color palette to use for node coloring. Defaults to "Paired".
+#' @param node_palcolor A vector of colors to use for node coloring. Defaults to \code{NULL}.
+#' @param node_size The size of the nodes in the plot. Defaults to 4.
+#' @param node_alpha The transparency of the nodes in the plot. Defaults to 1.
+#' @param node_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param node_highlight_color The color to use for highlighting the nodes. Defaults to "red".
+#' @param label A logical value indicating whether to display labels for the nodes. Defaults to \code{FALSE}.
+#' @param label.size The size of the labels. Defaults to 3.5.
+#' @param label.fg The color of the label text. Defaults to "white".
+#' @param label.bg The background color of the labels. Defaults to "black".
+#' @param label.bg.r The transparency of the label background color. Defaults to 0.1.
+#' @param label_insitu A logical value indicating whether to use in-situ labeling for the nodes. Defaults to \code{FALSE}.
+#' @param label_repel A logical value indicating whether to use repel mode for labeling nodes. Defaults to \code{FALSE}.
+#' @param label_repulsion The repulsion factor for repel mode. Defaults to 20.
+#' @param label_point_size The size of the points in the labels. Defaults to 1.
+#' @param label_point_color The color of the points in the labels. Defaults to "black".
+#' @param label_segment_color The color of the lines connecting the points in the labels. Defaults to "black".
+#' @param edge_threshold The threshold for including edges in the plot. Defaults to 0.01.
+#' @param edge_line The type of line to use for the edges. Possible values are "straight" and "curved". Defaults to "straight".
+#' @param edge_line_curvature The curvature factor for curved edges. Defaults to 0.3.
+#' @param edge_line_angle The angle for curved edges. Defaults to 90.
+#' @param edge_size The size range for the edges. Defaults to c(0.2, 1).
+#' @param edge_color The color of the edges. Defaults to "grey40".
+#' @param edge_alpha The transparency of the edges. Defaults to 0.5.
+#' @param edge_shorten The amount to shorten the edges. Defaults to 0.
+#' @param edge_offset The offset for curved edges. Defaults to 0.
+#' @param edge_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param edge_highlight_color The color to use for highlighting the edges. Defaults to "red".
+#' @param transition_threshold The threshold for including transitions in the plot. Defaults to 0.01.
+#' @param transition_line The type of line to use for the transitions. Possible values are "straight" and "curved". Defaults to "straight".
+#' @param transition_line_curvature The curvature factor for curved transitions. Defaults to 0.3.
+#' @param transition_line_angle The angle for curved transitions. Defaults to 90.
+#' @param transition_size The size range for the transitions. Defaults to c(0.2, 1).
+#' @param transition_color The color of the transitions. Defaults to "black".
+#' @param transition_alpha The transparency of the transitions. Defaults to 1.
+#' @param transition_arrow_type The type of arrow to use for the transitions. Possible values are "closed", "open", and "triangle". Defaults to "closed".
+#' @param transition_arrow_angle The angle of the arrow for transitions. Defaults to 20.
+#' @param transition_arrow_length The length of the arrow for transitions. Defaults to unit(0.02, "npc").
+#' @param transition_shorten The amount to shorten the transitions. Defaults to 0.05.
+#' @param transition_offset The offset for curved transitions. Defaults to 0.
+#' @param transition_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param transition_highlight_color The color to use for highlighting the transitions. Defaults to "red".
+#' @param aspect.ratio The aspect ratio of the plot. Defaults to 1.
+#' @param title The title of the plot. Defaults to "PAGA".
+#' @param subtitle The subtitle of the plot. Defaults to \code{NULL}.
+#' @param xlab The label for the x-axis. Defaults to \code{NULL}.
+#' @param ylab The label for the y-axis. Defaults to \code{NULL}.
+#' @param legend.position The position of the legend. Possible values are "right", "left", "bottom", and "top". Defaults to "right".
+#' @param legend.direction The direction of the legend. Possible values are "vertical" and "horizontal". Defaults to "vertical".
+#' @param theme_use The name of the theme to use for the plot. Defaults to "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Defaults to an empty list.
+#' @param return_layer A logical value indicating whether to return the plot as a ggplot2 layer. Defaults to \code{FALSE}.
+#'
+#' @seealso \code{\link{RunPAGA}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5872,6 +6103,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
 #' PAGAPlot(pancreas_sub, type = "connectivities_tree")
 #' PAGAPlot(pancreas_sub, reduction = "PCA")
 #' PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+#' PAGAPlot(pancreas_sub, edge_shorten = 0.05)
 #' PAGAPlot(pancreas_sub, label = TRUE)
 #' PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE)
 #' PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
@@ -5882,6 +6114,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
 #'
 #' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' PAGAPlot(pancreas_sub, show_transition = TRUE)
+#' PAGAPlot(pancreas_sub, show_transition = TRUE, transition_offset = 0.02)
 #'
 #' @importFrom Seurat Reductions Key Embeddings
 #' @export
@@ -5957,7 +6190,7 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, type = "connectivities",
   }
 
   out <- GraphPlot(
-    node = dat, edge = as.matrix(connectivities), node_coord = paste0(reduction_key, dims),
+    node = dat, edge = as_matrix(connectivities), node_coord = paste0(reduction_key, dims),
     node_group = groups, node_palette = node_palette, node_palcolor = node_palcolor, node_size = node_size, node_alpha = node_alpha,
     node_highlight = node_highlight, node_highlight_color = node_highlight_color,
     label = label, label.size = label.size, label.fg = label.fg, label.bg = label.bg, label.bg.r = label.bg.r,
@@ -5982,70 +6215,74 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, type = "connectivities",
 
 #' GraphPlot
 #'
-#' @param node
+#' A function to plot a graph with nodes and edges.
 #'
-#' @param edge
-#' @param transition
-#' @param node_coord
-#' @param node_group
-#' @param node_palette
-#' @param node_size
-#' @param node_alpha
-#' @param node_highlight
-#' @param node_highlight_color
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label_insitu
-#' @param label_repel
-#' @param label_repulsion
-#' @param label_point_size
-#' @param label_point_color
-#' @param label_segment_color
-#' @param edge_threshold
-#' @param use_triangular
-#' @param edge_line
-#' @param edge_line_curvature
-#' @param edge_line_angle
-#' @param edge_color
-#' @param edge_size
-#' @param edge_alpha
-#' @param edge_shorten
-#' @param edge_offset
-#' @param edge_highlight
-#' @param edge_highlight_color
-#' @param transition_threshold
-#' @param transition_line
-#' @param transition_line_curvature
-#' @param transition_line_angle
-#' @param transition_color
-#' @param transition_size
-#' @param transition_alpha
-#' @param transition_arrow_type
-#' @param transition_arrow_angle
-#' @param transition_arrow_length
-#' @param transition_shorten
-#' @param transition_offset
-#' @param transition_highlight
-#' @param transition_highlight_color
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param node_palcolor
-#' @param theme_args
+#' @param node A data frame representing the nodes of the graph.
+#' @param edge A matrix representing the edges of the graph.
+#' @param transition A matrix representing the transitions between nodes.
+#' @param node_coord A character vector specifying the names of the columns in \code{node} that represent the x and y coordinates.
+#' @param node_group A character vector specifying the name of the column in \code{node} that represents the grouping of the nodes.
+#' @param node_palette A character vector specifying the name of the color palette for node groups.
+#' @param node_palcolor A character vector specifying the names of the colors for each node group.
+#' @param node_size A numeric value or column name of \code{node} specifying the size of the nodes.
+#' @param node_alpha A numeric value or column name of \code{node} specifying the transparency of the nodes.
+#' @param node_highlight A character vector specifying the names of nodes to highlight.
+#' @param node_highlight_color A character vector specifying the color for highlighting nodes.
+#' @param label A logical value indicating whether to show labels for the nodes.
+#' @param label.size A numeric value specifying the size of the labels.
+#' @param label.fg A character vector specifying the foreground color of the labels.
+#' @param label.bg A character vector specifying the background color of the labels.
+#' @param label.bg.r A numeric value specifying the background color transparency of the labels.
+#' @param label_insitu A logical value indicating whether to display the node group labels in situ or as numeric values.
+#' @param label_repel A logical value indicating whether to use force-directed label repulsion.
+#' @param label_repulsion A numeric value specifying the repulsion force for labels.
+#' @param label_point_size A numeric value specifying the size of the label points.
+#' @param label_point_color A character vector specifying the color of the label points.
+#' @param label_segment_color A character vector specifying the color for the label segments.
+#' @param edge_threshold A numeric value specifying the threshold for removing edges.
+#' @param use_triangular A character vector specifying which part of the edge matrix to use (upper, lower, both).
+#' @param edge_line A character vector specifying the type of line for edges (straight, curved).
+#' @param edge_line_curvature A numeric value specifying the curvature of curved edges.
+#' @param edge_line_angle A numeric value specifying the angle of curved edges.
+#' @param edge_color A character vector specifying the color of the edges.
+#' @param edge_size A numeric vector specifying the range of edge sizes.
+#' @param edge_alpha A numeric value specifying the transparency of the edges.
+#' @param edge_shorten A numeric value specifying the length of the edge shorten.
+#' @param edge_offset A numeric value specifying the length of the edge offset.
+#' @param edge_highlight A character vector specifying the names of edges to highlight.
+#' @param edge_highlight_color A character vector specifying the color for highlighting edges.
+#' @param transition_threshold A numeric value specifying the threshold for removing transitions.
+#' @param transition_line A character vector specifying the type of line for transitions (straight, curved).
+#' @param transition_line_curvature A numeric value specifying the curvature of curved transitions.
+#' @param transition_line_angle A numeric value specifying the angle of curved transitions.
+#' @param transition_color A character vector specifying the color of the transitions.
+#' @param transition_size A numeric vector specifying the range of transition sizes.
+#' @param transition_alpha A numeric value specifying the transparency of the transitions.
+#' @param transition_arrow_type A character vector specifying the type of arrow for transitions (closed, open).
+#' @param transition_arrow_angle A numeric value specifying the angle of the transition arrow.
+#' @param transition_arrow_length A numeric value specifying the length of the transition arrow.
+#' @param transition_shorten A numeric value specifying the length of the transition shorten.
+#' @param transition_offset A numeric value specifying the length of the transition offset.
+#' @param transition_highlight A character vector specifying the names of transitions to highlight.
+#' @param transition_highlight_color A character vector specifying the color for highlighting transitions.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot.
+#' @param title A character value specifying the title of the plot.
+#' @param subtitle A character value specifying the subtitle of the plot.
+#' @param xlab A character value specifying the label for the x-axis.
+#' @param ylab A character value specifying the label for the y-axis.
+#' @param legend.position A character value specifying the position of the legend.
+#' @param legend.direction A character value specifying the direction of the legend.
+#' @param theme_use A character value specifying the theme to use.
+#' @param theme_args A list of arguments to be passed to the theme.
+#' @param return_layer A logical value indicating whether to return the layers of the plot instead of the plot itself.
+#'
+#' @seealso \code{\link{CellDimPlot}}
 #'
 #' @importFrom ggplot2 scale_size_identity scale_size_continuous scale_size_discrete scale_alpha_identity scale_alpha_continuous scale_alpha_discrete geom_curve geom_segment geom_point scale_color_manual guide_legend guides labs aes scale_linewidth_continuous
 #' @importFrom ggnewscale new_scale
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom grid arrow
+#' @importFrom reshape2 melt
 #' @export
 GraphPlot <- function(node, edge, transition = NULL,
                       node_coord = c("x", "y"), node_group = NULL, node_palette = "Paired", node_palcolor = NULL, node_size = 4, node_alpha = 1,
@@ -6157,7 +6394,7 @@ GraphPlot <- function(node, edge, transition = NULL,
   } else if (use_triangular == "lower") {
     edge[upper.tri(edge)] <- NA
   }
-  edge_df <- reshape2::melt(edge, na.rm = TRUE, stringsAsFactors = FALSE)
+  edge_df <- melt(edge, na.rm = TRUE, stringsAsFactors = FALSE)
   if (nrow(edge_df) == 0) {
     edge_layer <- NULL
   } else {
@@ -6225,12 +6462,12 @@ GraphPlot <- function(node, edge, transition = NULL,
   }
 
   if (!is.null(transition)) {
-    trans2 <- trans1 <- as.matrix(transition)
+    trans2 <- trans1 <- as_matrix(transition)
     trans1[lower.tri(trans1)] <- 0
     trans2[upper.tri(trans2)] <- 0
     trans <- t(trans1) - trans2
     trans[abs(trans) <= transition_threshold] <- NA
-    trans_df <- reshape2::melt(trans, na.rm = TRUE, stringsAsFactors = FALSE)
+    trans_df <- melt(trans, na.rm = TRUE, stringsAsFactors = FALSE)
     if (nrow(trans_df) == 0) {
       trans_layer <- NULL
     } else {
@@ -6329,11 +6566,8 @@ GraphPlot <- function(node, edge, transition = NULL,
       name = node_group, values = palette_scp(node[["node_group"]], palette = node_palette, palcolor = node_palcolor), labels = label_use,
       guide = guide_legend(
         title.hjust = 0,
-        keywidth = 0,
-        keyheight = 0,
-        default.unit = "inch",
         order = 1,
-        override.aes = list(size = 4.5, alpha = 1)
+        override.aes = list(size = 4, alpha = 1)
       )
     ),
     scale_size,
@@ -6360,7 +6594,7 @@ GraphPlot <- function(node, edge, transition = NULL,
       label_layer <- list(geom_text_repel(
         data = node, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
         fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-        point.size = NA, max.overlaps = 100,
+        point.size = NA, max.overlaps = 100, force = 0,
         color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE
       ))
     }
@@ -6398,10 +6632,17 @@ GraphPlot <- function(node, edge, transition = NULL,
 
 #' Shorten and offset the segment
 #'
-#' @param data
-#' @param shorten_start
-#' @param shorten_end
-#' @param offset
+#' This function takes a data frame representing segments in a plot and shortens
+#' and offsets them based on the provided arguments.
+#'
+#' @param data A data frame containing the segments. It should have columns
+#'             'x', 'y', 'xend', and 'yend' representing the start and end points
+#'             of each segment.
+#' @param shorten_start The amount to shorten the start of each segment by.
+#' @param shorten_end The amount to shorten the end of each segment by.
+#' @param offset The amount to offset each segment by.
+#'
+#' @return The modified data frame with the shortened and offset segments.
 #'
 #' @examples
 #' library(ggplot2)
@@ -6443,46 +6684,49 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 
 #' Velocity Plot
 #'
-#' @param srt
-#' @param reduction
-#' @param dims
-#' @param velocity
-#' @param plot_type
-#' @param group_by
-#' @param group_palette
-#' @param n_neighbors
-#' @param density
-#' @param smooth
-#' @param scale
-#' @param min_mass
-#' @param cutoff_perc
-#' @param arrow_angle
-#' @param arrow_flank
-#' @param arrow_color
-#' @param streamline_L
-#' @param streamline_minL
-#' @param streamline_res
-#' @param streamline_n
-#' @param streamlinewidth
-#' @param streamline_alpha
-#' @param streamline_color
-#' @param streamline_palette
-#' @param streamline_palcolor
-#' @param streamline_bg_color
-#' @param streamline_bg_stroke
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param cells
-#' @param group_palcolor
-#' @param seed
-#' @param theme_args
+#' This function creates a velocity plot for a given Seurat object. The plot shows the velocity vectors of the cells in a specified reduction space.
+#'
+#' @param srt A Seurat object.
+#' @param reduction Name of the reduction in the Seurat object to use for plotting.
+#' @param dims Indices of the dimensions to use for plotting.
+#' @param cells Cells to include in the plot. If NULL, all cells will be included.
+#' @param velocity Name of the velocity to use for plotting.
+#' @param plot_type Type of plot to create. Can be "raw", "grid", or "stream".
+#' @param group_by Name of the column in the Seurat object metadata to group the cells by. Defaults to NULL.
+#' @param group_palette Name of the palette to use for coloring the groups. Defaults to "Paired".
+#' @param group_palcolor Colors to use for coloring the groups. Defaults to NULL.
+#' @param n_neighbors Number of neighbors to include for the density estimation. Defaults to ceiling(ncol(srt@assays[[1]]) / 50).
+#' @param density Propotion of cells to plot. Defaults to 1 (plot all cells).
+#' @param smooth Smoothing parameter for density estimation. Defaults to 0.5.
+#' @param scale Scaling factor for the velocity vectors. Defaults to 1.
+#' @param min_mass Minimum mass value for the density-based cutoff. Defaults to 1.
+#' @param cutoff_perc Percentile value for the density-based cutoff. Defaults to 5.
+#' @param arrow_angle Angle of the arrowheads. Defaults to 20.
+#' @param arrow_color Color of the arrowheads. Defaults to "black".
+#' @param streamline_L Length of the streamlines. Defaults to 5.
+#' @param streamline_minL Minimum length of the streamlines. Defaults to 1.
+#' @param streamline_res Resolution of the streamlines. Defaults to 1.
+#' @param streamline_n Number of streamlines to plot. Defaults to 15.
+#' @param streamline_width Width of the streamlines. Defaults to c(0, 0.8).
+#' @param streamline_alpha Alpha transparency of the streamlines. Defaults to 1.
+#' @param streamline_color Color of the streamlines. Defaults to NULL.
+#' @param streamline_palette Name of the palette to use for coloring the streamlines. Defaults to "RdYlBu".
+#' @param streamline_palcolor Colors to use for coloring the streamlines. Defaults to NULL.
+#' @param streamline_bg_color Background color of the streamlines. Defaults to "white".
+#' @param streamline_bg_stroke Stroke width of the streamlines background. Defaults to 0.5.
+#' @param aspect.ratio Aspect ratio of the plot. Defaults to 1.
+#' @param title Title of the plot. Defaults to "Cell velocity".
+#' @param subtitle Subtitle of the plot. Defaults to NULL.
+#' @param xlab x-axis label. Defaults to NULL.
+#' @param ylab y-axis label. Defaults to NULL.
+#' @param legend.position Position of the legend. Defaults to "right".
+#' @param legend.direction Direction of the legend. Defaults to "vertical".
+#' @param theme_use Name of the theme to use for plotting. Defaults to "theme_scp".
+#' @param theme_args List of theme arguments for customization. Defaults to list().
+#' @param return_layer Whether to return the plot layers as a list. Defaults to FALSE.
+#' @param seed Random seed for reproducibility. Defaults to 11.
+#'
+#' @seealso \code{\link{RunSCVELO}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6496,13 +6740,14 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom ggplot2 ggplot aes geom_segment scale_size scale_alpha scale_color_gradientn scale_color_manual guide_legend
 #' @importFrom grid arrow unit
+#' @importFrom reshape2 melt
 #' @export
 VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity = "stochastic", plot_type = c("raw", "grid", "stream"),
                          group_by = NULL, group_palette = "Paired", group_palcolor = NULL,
                          n_neighbors = ceiling(ncol(srt@assays[[1]]) / 50), density = 1, smooth = 0.5, scale = 1, min_mass = 1, cutoff_perc = 5,
-                         arrow_angle = 20, arrow_flank = 0.8, arrow_color = "black",
+                         arrow_angle = 20, arrow_color = "black",
                          streamline_L = 5, streamline_minL = 1, streamline_res = 1, streamline_n = 15,
-                         streamlinewidth = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
+                         streamline_width = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
                          streamline_bg_color = "white", streamline_bg_stroke = 0.5,
                          aspect.ratio = 1, title = "Cell velocity", subtitle = NULL, xlab = NULL, ylab = NULL,
                          legend.position = "right", legend.direction = "vertical",
@@ -6561,14 +6806,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         ),
         scale_color_manual(
           name = group_by, values = palette_scp(df_field[["group_by"]], palette = group_palette, palcolor = group_palcolor),
-          guide = guide_legend(
-            title.hjust = 0,
-            keywidth = 0,
-            keyheight = 0,
-            default.unit = "inch",
-            order = 1,
-            override.aes = list(size = 4.5, alpha = 1)
-          )
+          guide = guide_legend(title.hjust = 0, order = 1, override.aes = list(linewidth = 2, alpha = 1))
         )
       )
     } else {
@@ -6577,12 +6815,6 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
           data = df_field, aes(x = x, y = y, xend = x + u, yend = y + v),
           color = arrow_color,
           arrow = arrow(length = unit(df_field[["length_perc"]], "npc"), type = "closed", angle = arrow_angle),
-          lineend = "round", linejoin = "mitre", inherit.aes = FALSE
-        ),
-        geom_segment(
-          data = df_field, aes(x = x, y = y, xend = x + u, yend = y + v),
-          color = adjcolors(arrow_color, 0.2),
-          arrow = arrow(length = unit(df_field[["length_perc"]], "npc"), type = "closed", angle = arrow_angle * (1 - (arrow_flank))),
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         )
       )
@@ -6607,12 +6839,6 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         color = arrow_color,
         arrow = arrow(length = unit(df_field[["length_perc"]], "npc"), type = "closed", angle = arrow_angle),
         lineend = "round", linejoin = "mitre", inherit.aes = FALSE
-      ),
-      geom_segment(
-        data = df_field, aes(x = x, y = y, xend = x + u, yend = y + v),
-        color = adjcolors(arrow_color, 0.2),
-        arrow = arrow(length = unit(df_field[["length_perc"]], "npc"), type = "closed", angle = arrow_angle * (1 - (arrow_flank))),
-        lineend = "round", linejoin = "mitre", inherit.aes = FALSE
       )
     )
   }
@@ -6635,8 +6861,8 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
 
     df_field <- expand.grid(X_grid[1, ], X_grid[2, ])
     colnames(df_field) <- c("x", "y")
-    u <- reshape2::melt(t(V_grid[1, , ]))
-    v <- reshape2::melt(t(V_grid[2, , ]))
+    u <- melt(t(V_grid[1, , ]))
+    v <- melt(t(V_grid[2, , ]))
     df_field[, "u"] <- u$value
     df_field[, "v"] <- v$value
     df_field[is.na(df_field)] <- 0
@@ -6646,14 +6872,14 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamline_width, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE), color = streamline_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamline_width, na.rm = TRUE), color = streamline_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
@@ -6670,12 +6896,12 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamline_width, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
         metR::geom_streamline(
-          data = df_field, aes(x = x, y = y, dx = u, dy = v, size = after_stat(step), color = sqrt(..dx..^2 + ..dy..^2)),
+          data = df_field, aes(x = x, y = y, dx = u, dy = v, size = after_stat(step), color = sqrt(after_stat(dx)^2 + after_stat(dy)^2)),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
           n = streamline_n, alpha = streamline_alpha,
           arrow = NULL, lineend = "round", linejoin = "mitre", inherit.aes = FALSE
@@ -6689,9 +6915,9 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         ),
         scale_color_gradientn(
           name = "Velocity", colors = palette_scp(palette = streamline_palette, palcolor = streamline_palcolor),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
         ),
-        scale_size(range = range(streamlinewidth), guide = "none")
+        scale_size(range = range(streamline_width), guide = "none")
       )
     }
   }
@@ -6721,17 +6947,18 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
 #' Compute velocity on grid
 #' The original python code is on https://github.com/theislab/scvelo/blob/master/scvelo/plotting/velocity_embedding_grid.py
 #'
-#' @param X_emb
-#' @param V_emb
-#' @param density
-#' @param smooth
-#' @param n_neighbors
-#' @param min_mass
-#' @param scale
-#' @param adjust_for_stream
-#' @param cutoff_perc
+#' @param X_emb A matrix of dimension n_obs x n_dim specifying the embedding coordinates of the cells.
+#' @param V_emb A matrix of dimension n_obs x n_dim specifying the velocity vectors of the cells.
+#' @param density An optional numeric value specifying the density of the grid points along each dimension. Default is 1.
+#' @param smooth An optional numeric value specifying the smoothing factor for the velocity vectors. Default is 0.5.
+#' @param n_neighbors An optional numeric value specifying the number of nearest neighbors for each grid point. Default is ceiling(n_obs / 50).
+#' @param min_mass An optional numeric value specifying the minimum mass required for a grid point to be considered. Default is 1.
+#' @param scale An optional numeric value specifying the scaling factor for the velocity vectors. Default is 1.
+#' @param adjust_for_stream A logical value indicating whether to adjust the velocity vectors for streamlines. Default is FALSE.
+#' @param cutoff_perc An optional numeric value specifying the percentile cutoff for removing low-density grid points. Default is 5.
 #'
 #' @importFrom SeuratObject as.sparse
+#' @importFrom proxyC dist
 #' @export
 compute_velocity_on_grid <- function(X_emb, V_emb,
                                      density = NULL, smooth = NULL, n_neighbors = NULL, min_mass = NULL,
@@ -6754,16 +6981,16 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
     gr <- seq(m, M, length.out = ceiling(50 * density))
     grs <- c(grs, list(gr))
   }
-  X_grid <- as.matrix(expand.grid(grs))
+  X_grid <- as_matrix(expand.grid(grs))
 
-  d <- proxyC::dist(
+  d <- dist(
     x = as.sparse(X_emb),
     y = as.sparse(X_grid),
     method = "euclidean",
     use_nan = TRUE
   )
-  neighbors <- t(as.matrix(apply(d, 2, function(x) order(x, decreasing = FALSE)[1:n_neighbors])))
-  dists <- t(as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:n_neighbors]])))
+  neighbors <- t(as_matrix(apply(d, 2, function(x) order(x, decreasing = FALSE)[1:n_neighbors])))
+  dists <- t(as_matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:n_neighbors]])))
 
   # ggplot() +
   #   annotate(geom = "point", x = X_grid[, 1], y = X_grid[, 2]) +
@@ -6813,34 +7040,38 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
 
 #' VolcanoPlot
 #'
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param DE_threshold
-#' @param x_metric
-#' @param palette
-#' @param palcolor
-#' @param pt.size
-#' @param pt.alpha
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param stroke.highlight
-#' @param nlabel
-#' @param features_label
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label.size
-#' @param aspect.ratio
-#' @param xlab
-#' @param ylab
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param theme_use
-#' @param theme_args
-#' @param byrow
+#' Generate a volcano plot based on differential expression analysis results.
+#'
+#' @param srt An object of class `SummarizedExperiment` containing the results of differential expression analysis.
+#' @param group_by A character vector specifying the column in `srt` to group the samples by. Default is `NULL`.
+#' @param test.use A character string specifying the type of statistical test to use. Default is "wilcox".
+#' @param DE_threshold A character string specifying the threshold for differential expression. Default is "avg_log2FC > 0 & p_val_adj < 0.05".
+#' @param x_metric A character string specifying the metric to use for the x-axis. Default is "diff_pct".
+#' @param palette A character string specifying the color palette to use for the plot. Default is "RdBu".
+#' @param palcolor A character string specifying the color for the palette. Default is `NULL`.
+#' @param pt.size A numeric value specifying the size of the points. Default is 1.
+#' @param pt.alpha A numeric value specifying the transparency of the points. Default is 1.
+#' @param cols.highlight A character string specifying the color for highlighted points. Default is "black".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted points. Default is 1.
+#' @param alpha.highlight A numeric value specifying the transparency of the highlighted points. Default is 1.
+#' @param stroke.highlight A numeric value specifying the stroke width for the highlighted points. Default is 0.5.
+#' @param nlabel An integer value specifying the number of labeled points per group. Default is 5.
+#' @param features_label A character vector specifying the feature labels to plot. Default is `NULL`.
+#' @param label.fg A character string specifying the color for the labels' foreground. Default is "black".
+#' @param label.bg A character string specifying the color for the labels' background. Default is "white".
+#' @param label.bg.r A numeric value specifying the radius of the rounding of the labels' background. Default is 0.1.
+#' @param label.size A numeric value specifying the size of the labels. Default is 4.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot. Default is `NULL`.
+#' @param xlab A character string specifying the x-axis label. Default is the value of `x_metric`.
+#' @param ylab A character string specifying the y-axis label. Default is "-log10(p-adjust)".
+#' @param theme_use A character string specifying the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list of theme arguments to pass to the `theme_use` function. Default is an empty list.
+#' @param combine A logical value indicating whether to combine the plots for each group into a single plot. Default is `TRUE`.
+#' @param nrow An integer value specifying the number of rows in the combined plot. Default is `NULL`.
+#' @param ncol An integer value specifying the number of columns in the combined plot. Default is `NULL`.
+#' @param byrow A logical value indicating whether to arrange the plots by row in the combined plot. Default is `TRUE`.
+#'
+#' @seealso \code{\link{RunDEtest}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6942,7 +7173,7 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
       scale_color_gradientn(
         name = ifelse(x_metric == "diff_pct", "log2FC", "diff_pct"), colors = palette_scp(palette = palette, palcolor = palcolor),
         values = rescale(unique(c(min(c(df[, color_by], 0), na.rm = TRUE), 0, max(df[, color_by], na.rm = TRUE)))),
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       ) +
       scale_y_continuous(labels = abs) +
       facet_wrap(~group1) +
@@ -6960,75 +7191,6 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
   } else {
     return(plist)
   }
-}
-
-#' SankeyPlot
-#'
-#' @param node
-#' @param edge
-#' @param node_group
-#' @param group_list
-#'
-#' @export
-SankeyPlot <- function(node, edge, node_group = NULL, group_list = NULL) {
-  check_R("networkD3")
-
-  if (is.null(group_list)) {
-    if (!is.data.frame(node)) {
-      stop("'node' must be a data.frame object.")
-    }
-    if (!is.matrix(edge)) {
-      stop("'edge' must be a matrix object.")
-    }
-    if (!identical(nrow(edge), ncol(edge))) {
-      stop("nrow and ncol is not identical in edge matrix")
-    }
-    if (!identical(nrow(edge), nrow(node))) {
-      stop("nrow is not identical between edge and node.")
-    }
-    if (!identical(rownames(edge), rownames(node))) {
-      warning("rownames of node is not identical with edge matrix. They will correspond according to the order.", immediate. = TRUE)
-      colnames(edge) <- rownames(edge) <- rownames(node) <- rownames(node) %||% colnames(edge) %||% rownames(edge)
-    }
-    node[["name"]] <- node[[node_group]]
-    edge_df <- reshape2::melt(edge, na.rm = TRUE, stringsAsFactors = FALSE)
-    colnames(edge_df) <- c("from", "to", "size")
-    edge_df[["from"]] <- match(edge_df[["from"]], node[["name"]]) - 1
-    edge_df[["to"]] <- match(edge_df[["to"]], node[["name"]]) - 1
-    edge_df <- edge_df[edge_df[["size"]] > 0, , drop = FALSE]
-    edge_df <- aggregate(size ~ from + to, data = edge_df, sum)
-  } else {
-    if (length(unique(unlist(lapply(group_list, length)))) != 1) {
-      stop("Elements in the group_list must be the same length.")
-    }
-    group_list <- lapply(group_list, as.factor)
-    all_levels <- unique(unlist(lapply(group_list, levels)))
-    group_list <- lapply(group_list, as.character)
-    edge_df <- do.call(cbind.data.frame, group_list)
-    if (ncol(edge_df) >= 3) {
-      edge_df_raw <- edge_df
-      edge_df <- edge_df_raw[, 1:2]
-      for (i in 3:ncol(edge_df_raw)) {
-        edge_df <- rbind(edge_df, edge_df_raw[, c(i - 1, i)])
-      }
-    }
-    colnames(edge_df) <- c("from", "to")
-    node <- data.frame(name = unique(unlist(group_list)))
-    node[["name"]] <- factor(node[["name"]], all_levels)
-    edge_df[["from"]] <- match(edge_df[["from"]], node[["name"]]) - 1
-    edge_df[["to"]] <- match(edge_df[["to"]], node[["name"]]) - 1
-    edge_df[["size"]] <- 1
-    edge_df <- aggregate(size ~ from + to, data = edge_df, sum)
-  }
-
-  p <- networkD3::sankeyNetwork(
-    Links = edge_df, Nodes = node,
-    Source = "from", Target = "to",
-    Value = "size", NodeID = "name",
-    sinksRight = FALSE, nodeWidth = 40, fontSize = 15, nodePadding = 20
-  )
-
-  return(p)
 }
 
 fc_matrix <- function(matrix) {
@@ -7082,10 +7244,11 @@ grid_draw <- function(groblist, x, y, width, height) {
   }
 }
 
-#' @importFrom stats hclust dist as.dendrogram order.dendrogram
+#' @importFrom stats hclust as.dendrogram order.dendrogram
+#' @importFrom proxyC dist
 #' @importFrom ComplexHeatmap merge_dendrogram
 cluster_within_group2 <- function(mat, factor) {
-  require("dendextend", quietly = TRUE)
+  check_R("dendextend")
   if (!is.factor(factor)) {
     factor <- factor(factor, levels = unique(factor))
   }
@@ -7100,17 +7263,17 @@ cluster_within_group2 <- function(mat, factor) {
         label = 1, members = 1
       )
     } else if (ncol(m) > 1) {
-      hc1 <- hclust(dist(t(m)))
+      hc1 <- hclust(as.dist(dist(t(m))))
       dend_list[[le]] <- as.dendrogram(hc1)
       order_list[[le]] <- which(factor == le)[order.dendrogram(dend_list[[le]])]
-      order.dendrogram(dend_list[[le]]) <- order_list[[le]]
+      dendextend::order.dendrogram(dend_list[[le]]) <- order_list[[le]]
     }
     attr(dend_list[[le]], ".class_label") <- le
   }
-  parent <- as.dendrogram(hclust(dist(t(sapply(
+  parent <- as.dendrogram(hclust(as.dist(dist(t(sapply(
     order_list,
     function(x) rowMeans(mat[, x, drop = FALSE])
-  )))))
+  ))))))
   dend_list <- lapply(dend_list, function(dend) {
     dendrapply(
       dend,
@@ -7129,9 +7292,9 @@ cluster_within_group2 <- function(mat, factor) {
 }
 
 #' @importFrom ComplexHeatmap HeatmapAnnotation anno_empty anno_block anno_textbox
-#' @importFrom grid gpar
+#' @importFrom grid gpar unit
 #' @importFrom dplyr %>% filter group_by arrange desc across reframe mutate distinct n .data "%>%"
-heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "jama", feature_split_palcolor = NULL, ha_right = NULL, flip = FALSE,
+heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "simspec", feature_split_palcolor = NULL, ha_right = NULL, flip = FALSE,
                                anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                                terms_width = unit(4, "in"), terms_fontsize = 8,
                                keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -7139,9 +7302,10 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                                IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_combine = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
                                db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                                GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                               pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
-                               exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process")) {
+                               pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, words_excluded = NULL) {
   res <- NULL
+  words_excluded <- words_excluded %||% SCP::words_excluded
+
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
     if (isTRUE(flip)) {
       stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
@@ -7242,7 +7406,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
           if (isTRUE(anno_keys)) {
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
-              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+              if (all(df$Database %in% c("GO", "GO_BP", "GO_CC", "GO_MF"))) {
                 df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
                 if (nrow(df0) > 0) {
                   df <- df0 %>%
@@ -7254,8 +7418,8 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                       Groups = df[["Groups"]][1]
                     ) %>%
                     filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
-                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                    filter(nchar(.data[["keyword"]]) >= 1) %>%
+                    filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
                     distinct() %>%
                     mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                     as.data.frame()
@@ -7277,8 +7441,8 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                     .groups = "keep"
                   ) %>%
                   filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                  filter(nchar(.data[["keyword"]]) >= 1) %>%
+                  filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
@@ -7441,10 +7605,7 @@ heatmap_rendersize <- function(width, height, units, ha_top_list, ha_left, ha_ri
 #' @importFrom grid convertWidth convertHeight convertUnit unit grid.grabExpr
 #' @importFrom ComplexHeatmap draw
 #' @importFrom methods slotNames
-heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list, legend_list, verbose = TRUE) {
-  if (verbose) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-  }
+heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list, legend_list) {
   gTree <- grid.grabExpr(
     {
       ht <- draw(ht_list, annotation_legend_list = legend_list)
@@ -7510,118 +7671,147 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
   return(list(ht_width = ht_width, ht_height = ht_height))
 }
 
+#' @importFrom stats sd
+standardise <- function(data) {
+  data[] <- t(apply(data, 1, scale))
+  return(data)
+}
+
+mestimate <- function(data) {
+  N <- nrow(data)
+  D <- ncol(data)
+  m.sj <- 1 + (1418 / N + 22.05) * D^(-2) + (12.33 / N + 0.243) *
+    D^(-0.0406 * log(N) - 0.1134)
+  return(m.sj)
+}
+
 #' GroupHeatmap
 #'
-#' @param srt A \code{Seurat} object.
-#' @param features A vector of gene names to plot.
-#' @param feature_split A vector of group names for features.
-#' @param group.by Columns used to calculate cell expression. One heatmap per column name.
-#' @param exp_method Method used to calculate cell expression.
-#' @param assay Assay used to calculate the expression.
-#' @param heatmap_palette Heatmap expression palette.
-#' @param feature_annotation_palette Feature groups palette.
-#' @param cell_annotation_palette Column palette.
-#' @param aggregate_fun
-#' @param slot
-#' @param lib_normalize
-#' @param libsize
-#' @param add_reticle
-#' @param cluster_rows
-#' @param cluster_columns
-#' @param split.by
-#' @param cells
-#' @param exp_cutoff
-#' @param border
-#' @param flip
-#' @param feature_split_by
-#' @param n_split
-#' @param split_method
-#' @param decreasing
-#' @param cluster_features_by
-#' @param cluster_row_slices
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param anno_keys
-#' @param anno_features
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param convert_species
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param show_termid
-#' @param topWord
-#' @param min_word_length
-#' @param exclude_words
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param add_bg
-#' @param bg_alpha
-#' @param add_dot
-#' @param dot_size
-#' @param reticle_color
-#' @param add_violin
-#' @param fill.by
-#' @param fill_palette
-#' @param fill_palcolor
-#' @param heatmap_palcolor
-#' @param group_palette
-#' @param group_palcolor
-#' @param cell_split_palette
-#' @param cell_split_palcolor
-#' @param feature_split_palette
-#' @param feature_split_palcolor
-#' @param cell_annotation
-#' @param cell_annotation_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation
-#' @param feature_annotation_palcolor
-#' @param feature_annotation_params
-#' @param use_raster
-#' @param raster_device
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param ht_params
-#' @param grouping.var
-#' @param numerator
-#' @param limits
-#' @param raster_by_magick
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param db_combine
+#' @param srt A Seurat object.
+#' @param features The features to include in the heatmap.
+#' @param group.by A character vector specifying the groups to group by. Default is NULL.
+#' @param split.by A character vector specifying the variable to split the heatmap by. Default is NULL.
+#' @param within_groups A logical value indicating whether to create separate heatmap scales for each group or within each group. Default is FALSE.
+#' @param grouping.var A character vector that specifies another variable for grouping, such as certain conditions. The default value is NULL.
+#' @param numerator A character vector specifying the value to use as the numerator in the grouping.var grouping. Default is NULL.
+#' @param cells A character vector specifying the cells to include in the heatmap. Default is NULL.
+#' @param aggregate_fun A function to use for aggregating data within groups. Default is base::mean.
+#' @param exp_cutoff A numeric value specifying the threshold for cell counting if \code{add_dot} is TRUE. Default is 0.
+#' @param border A logical value indicating whether to add a border to the heatmap. Default is TRUE.
+#' @param flip A logical value indicating whether to flip the heatmap. Default is FALSE.
+#' @param slot A character vector specifying the slot in the Seurat object to use. Default is "counts".
+#' @param assay A character vector specifying the assay in the Seurat object to use. Default is NULL.
+#' @param exp_method A character vector specifying the method for calculating expression values. Default is "zscore" with options "zscore", "raw", "fc", "log2fc", "log1p".
+#' @param exp_legend_title A character vector specifying the title for the legend of expression value. Default is NULL.
+#' @param limits A two-length numeric vector specifying the limits for the color scale. Default is NULL.
+#' @param lib_normalize A logical value indicating whether to normalize the data by library size.
+#' @param libsize A numeric vector specifying the library size for each cell. Default is NULL.
+#' @param feature_split A factor specifying how to split the features. Default is NULL.
+#' @param feature_split_by A character vector specifying which group.by to use when splitting features (into n_split feature clusters). Default is NULL.
+#' @param n_split An integer specifying the number of feature splits (feature clusters) to create. Default is NULL.
+#' @param split_order A numeric vector specifying the order of splits. Default is NULL.
+#' @param split_method A character vector specifying the method for splitting features. Default is "kmeans" with options "kmeans", "hclust", "mfuzz").
+#' @param decreasing A logical value indicating whether to sort feature splits in decreasing order. Default is FALSE.
+#' @param fuzzification A numeric value specifying the fuzzification coefficient. Default is NULL.
+#' @param cluster_features_by A character vector specifying which group.by to use when clustering features. Default is NULL. By default, this parameter is set to NULL, which means that all groups will be used.
+#' @param cluster_rows A logical value indicating whether to cluster rows in the heatmap. Default is FALSE.
+#' @param cluster_columns A logical value indicating whether to cluster columns in the heatmap. Default is FALSE.
+#' @param cluster_row_slices A logical value indicating whether to cluster row slices in the heatmap. Default is FALSE.
+#' @param cluster_column_slices A logical value indicating whether to cluster column slices in the heatmap. Default is FALSE.
+#' @param show_row_names A logical value indicating whether to show row names in the heatmap. Default is FALSE.
+#' @param show_column_names A logical value indicating whether to show column names in the heatmap. Default is FALSE.
+#' @param row_names_side A character vector specifying the side to place row names.
+#' @param column_names_side A character vector specifying the side to place column names.
+#' @param row_names_rot A numeric value specifying the rotation angle for row names. Default is 0.
+#' @param column_names_rot A numeric value specifying the rotation angle for column names. Default is 90.
+#' @param row_title A character vector specifying the title for rows. Default is NULL.
+#' @param column_title A character vector specifying the title for columns. Default is NULL.
+#' @param row_title_side A character vector specifying the side to place row title. Default is "left".
+#' @param column_title_side A character vector specifying the side to place column title. Default is "top".
+#' @param row_title_rot A numeric value specifying the rotation angle for row title. Default is 0.
+#' @param column_title_rot A numeric value specifying the rotation angle for column title.
+#' @param anno_terms A logical value indicating whether to include term annotations. Default is FALSE.
+#' @param anno_keys A logical value indicating whether to include key annotations. Default is FALSE.
+#' @param anno_features A logical value indicating whether to include feature annotations. Default is FALSE.
+#' @param terms_width A unit specifying the width of term annotations. Default is unit(4, "in").
+#' @param terms_fontsize A numeric vector specifying the font size(s) for term annotations. Default is 8.
+#' @param keys_width A unit specifying the width of key annotations. Default is unit(2, "in").
+#' @param keys_fontsize A two-length numeric vector specifying the minimum and maximum font size(s) for key annotations. Default is c(6, 10).
+#' @param features_width A unit specifying the width of feature annotations. Default is unit(2, "in").
+#' @param features_fontsize A two-length numeric vector specifying the minimum and maximum font size(s) for feature annotations. Default is c(6, 10).
+#' @param IDtype A character vector specifying the type of IDs for features. Default is "symbol".
+#' @param species A character vector specifying the species for features. Default is "Homo_sapiens".
+#' @param db_update A logical value indicating whether to update the database. Default is FALSE.
+#' @param db_version A character vector specifying the version of the database. Default is "latest".
+#' @param db_combine A logical value indicating whether to use a combined database. Default is FALSE.
+#' @param convert_species A logical value indicating whether to use a species-converted database if annotation is missing for \code{species}. Default is FALSE.
+#' @param Ensembl_version An integer specifying the Ensembl version. Default is 103.
+#' @param mirror A character vector specifying the mirror for the Ensembl database. Default is NULL.
+#' @param db A character vector specifying the database to use. Default is "GO_BP".
+#' @param TERM2GENE A data.frame specifying the TERM2GENE mapping for the database. Default is NULL.
+#' @param TERM2NAME A data.frame specifying the TERM2NAME mapping for the database. Default is NULL.
+#' @param minGSSize An integer specifying the minimum gene set size for the database. Default is 10.
+#' @param maxGSSize An integer specifying the maximum gene set size for the database. Default is 500.
+#' @param GO_simplify A logical value indicating whether to simplify gene ontology terms. Default is FALSE.
+#' @param GO_simplify_cutoff A character vector specifying the cutoff for GO simplification. Default is "p.adjust < 0.05".
+#' @param simplify_method A character vector specifying the method for GO simplification. Default is "Wang".
+#' @param simplify_similarityCutoff A numeric value specifying the similarity cutoff for GO simplification. Default is 0.7.
+#' @param pvalueCutoff A numeric vector specifying the p-value cutoff(s) for significance. Default is NULL.
+#' @param padjustCutoff A numeric value specifying the adjusted p-value cutoff for significance. Default is 0.05.
+#' @param topTerm An integer specifying the number of top terms to include. Default is 5.
+#' @param show_termid A logical value indicating whether to show term IDs. Default is FALSE.
+#' @param topWord An integer specifying the number of top words to include. Default is 20.
+#' @param words_excluded A character vector specifying the words to exclude. Default is NULL.
+#' @param nlabel An integer specifying the number of labels to include. Default is 0.
+#' @param features_label A character vector specifying the features to label. Default is NULL.
+#' @param label_size A numeric value specifying the size of labels. Default is 10.
+#' @param label_color A character vector specifying the color of labels. Default is "black".
+#' @param add_bg A logical value indicating whether to add a background to the heatmap. Default is FALSE.
+#' @param bg_alpha A numeric value specifying the alpha value for the background color. Default is 0.5.
+#' @param add_dot A logical value indicating whether to add dots to the heatmap. The size of dot represents percentage of expressed cells based on the specified \code{exp_cutoff}. Default is FALSE.
+#' @param dot_size A unit specifying the base size of the dots. Default is unit(8, "mm").
+#' @param add_reticle A logical value indicating whether to add reticles to the heatmap. Default is FALSE.
+#' @param reticle_color A character vector specifying the color of the reticles. Default is "grey".
+#' @param add_violin A logical value indicating whether to add violins to the heatmap. Default is FALSE.
+#' @param fill.by A character vector specifying what to fill the violin. Possible values are "group", "feature", or "expression". Default is "feature".
+#' @param fill_palette A character vector specifying the palette to use for fill. Default is "Dark2".
+#' @param fill_palcolor A character vector specifying the fill color to use. Default is NULL.
+#' @param heatmap_palette A character vector specifying the palette to use for the heatmap. Default is "RdBu".
+#' @param heatmap_palcolor A character vector specifying the heatmap color to use. Default is NULL.
+#' @param group_palette A character vector specifying the palette to use for groups. Default is "Paired".
+#' @param group_palcolor A character vector specifying the group color to use. Default is NULL.
+#' @param cell_split_palette A character vector specifying the palette to use for cell splits. Default is "simspec".
+#' @param cell_split_palcolor A character vector specifying the cell split color to use. Default is NULL.
+#' @param feature_split_palette A character vector specifying the palette to use for feature splits. Default is "simspec".
+#' @param feature_split_palcolor A character vector specifying the feature split color to use. Default is NULL.
+#' @param cell_annotation A character vector specifying the cell annotation(s) to include. Default is NULL.
+#' @param cell_annotation_palette A character vector specifying the palette to use for cell annotations. The length of the vector should match the number of cell_annotation. Default is "Paired".
+#' @param cell_annotation_palcolor A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.
+#' @param cell_annotation_params A list specifying additional parameters for cell annotations. Default is a list with width = unit(1, "cm") if flip is TRUE, else a list with height = unit(1, "cm").
+#' @param feature_annotation A character vector specifying the feature annotation(s) to include. Default is NULL.
+#' @param feature_annotation_palette A character vector specifying the palette to use for feature annotations. The length of the vector should match the number of feature_annotation. Default is "Dark2".
+#' @param feature_annotation_palcolor A list of character vector specifying the feature annotation color to use. The length of the list should match the number of feature_annotation. Default is NULL.
+#' @param feature_annotation_params A list specifying additional parameters for feature annotations. Default is an empty list.
+#' @param use_raster A logical value indicating whether to use a raster device for plotting. Default is NULL.
+#' @param raster_device A character vector specifying the raster device to use. Default is "png".
+#' @param raster_by_magick A logical value indicating whether to use the 'magick' package for raster. Default is FALSE.
+#' @param height A numeric vector specifying the height(s) of the heatmap body. Default is NULL.
+#' @param width A numeric vector specifying the width(s) of the heatmap body. Default is NULL.
+#' @param units A character vector specifying the units for the height and width. Default is "inch".
+#' @param seed An integer specifying the random seed. Default is 11.
+#' @param ht_params A list specifying additional parameters passed to the ComplexHeatmap::Heatmap function. Default is an empty list.
+#'
+#' @seealso \code{\link{RunDEtest}}
+#'
+#' @return A list with the following elements:
+#'   \itemize{
+#'     \item{\code{plot}}{The heatmap plot.}
+#'     \item{\code{matrix_list}}{A list of matrix for each \code{group.by} used in the heatmap.}
+#'     \item{\code{feature_split}}{NULL or a factor if splitting is performed in the heatmap.}
+#'     \item{\code{cell_metadata}}{Meta data of cells used to generate the heatmap.}
+#'     \item{\code{cell_metadata}}{Meta data of features used to generate the heatmap.}
+#'     \item{\code{enrichment}}{NULL or a enrichment result generated by RunEnrichment when any of the parameters \code{anno_terms}, \code{anno_keys}, or \code{anno_features} is set to TRUE.}
+#'   }
 #'
 #' @examples
 #' library(dplyr)
@@ -7634,8 +7824,7 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #'     "Rbp4", "Pyy", # Endocrine
 #'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #'   ),
-#'   group.by = c("CellType", "SubCellType"),
-#'   show_row_names = TRUE
+#'   group.by = c("CellType", "SubCellType")
 #' )
 #' ht1$plot
 #' panel_fix(ht1$plot, height = 4, width = 6, raster = TRUE, dpi = 50)
@@ -7646,18 +7835,17 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #' ht2 <- GroupHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
 #'   split.by = "Phase", cell_split_palette = "Dark2",
-#'   nlabel = 10, show_row_names = FALSE
+#'   cluster_rows = TRUE, cluster_columns = TRUE
 #' )
 #' ht2$plot
 #'
 #' ht3 <- GroupHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
-#'   nlabel = 20, show_row_names = FALSE,
 #'   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 #' )
 #' ht3$plot
 #'
-#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 #' de_top <- de_filter %>%
 #'   group_by(gene) %>%
 #'   top_n(1, avg_log2FC) %>%
@@ -7667,10 +7855,10 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(height = grid::unit(0.5, "in")),
-#'   feature_annotation = c("TF", "SP"),
+#'   cell_annotation_params = list(height = unit(10, "mm")),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-#'   add_dot = TRUE, add_bg = TRUE, show_row_names = TRUE
+#'   add_dot = TRUE, add_bg = TRUE, nlabel = 0, show_row_names = TRUE
 #' )
 #' ht4$plot
 #'
@@ -7678,25 +7866,25 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(width = grid::unit(0.5, "in")),
-#'   feature_annotation = c("TF", "SP"),
+#'   cell_annotation_params = list(width = unit(10, "mm")),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE,
-#'   flip = TRUE, column_title_rot = 45, show_column_names = TRUE
+#'   flip = TRUE, column_title_rot = 45, nlabel = 0, show_row_names = TRUE
 #' )
 #' ht5$plot
 #'
 #' ht6 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   add_violin = TRUE, cluster_rows = TRUE,
-#'   show_row_names = TRUE
+#'   nlabel = 0, show_row_names = TRUE
 #' )
 #' ht6$plot
 #'
 #' ht7 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE,
-#'   show_row_names = TRUE
+#'   nlabel = 0, show_row_names = TRUE
 #' )
 #' ht7$plot
 #'
@@ -7704,12 +7892,13 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #'   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
-#'   show_row_names = TRUE, ht_params = list(row_gap = grid::unit(0, "mm"), row_names_gp = grid::gpar(fontsize = 10))
+#'   nlabel = 0, show_row_names = TRUE,
+#'   ht_params = list(row_gap = unit(0, "mm"), row_names_gp = gpar(fontsize = 10))
 #' )
 #' ht8$plot
 #'
 #' @importFrom circlize colorRamp2
-#' @importFrom stats aggregate formula quantile
+#' @importFrom stats aggregate formula quantile sd
 #' @importFrom ComplexHeatmap Legend HeatmapAnnotation anno_block anno_simple anno_customize Heatmap draw pindex restore_matrix %v%
 #' @importFrom grid gpar grid.grabExpr grid.lines grid.rect grid.points grid.draw
 #' @importFrom ggplot2 theme_void theme facet_null
@@ -7717,15 +7906,16 @@ heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list
 #' @importFrom methods getFunction
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
-#' @importFrom rlang %||%
+#' @importFrom proxyC dist
 #' @export
-GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, grouping.var = NULL, numerator = NULL, cells = NULL,
+GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, within_groups = FALSE, grouping.var = NULL, numerator = NULL, cells = NULL,
                          aggregate_fun = base::mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
-                         slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
-                         feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL, show_fuzzification = FALSE,
+                         slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
+                         feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
+                         split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL,
                          cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                          show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
-                         row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
+                         row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
                          anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                          terms_width = unit(4, "in"), terms_fontsize = 8,
                          keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -7733,20 +7923,20 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
                          db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                          GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                         pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
-                         exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
-                         nlabel = 0, features_label = NULL, label_size = 10, label_color = "black",
+                         pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, words_excluded = NULL,
+                         nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                          add_bg = FALSE, bg_alpha = 0.5,
                          add_dot = FALSE, dot_size = unit(8, "mm"),
                          add_reticle = FALSE, reticle_color = "grey",
                          add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
                          heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
-                         cell_split_palette = "jama", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
-                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height = grid::unit(1, "cm")),
-                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = list(),
+                         cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
+                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
+                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                          use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
   set.seed(seed)
+
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
@@ -7767,6 +7957,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     warning("When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'", immediate. = TRUE)
     exp_method <- "log2fc"
   }
+  exp_name <- exp_legend_title %||% exp_name
+
   if (!is.null(grouping.var)) {
     if (identical(split.by, grouping.var)) {
       stop("'grouping.var' must be different from 'split.by'")
@@ -7789,11 +7981,29 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(group.by)) {
-    srt@meta.data[["No.group.by"]] <- factor("")
-    group.by <- "No.group.by"
+    srt@meta.data[["All.groups"]] <- factor("")
+    group.by <- "All.groups"
   }
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  }
+  if (!is.null(group.by)) {
+    for (g in group.by) {
+      if (!is.factor(srt@meta.data[[g]])) {
+        srt@meta.data[[g]] <- factor(srt@meta.data[[g]], levels = unique(srt@meta.data[[g]]))
+      }
+    }
+  }
+  if (length(split.by) > 1) {
+    stop("'split.by' only support one variable.")
+  }
+  if (any(!split.by %in% colnames(srt@meta.data))) {
+    stop(split.by[!split.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  }
+  if (!is.null(split.by)) {
+    if (!is.factor(srt@meta.data[[split.by]])) {
+      srt@meta.data[[split.by]] <- factor(srt@meta.data[[split.by]], levels = unique(srt@meta.data[[split.by]]))
+    }
   }
   group_elements <- unlist(lapply(srt@meta.data[, group.by, drop = FALSE], function(x) length(unique(x))))
   if (any(group_elements == 1) && exp_method == "zscore") {
@@ -7809,11 +8019,22 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     stop("'group_palette' must be the same length as 'group.by'")
   }
   group_palette <- setNames(group_palette, nm = group.by)
-  if (length(split.by) > 1) {
-    stop("'split.by' only support one variable.")
-  }
-  if (any(!split.by %in% colnames(srt@meta.data))) {
-    stop(split.by[!split.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  raw.group.by <- group.by
+  raw.group_palette <- group_palette
+  if (isTRUE(within_groups)) {
+    new.group.by <- c()
+    new.group_palette <- group_palette
+    for (g in group.by) {
+      groups <- split(colnames(srt), srt[[g, drop = TRUE]])
+      new.group_palette[g] <- list(rep(new.group_palette[g], length(groups)))
+      for (nm in names(groups)) {
+        srt[[make.names(nm)]] <- factor(NA, levels = levels(srt[[g, drop = TRUE]]))
+        srt[[make.names(nm)]][colnames(srt) %in% groups[[nm]], ] <- nm
+        new.group.by <- c(new.group.by, make.names(nm))
+      }
+    }
+    group.by <- new.group.by
+    group_palette <- unlist(new.group_palette)
   }
   if (!is.null(feature_split) && !is.factor(feature_split)) {
     feature_split <- factor(feature_split, levels = unique(feature_split))
@@ -7834,7 +8055,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -7848,7 +8070,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -7929,7 +8152,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   gene_unique <- features_unique[features %in% rownames(srt@assays[[assay]])]
   meta <- features[features %in% colnames(srt@meta.data)]
 
-  mat_raw <- as.matrix(rbind(slot(srt@assays[[assay]], slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
+  mat_raw <- as_matrix(rbind(slot(srt@assays[[assay]], slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
   rownames(mat_raw) <- features_unique
   if (isTRUE(lib_normalize) && min(mat_raw, na.rm = TRUE) >= 0) {
     if (!is.null(libsize)) {
@@ -8071,7 +8294,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         column_split_list[[cell_group]] <- length(unique(column_split_list[[cell_group]]))
       }
     }
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       funbody <- paste0(
         "
         grid.rect(gp = gpar(fill = palette_scp(", paste0("c('", paste0(levels(srt@meta.data[[cell_group]]), collapse = "','"), "')"), ",palette = '", group_palette[i], "',palcolor=c(", paste0("'", paste0(group_palcolor[[i]], collapse = "','"), "'"), "))[nm]))
@@ -8089,10 +8312,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       )
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
-      lgd[[cell_group]] <- Legend(
-        title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
-        legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
-      )
+      #   lgd[[cell_group]] <- Legend(
+      #     title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
+      #     legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
+      #   )
     }
 
     if (!is.null(split.by)) {
@@ -8119,6 +8342,17 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       }
     }
   }
+
+  for (i in seq_along(raw.group.by)) {
+    cell_group <- raw.group.by[i]
+    if (cell_group != "All.groups") {
+      lgd[[cell_group]] <- Legend(
+        title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
+        legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = raw.group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
+      )
+    }
+  }
+
   if (!is.null(split.by)) {
     lgd[[split.by]] <- Legend(
       title = split.by, labels = levels(srt@meta.data[[split.by]]),
@@ -8144,16 +8378,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           subplots <- CellStatPlot(srt,
             flip = flip,
             cells = names(cell_groups[[cell_group]]), plot_type = "pie",
-            group.by = cell_group, stat.by = cellan, split.by = split.by,
-            palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            stat.by = cellan, group.by = cell_group, split.by = split.by,
+            palette = palette, palcolor = palcolor, title = NULL,
+            individual = TRUE, combine = FALSE
           )
           subplots_list[[paste0(cellan, ":", cell_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", cell_group, "-", nm), "';
               grid.draw(g)
               "
@@ -8202,14 +8436,14 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             group.by = cell_group, split.by = split.by,
             palette = palette, palcolor = palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           subplots_list[[paste0(cellan, ":", cell_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", cell_group, "-", nm), "';
               grid.draw(g)
               "
@@ -8261,17 +8495,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          status <- tryCatch(check_R("e1071"), error = identity)
           if (inherits(status, "error")) {
-            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            warning("The e1071 package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz", quietly = TRUE)
             mat_split_tmp <- mat_split
             colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
-            eset <- new("ExpressionSet", exprs = mat_split_tmp)
-            eset <- Mfuzz::standardise(eset)
-            min_fuzzification <- Mfuzz::mestimate(eset)
+            mat_split_tmp <- standardise(mat_split_tmp)
+            min_fuzzification <- mestimate(mat_split_tmp)
             if (is.null(fuzzification)) {
               fuzzification <- min_fuzzification + 0.1
             } else {
@@ -8279,12 +8511,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                 warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
               }
             }
-            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            cl <- e1071::cmeans(mat_split_tmp, centers = n_split, method = "cmeans", m = fuzzification)
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-            }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
             }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
@@ -8295,7 +8524,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           row_split <- feature_split <- km$cluster
         }
         if (split_method == "hclust") {
-          hc <- hclust(stats::dist(mat_split))
+          hc <- hclust(as.dist(dist(mat_split)))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
       }
@@ -8307,6 +8536,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       df_order[, "row_split"] <- df_order[, "Group.1"]
       df_order[["order_by"]] <- as.numeric(factor(df_order[["x"]], levels = levels(maxgroup)))
       df_order <- df_order[order(df_order[["order_by"]], decreasing = decreasing), , drop = FALSE]
+      if (!is.null(split_order)) {
+        df_order <- df_order[split_order, , drop = FALSE]
+      }
       split_levels <- c()
       for (i in seq_len(nrow(df_order))) {
         raw_nm <- df_order[i, "row_split"]
@@ -8369,7 +8601,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (isTRUE(cluster_rows) && !is.null(cluster_features_by)) {
     mat_cluster <- do.call(cbind, mat_list[cluster_features_by])
     if (is.null(row_split)) {
-      dend <- as.dendrogram(hclust(dist(mat_cluster)))
+      dend <- as.dendrogram(hclust(as.dist(dist(mat_cluster))))
       dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
       cluster_rows <- dend_ordered
     } else {
@@ -8506,8 +8738,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, db_combine = db_combine, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
     db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize,
     GO_simplify = GO_simplify, GO_simplify_cutoff = GO_simplify_cutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
-    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
-    exclude_words = exclude_words
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, words_excluded = words_excluded
   )
   res <- enrichment$res
   ha_right <- enrichment$ha_right
@@ -8542,13 +8773,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         group.by = cell_group, split.by = split.by,
         palette = fill_palette, palcolor = fill_palcolor,
         fill.by = fill.by, same.y.lims = TRUE,
-        stat_single = TRUE, combine = FALSE
+        individual = TRUE, combine = FALSE
       )
       lgd[["ht"]] <- NULL
       # legend <- get_legend(vlnplots[[1]])
       # funbody <- paste0(
       #   "
-      #         g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+      #         g <- as_grob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']] + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
       #         grid.draw(g)
       #         "
       # )
@@ -8661,7 +8892,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     # ind_mat = restore_matrix(j, i, x, y);
     # ind = unique(ind_mat);
     # grid_draw(groblist,x=x[ind],y= y[ind]);
-
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("layer_fun <- function(j, i, x, y, width, height, fill) {", funbody, "}", sep = "")), envir = environment())
     ht_args <- list(
@@ -8669,9 +8899,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
       layer_fun = getFunction("layer_fun", where = environment()),
-      row_title = if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title = row_title %||% if (flip) ifelse(cell_group != "All.groups", cell_group, "") else character(0),
       row_title_side = row_title_side,
-      column_title = if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "All.groups", cell_group, ""),
       column_title_side = column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
@@ -8716,6 +8946,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("\nThe size of the heatmap is fixed because certain elements are not scalable.\nThe width and height of the heatmap are determined by the size of the current viewport.\nIf you want to have more control over the size, you can manually set the parameters 'width' and 'height'.\n")
+    }
   } else {
     fix <- FALSE
   }
@@ -8787,7 +9020,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   }
 
   if (isTRUE(fix)) {
-    p <- panel_fix_single(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
+    p <- panel_fix_overall(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
   } else {
     p <- wrap_plots(gTree)
   }
@@ -8800,110 +9033,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     feature_metadata = feature_metadata,
     enrichment = res
   ))
-
-  return(p)
 }
 
 #' FeatureHeatmap
 #'
-#' @param srt
-#' @param features
-#' @param feature_split
-#' @param cluster_rows
-#' @param group.by
-#' @param cluster_columns
-#' @param max_cells
-#' @param slot
-#' @param assay
-#' @param exp_method
-#' @param n_split
-#' @param feature_split_by
-#' @param split_method
-#' @param decreasing
-#' @param lib_normalize
-#' @param libsize
-#' @param anno_keys
-#' @param anno_features
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topWord
-#' @param min_word_length
-#' @param exclude_words
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param heatmap_palette
-#' @param group_palette
-#' @param feature_split_palette
-#' @param cell_annotation
-#' @param cell_annotation_palette
-#' @param cell_annotation_palcolor
-#' @param feature_annotation
-#' @param feature_annotation_palette
-#' @param feature_annotation_palcolor
-#' @param use_raster
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param cells
-#' @param split.by
-#' @param cell_order
-#' @param border
-#' @param flip
-#' @param cluster_features_by
-#' @param cluster_row_slices
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param convert_species
-#' @param topTerm
-#' @param show_termid
-#' @param heatmap_palcolor
-#' @param group_palcolor
-#' @param cell_split_palette
-#' @param cell_split_palcolor
-#' @param feature_split_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation_params
-#' @param raster_device
-#' @param ht_params
-#' @param limits
-#' @param raster_by_magick
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param db_combine
+#' @inheritParams GroupHeatmap
+#' @param max_cells An integer, maximum number of cells to sample per group, default is 100.
+#' @param cell_order A vector of cell names defining the order of cells, default is NULL.
+#'
+#' @seealso \code{\link{RunDEtest}}
 #'
 #' @examples
 #' library(dplyr)
@@ -8920,7 +9058,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' ht2 <- FeatureHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
 #'   cluster_rows = TRUE, cluster_row_slices = TRUE, cluster_columns = TRUE, cluster_column_slices = TRUE,
-#'   ht_params = list(row_gap = grid::unit(0, "mm"))
+#'   ht_params = list(row_gap = unit(0, "mm"))
 #' )
 #' ht2$plot
 #'
@@ -8930,11 +9068,11 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' )
 #' ht3$plot
 #'
-#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 #' ht4 <- FeatureHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
 #'   heatmap_palette = "viridis",
-#'   feature_annotation = c("TF", "SP"),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   cell_annotation = c("Phase", "G2M_score"), cell_annotation_palette = c("Dark2", "Purples")
 #' )
@@ -8943,7 +9081,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' ht5 <- FeatureHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
 #'   heatmap_palette = "viridis",
-#'   feature_annotation = c("TF", "SP"),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   cell_annotation = c("Phase", "G2M_score"), cell_annotation_palette = c("Dark2", "Purples"),
 #'   flip = TRUE, column_title_rot = 45
@@ -8964,21 +9102,23 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation width.Legends height.Legends cluster_within_group decorate_annotation row_order %v%
-#' @importFrom grid gpar grid.grabExpr grid.text
+#' @importFrom grid unit gpar grid.grabExpr grid.text
 #' @importFrom gtable gtable_add_padding
 #' @importFrom patchwork wrap_plots
 #' @importFrom Seurat GetAssayData
-#' @importFrom stats hclust order.dendrogram as.dendrogram reorder
+#' @importFrom stats hclust order.dendrogram as.dendrogram reorder sd
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
-#' @importFrom rlang %||%
+#' @importFrom proxyC dist
 #' @export
-FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
-                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
-                           feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL, show_fuzzification = FALSE,
+FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, within_groups = FALSE, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
+                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL,
+                           lib_normalize = identical(slot, "counts"), libsize = NULL,
+                           feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
+                           split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL,
                            cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
-                           row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
+                           row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                            terms_width = unit(4, "in"), terms_fontsize = 8,
                            keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -8986,13 +9126,12 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
                            IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
                            db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                            GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
-                           exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
+                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, words_excluded = NULL,
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
-                           cell_split_palette = "jama", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = list(),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = list(),
+                           cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -9009,17 +9148,36 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     exp_method <- match.arg(exp_method)
     exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
+  exp_name <- exp_legend_title %||% exp_name
 
   assay <- assay %||% DefaultAssay(srt)
   if (length(feature_split) != 0 && length(feature_split) != length(features)) {
     stop("feature_split must be the same length as features")
   }
   if (is.null(group.by)) {
-    srt@meta.data[["No.group.by"]] <- factor("")
-    group.by <- "No.group.by"
+    srt@meta.data[["All.groups"]] <- factor("")
+    group.by <- "All.groups"
   }
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  }
+  if (!is.null(group.by)) {
+    for (g in group.by) {
+      if (!is.factor(srt@meta.data[[g]])) {
+        srt@meta.data[[g]] <- factor(srt@meta.data[[g]], levels = unique(srt@meta.data[[g]]))
+      }
+    }
+  }
+  if (length(split.by) > 1) {
+    stop("'split.by' only support one variable.")
+  }
+  if (any(!split.by %in% colnames(srt@meta.data))) {
+    stop(split.by[!split.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  }
+  if (!is.null(split.by)) {
+    if (!is.factor(srt@meta.data[[split.by]])) {
+      srt@meta.data[[split.by]] <- factor(srt@meta.data[[split.by]], levels = unique(srt@meta.data[[split.by]]))
+    }
   }
   if (length(group_palette) == 1) {
     group_palette <- rep(group_palette, length(group.by))
@@ -9027,11 +9185,23 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   if (length(group_palette) != length(group.by)) {
     stop("'group_palette' must be the same length as 'group.by'")
   }
-  if (length(split.by) > 1) {
-    stop("'split.by' only support one variable.")
-  }
-  if (any(!split.by %in% colnames(srt@meta.data))) {
-    stop(split.by[!split.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
+  group_palette <- setNames(group_palette, nm = group.by)
+  raw.group.by <- group.by
+  raw.group_palette <- group_palette
+  if (isTRUE(within_groups)) {
+    new.group.by <- c()
+    new.group_palette <- group_palette
+    for (g in group.by) {
+      groups <- split(colnames(srt), srt[[g, drop = TRUE]])
+      new.group_palette[g] <- list(rep(new.group_palette[g], length(groups)))
+      for (nm in names(groups)) {
+        srt[[make.names(nm)]] <- factor(NA, levels = levels(srt[[g, drop = TRUE]]))
+        srt[[make.names(nm)]][colnames(srt) %in% groups[[nm]], ] <- nm
+        new.group.by <- c(new.group.by, make.names(nm))
+      }
+    }
+    group.by <- new.group.by
+    group_palette <- unlist(new.group_palette)
   }
   if (is.null(feature_split_by)) {
     feature_split_by <- group.by
@@ -9052,7 +9222,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -9066,7 +9237,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -9165,7 +9337,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   gene_unique <- features_unique[features %in% rownames(srt@assays[[assay]])]
   meta <- features[features %in% colnames(srt@meta.data)]
   all_cells <- unique(unlist(lapply(cell_groups, names)))
-  mat_raw <- as.matrix(rbind(slot(srt@assays[[assay]], slot)[gene, all_cells, drop = FALSE], t(srt@meta.data[all_cells, meta, drop = FALSE])))[features, , drop = FALSE]
+  mat_raw <- as_matrix(rbind(slot(srt@assays[[assay]], slot)[gene, all_cells, drop = FALSE], t(srt@meta.data[all_cells, meta, drop = FALSE])))[features, , drop = FALSE]
   rownames(mat_raw) <- features_unique
   if (isTRUE(lib_normalize) && min(mat_raw, na.rm = TRUE) >= 0) {
     if (!is.null(libsize)) {
@@ -9248,7 +9420,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
         column_split_list[[cell_group]] <- length(unique(column_split_list[[cell_group]]))
       }
     }
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       funbody <- paste0(
         "
         grid.rect(gp = gpar(fill = palette_scp(", paste0("c('", paste0(levels(srt@meta.data[[cell_group]]), collapse = "','"), "')"), ",palette = '", group_palette[i], "',palcolor=c(", paste0("'", paste0(group_palcolor[[i]], collapse = "','"), "'"), "))[nm]))
@@ -9266,10 +9438,10 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       )
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
-      lgd[[cell_group]] <- Legend(
-        title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
-        legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
-      )
+      # lgd[[cell_group]] <- Legend(
+      #   title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
+      #   legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
+      # )
     }
 
     if (!is.null(split.by)) {
@@ -9294,6 +9466,15 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       } else {
         ha_top_list[[cell_group]] <- c(ha_top_list[[cell_group]], ha_split_by)
       }
+    }
+  }
+  for (i in seq_along(raw.group.by)) {
+    cell_group <- raw.group.by[i]
+    if (cell_group != "All.groups") {
+      lgd[[cell_group]] <- Legend(
+        title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
+        legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = raw.group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
+      )
     }
   }
   if (!is.null(split.by)) {
@@ -9384,17 +9565,15 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          status <- tryCatch(check_R("e1071"), error = identity)
           if (inherits(status, "error")) {
-            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            warning("The e1071 package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz", quietly = TRUE)
             mat_split_tmp <- mat_split
             colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
-            eset <- new("ExpressionSet", exprs = mat_split_tmp)
-            eset <- Mfuzz::standardise(eset)
-            min_fuzzification <- Mfuzz::mestimate(eset)
+            mat_split_tmp <- standardise(mat_split_tmp)
+            min_fuzzification <- mestimate(mat_split_tmp)
             if (is.null(fuzzification)) {
               fuzzification <- min_fuzzification + 0.1
             } else {
@@ -9402,12 +9581,9 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
                 warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
               }
             }
-            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            cl <- e1071::cmeans(mat_split_tmp, centers = n_split, method = "cmeans", m = fuzzification)
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-            }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
             }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
@@ -9418,7 +9594,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
           row_split <- feature_split <- km$cluster
         }
         if (split_method == "hclust") {
-          hc <- hclust(stats::dist(mat_split))
+          hc <- hclust(as.dist(dist(mat_split)))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
       }
@@ -9429,6 +9605,9 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       df_order[, "row_split"] <- df_order[, "Group.1"]
       df_order[["order_by"]] <- as.numeric(factor(df_order[["x"]], levels = levels(maxgroup)))
       df_order <- df_order[order(df_order[["order_by"]], decreasing = decreasing), , drop = FALSE]
+      if (!is.null(split_order)) {
+        df_order <- df_order[split_order, , drop = FALSE]
+      }
       split_levels <- c()
       for (i in seq_len(nrow(df_order))) {
         raw_nm <- df_order[i, "row_split"]
@@ -9491,7 +9670,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   if (isTRUE(cluster_rows) && !is.null(cluster_features_by)) {
     mat_cluster <- do.call(cbind, mat_list[cluster_features_by])
     if (is.null(row_split)) {
-      dend <- as.dendrogram(hclust(dist(mat_cluster)))
+      dend <- as.dendrogram(hclust(as.dist(dist(mat_cluster))))
       dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
       cluster_rows <- dend_ordered
     } else {
@@ -9629,8 +9808,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, db_combine = db_combine, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
     db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize,
     GO_simplify = GO_simplify, GO_simplify_cutoff = GO_simplify_cutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
-    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
-    exclude_words = exclude_words
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, words_excluded = words_excluded
   )
   res <- enrichment$res
   ha_right <- enrichment$ha_right
@@ -9652,9 +9830,9 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       name = cell_group,
       matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
-      row_title = if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title = row_title %||% if (flip) ifelse(cell_group != "All.groups", cell_group, "") else character(0),
       row_title_side = row_title_side,
-      column_title = if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "All.groups", cell_group, ""),
       column_title_side = column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
@@ -9710,6 +9888,9 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("\nThe size of the heatmap is fixed because certain elements are not scalable.\nThe width and height of the heatmap are determined by the size of the current viewport.\nIf you want to have more control over the size, you can manually set the parameters 'width' and 'height'.\n")
+    }
   } else {
     fix <- FALSE
   }
@@ -9781,7 +9962,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   }
 
   if (isTRUE(fix)) {
-    p <- panel_fix_single(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
+    p <- panel_fix_overall(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
   } else {
     p <- wrap_plots(gTree)
   }
@@ -9802,70 +9983,86 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 
 #' CellCorHeatmap
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param bulk_ref
-#' @param query_group
-#' @param ref_group
-#' @param query_assay
-#' @param ref_assay
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_dims
-#' @param ref_dims
-#' @param query_collapsing
-#' @param ref_collapsing
-#' @param features
-#' @param features_type
-#' @param feature_source
-#' @param nfeatures
-#' @param DEtest_param
-#' @param DE_threshold
-#' @param distance_metric
-#' @param k
-#' @param filter_lowfreq
-#' @param prefix
-#' @param cluster_columns
-#' @param cluster_rows
-#' @param nlabel
-#' @param label_cutoff
-#' @param label_by
-#' @param border
-#' @param flip
-#' @param limits
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param heatmap_palette
-#' @param heatmap_palcolor
-#' @param query_group_palette
-#' @param query_group_palcolor
-#' @param ref_group_palette
-#' @param ref_group_palcolor
-#' @param query_cell_annotation
-#' @param query_cell_annotation_palette
-#' @param query_cell_annotation_palcolor
-#' @param query_cell_annotation_params
-#' @param ref_cell_annotation
-#' @param ref_cell_annotation_palette
-#' @param ref_cell_annotation_palcolor
-#' @param ref_cell_annotation_params
-#' @param use_raster
-#' @param raster_device
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param ht_params
-#' @param label_size
-#' @param raster_by_magick
+#' This function generates a heatmap to visualize the similarity between different cell types or conditions. It takes in Seurat objects or expression matrices as input and calculates pairwise similarities or distance.
+#'
+#' @param srt_query A Seurat object or count matrix representing the query dataset. This dataset will be used to calculate the similarities between cells.
+#' @param srt_ref A Seurat object or count matrix representing the reference dataset. If provided, the similarities will be calculated between cells from the query and reference datasets. If not provided, the similarities will be calculated within the query dataset.
+#' @param bulk_ref A count matrix representing bulk data. If provided, the similarities will be calculated between cells from the query dataset and bulk data.
+#' @param query_group The grouping variable in the query dataset. This variable will be used to group cells in the heatmap rows. If not provided, all cells will be treated as one group.
+#' @param ref_group The grouping variable in the reference dataset. This variable will be used to group cells in the heatmap columns. If not provided, all cells will be treated as one group.
+#' @param query_assay The assay to use for the query dataset. If not provided, the default assay of the query dataset will be used.
+#' @param ref_assay The assay to use for the reference dataset. If not provided, the default assay of the reference dataset will be used.
+#' @param query_reduction The dimensionality reduction method to use for the query dataset. If not provided, no dimensionality reduction will be applied to the query dataset.
+#' @param ref_reduction The dimensionality reduction method to use for the reference dataset. If not provided, no dimensionality reduction will be applied to the reference dataset.
+#' @param query_dims The dimensions to use for the query dataset. If not provided, the first 30 dimensions will be used.
+#' @param ref_dims The dimensions to use for the reference dataset. If not provided, the first 30 dimensions will be used.
+#' @param query_collapsing Whether to collapse cells within each query group before calculating similarities. If set to TRUE, the similarities will be calculated between query groups rather than individual cells.
+#' @param ref_collapsing Whether to collapse cells within each reference group before calculating similarities. If set to TRUE, the similarities will be calculated between reference groups rather than individual cells.
+#' @param features A vector of feature names to include in the heatmap. If not provided, a default set of highly variable features (HVF) will be used.
+#' @param features_type The type of features to use. Options are "HVF" for highly variable features, "DE" for differentially expressed features between query and reference groups.
+#' @param feature_source The source of features to use. Options are "query" to use only features from the query dataset, "ref" to use only features from the reference dataset, or "both" to use features from both datasets. If not provided or set to "both", features will be selected from both datasets.
+#' @param nfeatures The maximum number of features to include in the heatmap. If not provided, the default is 2000.
+#' @param DEtest_param The parameters to use for differential expression testing. This should be a list with two elements: "max.cells.per.ident" specifying the maximum number of cells per group for differential expression testing, and "test.use" specifying the statistical test to use for differential expression testing. If not provided, the default parameters will be used.
+#' @param DE_threshold The threshold for differential expression. Only features with adjusted p-values below this threshold will be considered differentially expressed.
+#' @param distance_metric The distance metric to use for calculating similarities between cells. This can be any of the following: "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching", or "faith". If not provided, the default is "cosine".
+#' @param k The number of nearest neighbors to use for calculating similarities. If not provided, the default is 30.
+#' @param filter_lowfreq The minimum frequency threshold for selecting query dataset features. Features with a frequency below this threshold will be excluded from the heatmap. If not provided, the default is 0.
+#' @param prefix The prefix to use for the KNNPredict tool slot in the query dataset. This can be used to avoid conflicts with other tools in the Seurat object. If not provided, the default is "KNNPredict".
+#' @param exp_legend_title The title for the color legend in the heatmap. If not provided, a default title based on the similarity metric will be used.
+#' @param border Whether to add a border around each heatmap cell. If not provided, the default is TRUE.
+#' @param flip Whether to flip the orientation of the heatmap. If set to TRUE, the rows and columns of the heatmap will be swapped. This can be useful for visualizing large datasets in a more compact form. If not provided, the default is FALSE.
+#' @param limits The limits for the color scale in the heatmap. If not provided, the default is to use the range of similarity values.
+#' @param cluster_rows Whether to cluster the rows of the heatmap. If set to TRUE, the rows will be rearranged based on hierarchical clustering. If not provided, the default is FALSE.
+#' @param cluster_columns Whether to cluster the columns of the heatmap. If set to TRUE, the columns will be rearranged based on hierarchical clustering. If not provided, the default is FALSE.
+#' @param show_row_names Whether to show the row names in the heatmap. If not provided, the default is FALSE.
+#' @param show_column_names Whether to show the column names in the heatmap. If not provided, the default is FALSE.
+#' @param row_names_side The side of the heatmap to show the row names. Options are "left" or "right". If not provided, the default is "left".
+#' @param column_names_side The side of the heatmap to show the column names. Options are "top" or "bottom". If not provided, the default is "top".
+#' @param row_names_rot The rotation angle of the row names. If not provided, the default is 0 degrees.
+#' @param column_names_rot The rotation angle of the column names. If not provided, the default is 90 degrees.
+#' @param row_title The title for the row names in the heatmap. If not provided, the default is to use the query grouping variable.
+#' @param column_title The title for the column names in the heatmap. If not provided, the default is to use the reference grouping variable.
+#' @param row_title_side The side of the heatmap to show the row title. Options are "top" or "bottom". If not provided, the default is "left".
+#' @param column_title_side The side of the heatmap to show the column title. Options are "left" or "right". If not provided, the default is "top".
+#' @param row_title_rot The rotation angle of the row title. If not provided, the default is 90 degrees.
+#' @param column_title_rot The rotation angle of the column title. If not provided, the default is 0 degrees.
+#' @param nlabel The maximum number of labels to show on each side of the heatmap. If set to 0, no labels will be shown. This can be useful for reducing clutter in large heatmaps. If not provided, the default is 0.
+#' @param label_cutoff The similarity cutoff for showing labels. Only cells with similarity values above this cutoff will have labels. If not provided, the default is 0.
+#' @param label_by The dimension to use for labeling cells. Options are "row" to label cells by row, "column" to label cells by column, or "both" to label cells by both row and column. If not provided, the default is "row".
+#' @param label_size The size of the labels in points. If not provided, the default is 10.
+#' @param heatmap_palette The color palette to use for the heatmap. This can be any of the palettes available in the circlize package. If not provided, the default is "RdBu".
+#' @param heatmap_palcolor The specific colors to use for the heatmap palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param query_group_palette The color palette to use for the query group legend. This can be any of the palettes available in the circlize package. If not provided, the default is "Paired".
+#' @param query_group_palcolor The specific colors to use for the query group palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param ref_group_palette The color palette to use for the reference group legend. This can be any of the palettes available in the circlize package. If not provided, the default is "simspec".
+#' @param ref_group_palcolor The specific colors to use for the reference group palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param query_cell_annotation A vector of cell metadata column names or assay feature names to use for highlighting specific cells in the heatmap. Each element of the vector will create a separate cell annotation track in the heatmap. If not provided, no cell annotations will be shown.
+#' @param query_cell_annotation_palette The color palette to use for the query cell annotation tracks. This can be any of the palettes available in the circlize package. If a single color palette is provided, it will be used for all cell annotation tracks. If multiple color palettes are provided, each track will be assigned a separate palette. If not provided, the default is "Paired".
+#' @param query_cell_annotation_palcolor The specific colors to use for the query cell annotation palettes. This should be a list of vectors, where each vector contains the colors for a specific cell annotation track. If a single color vector is provided, it will be used for all cell annotation tracks. If multiple color vectors are provided, each track will be assigned a separate color vector. If not provided, the default is NULL.
+#' @param query_cell_annotation_params Additional parameters for customizing the appearance of the query cell annotation tracks. This should be a list with named elements, where the names correspond to parameter names in the heatmaps_annotation() function from the ComplexHeatmap package. If not provided, the default parameters will be used.
+#' @param ref_cell_annotation A vector of cell metadata column names or assay feature names to use for highlighting specific cells in the heatmap. Each element of the vector will create a separate cell annotation track in the heatmap. If not provided, no cell annotations will be shown.
+#' @param ref_cell_annotation_palette The color palette to use for the reference cell annotation tracks. This can be any of the palettes available in the circlize package. If a single color palette is provided, it will be used for all cell annotation tracks. If multiple color palettes are provided, each track will be assigned a separate palette. If not provided, the default is "Paired".
+#' @param ref_cell_annotation_palcolor The specific colors to use for the reference cell annotation palettes. This should be a list of vectors, where each vector contains the colors for a specific cell annotation track. If a single color vector is provided, it will be used for all cell annotation tracks. If multiple color vectors are provided, each track will be assigned a separate color vector. If not provided, the default is NULL.
+#' @param ref_cell_annotation_params Additional parameters for customizing the appearance of the reference cell annotation tracks. This should be a list with named elements, where the names correspond to parameter names in the heatmaps_annotation() function from the ComplexHeatmap package. If not provided, the default parameters will be used.
+#' @param use_raster Whether to use raster images for rendering the heatmap. If set to TRUE, the heatmap will be rendered as a raster image using the raster_device argument. If not provided, the default is determined based on the number of rows and columns in the heatmap.
+#' @param raster_device The raster device to use for rendering the heatmap. This should be a character string specifying the device name, such as "png", "jpeg", or "pdf". If not provided, the default is "png".
+#' @param raster_by_magick Whether to use the magick package for rendering rasters. If set to TRUE, the magick package will be used instead of the raster package. This can be useful for rendering large heatmaps more efficiently. If the magick package is not installed, this argument will be ignored.
+#' @param width The width of the heatmap in the specified units. If not provided, the width will be automatically determined based on the number of columns in the heatmap and the default unit.
+#' @param height The height of the heatmap in the specified units. If not provided, the height will be automatically determined based on the number of rows in the heatmap and the default unit.
+#' @param units The units to use for the width and height of the heatmap. Options are "mm", "cm", or "inch". If not provided, the default is "inch".
+#' @param seed The random seed to use for reproducible results. If not provided, the default is 11.
+#' @param ht_params Additional parameters to customize the appearance of the heatmap. This should be a list with named elements, where the names correspond to parameter names in the Heatmap() function from the ComplexHeatmap package. Any conflicting parameters will override the defaults set by this function.
+#'
+#' @return A list with the following elements:
+#'   \itemize{
+#'     \item{\code{plot}}{The heatmap plot as a ggplot object.}
+#'     \item{\code{features}}{The features used in the heatmap.}
+#'     \item{\code{simil_matrix}}{The similarity matrix used to generate the heatmap.}
+#'     \item{\code{simil_name}}{The name of the similarity metric used to generate the heatmap.}
+#'     \item{\code{cell_metadata}}{The cell metadata used to generate the heatmap.}
+#'   }
+#'
+#' @seealso \code{\link{RunKNNMap}} \code{\link{RunKNNPredict}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -9884,7 +10081,7 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
 #'   ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
-#'   width = 3, height = 2
+#'   width = 4, height = 4
 #' )
 #' ht2$plot
 #'
@@ -9912,7 +10109,6 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 #' @importFrom methods getFunction
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
-#' @importFrom rlang %||%
 #' @export
 CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            query_group = NULL, ref_group = NULL,
@@ -9924,17 +10120,17 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            DEtest_param = list(max.cells.per.ident = 200, test.use = "wilcox"),
                            DE_threshold = "p_val_adj < 0.05",
                            distance_metric = "cosine", k = 30,
-                           filter_lowfreq = 0, prefix = "KNNPredict",
+                           filter_lowfreq = 0, prefix = "KNNPredict", exp_legend_title = NULL,
                            border = TRUE, flip = FALSE, limits = NULL,
                            cluster_rows = FALSE, cluster_columns = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = "left", column_names_side = "top", row_names_rot = 0, column_names_rot = 90,
-                           row_title_side = "left", column_title_side = "top", row_title_rot = 90, column_title_rot = 0,
+                           row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 90, column_title_rot = 0,
                            nlabel = 0, label_cutoff = 0, label_by = "row", label_size = 10,
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL,
                            query_group_palette = "Paired", query_group_palcolor = NULL,
-                           ref_group_palette = "jama", ref_group_palcolor = NULL,
-                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = grid::unit(1, "cm")) else list(width = grid::unit(1, "cm")),
-                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height = grid::unit(1, "cm")),
+                           ref_group_palette = "simspec", ref_group_palcolor = NULL,
+                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = unit(10, "mm")) else list(width = unit(10, "mm")),
+                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -9942,6 +10138,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     check_R("magick")
   }
 
+  ref_legend <- TRUE
   simil_method <- c(
     "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice",
     "hamman", "simple matching", "faith"
@@ -9962,7 +10159,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     ref_cell_annotation <- query_cell_annotation
     ref_cell_annotation_palette <- query_cell_annotation_palette
     ref_cell_annotation_palcolor <- query_cell_annotation_palcolor
-    ref_cell_annotation_params <- query_cell_annotation_params
+    ref_legend <- FALSE
   }
   if (!is.null(bulk_ref)) {
     srt_ref <- CreateSeuratObject(counts = bulk_ref, meta.data = data.frame(celltype = colnames(bulk_ref)), assay = "RNA")
@@ -9996,23 +10193,24 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   distance_matrix <- srt_query@tools[[paste0(prefix, "_classification")]][["distance_matrix"]]
   distance_metric <- srt_query@tools[[paste0(prefix, "_classification")]][["distance_metric"]]
   if (distance_metric %in% simil_method) {
-    simil_matrix <- t(as.matrix(1 - distance_matrix))
+    simil_matrix <- t(as_matrix(1 - distance_matrix))
     simil_name <- paste0(capitalize(distance_metric), " similarity")
   } else if (distance_metric %in% dist_method) {
-    simil_matrix <- t(as.matrix(1 - distance_matrix / max(distance_matrix, na.rm = TRUE)))
+    simil_matrix <- t(as_matrix(1 - distance_matrix / max(distance_matrix, na.rm = TRUE)))
     simil_name <- paste0("1-dist[", distance_metric, "]/max(dist[", distance_metric, "])")
   }
   simil_matrix[is.infinite(simil_matrix)] <- max(abs(simil_matrix[!is.infinite(simil_matrix)]), na.rm = TRUE) * ifelse(simil_matrix[is.infinite(simil_matrix)] > 0, 1, -1)
   simil_matrix[is.na(simil_matrix)] <- 0
+  exp_name <- exp_legend_title %||% simil_name
 
   cell_groups <- list()
   if (is.null(query_group)) {
-    srt_query@meta.data[["No.group.by"]] <- factor("")
-    query_group <- "No.group.by"
+    srt_query@meta.data[["All.groups"]] <- factor("")
+    query_group <- "All.groups"
   }
   if (is.null(ref_group)) {
-    srt_ref@meta.data[["No.group.by"]] <- factor("")
-    ref_group <- "No.group.by"
+    srt_ref@meta.data[["All.groups"]] <- factor("")
+    ref_group <- "All.groups"
   }
   if (!is.factor(srt_query[[query_group, drop = TRUE]])) {
     srt_query@meta.data[[query_group]] <- factor(srt_query[[query_group, drop = TRUE]], levels = unique(srt_query[[query_group, drop = TRUE]]))
@@ -10055,7 +10253,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     if (length(query_cell_annotation_palcolor) == 1) {
       query_cell_annotation_palcolor <- rep(query_cell_annotation_palcolor, length(query_cell_annotation))
     }
-    if (length(unique(length(query_cell_annotation_palette), length(query_cell_annotation_palcolor), length(query_cell_annotation))) != 1) {
+    npal <- unique(c(length(query_cell_annotation_palette), length(query_cell_annotation_palcolor), length(query_cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("query_cell_annotation_palette and query_cell_annotation_palcolor must be the same length as query_cell_annotation")
     }
     if (any(!query_cell_annotation %in% c(colnames(srt_query@meta.data), rownames(srt_query[[query_assay]])))) {
@@ -10069,7 +10268,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     if (length(ref_cell_annotation_palcolor) == 1) {
       ref_cell_annotation_palcolor <- rep(ref_cell_annotation_palcolor, length(ref_cell_annotation))
     }
-    if (length(unique(length(ref_cell_annotation_palette), length(ref_cell_annotation_palcolor), length(ref_cell_annotation))) != 1) {
+    npal <- unique(c(length(ref_cell_annotation_palette), length(ref_cell_annotation_palcolor), length(ref_cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("ref_cell_annotation_palette and ref_cell_annotation_palcolor must be the same length as ref_cell_annotation")
     }
     if (any(!ref_cell_annotation %in% c(colnames(srt_ref@meta.data), rownames(srt_ref[[ref_assay]])))) {
@@ -10106,12 +10306,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   cell_metadata <- cbind.data.frame(cell_metadata, cbind.data.frame(query_metadata, ref_metadata))
 
   lgd <- list()
-  lgd[["ht"]] <- Legend(title = simil_name, col_fun = colors, border = TRUE)
+  lgd[["ht"]] <- Legend(title = exp_name, col_fun = colors, border = TRUE)
 
   ha_query_list <- NULL
-  if (query_group != "No.group.by") {
+  if (query_group != "All.groups") {
     if (isFALSE(query_collapsing) && ((isFALSE(flip) & isTRUE(cluster_rows)) || (isTRUE(flip) & isTRUE(cluster_columns)))) {
       query_cell_annotation <- c(query_group, query_cell_annotation)
+      query_cell_annotation_palette <- c(query_group_palette, query_cell_annotation_palette)
+      query_cell_annotation_palcolor <- c(list(query_group_palcolor), query_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10147,9 +10349,11 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
 
   ha_ref_list <- NULL
-  if (ref_group != "No.group.by") {
+  if (ref_group != "All.groups") {
     if (isFALSE(ref_collapsing) && ((isFALSE(flip) & isTRUE(cluster_columns)) || (isTRUE(flip) & isTRUE(cluster_rows)))) {
       ref_cell_annotation <- c(ref_group, ref_cell_annotation)
+      ref_cell_annotation_palette <- c(ref_group_palette, ref_cell_annotation_palette)
+      ref_cell_annotation_palcolor <- c(list(ref_group_palcolor), ref_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10204,14 +10408,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             cells = gsub("query_", "", names(cell_groups[["query_group"]])), plot_type = "pie",
             group.by = query_group, stat.by = cellan,
             palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           query_subplots_list[[paste0(cellan, ":", query_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(query_subplots_list[['", cellan, ":", query_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(query_subplots_list[['", cellan, ":", query_group, "']]", "[['", nm, "']] + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", query_group, "-", nm), "';
               grid.draw(g)
               "
@@ -10282,14 +10486,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             palette = query_group_palette,
             palcolor = query_group_palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           query_subplots_list[[paste0(cellan, ":", query_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(query_subplots_list[['", cellan, ":", query_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(query_subplots_list[['", cellan, ":", query_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", query_group, "-", nm), "';
               grid.draw(g)
               "
@@ -10377,14 +10581,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             cells = gsub("ref_", "", names(cell_groups[["ref_group"]])), plot_type = "pie",
             group.by = ref_group, stat.by = cellan,
             palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           ref_subplots_list[[paste0(cellan, ":", ref_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(ref_subplots_list[['", cellan, ":", ref_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(ref_subplots_list[['", cellan, ":", ref_group, "']]", "[['", nm, "']] + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", ref_group, "-", nm), "';
               grid.draw(g)
               "
@@ -10455,14 +10659,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             palette = ref_group_palette,
             palcolor = ref_group_palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           ref_subplots_list[[paste0(cellan, ":", ref_group)]] <- subplots
           graphics <- list()
           for (nm in names(subplots)) {
             funbody <- paste0(
               "
-              g <- as_grob(ref_subplots_list[['", cellan, ":", ref_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(legend.position = 'none'));
+              g <- as_grob(ref_subplots_list[['", cellan, ":", ref_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
               g$name <- '", paste0(cellan, ":", ref_group, "-", nm), "';
               grid.draw(g)
               "
@@ -10530,6 +10734,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     }
   }
 
+  if (!isTRUE(ref_legend)) {
+    lgd <- lgd[grep("Ref", names(lgd), invert = TRUE)]
+  }
+
   layer_fun <- function(j, i, x, y, w, h, fill) {
     if (nlabel > 0) {
       if (flip) {
@@ -10572,13 +10780,13 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
   ht_list <- NULL
   ht_args <- list(
-    name = simil_name,
+    name = exp_name,
     matrix = if (flip) t(simil_matrix) else simil_matrix,
     col = colors,
     layer_fun = layer_fun,
-    row_title = if (flip) paste0(c("Ref", ref_group), collapse = ":") else paste0(c("Query", query_group), collapse = ":"),
+    row_title = row_title %||% if (flip) paste0(c("Ref", ref_group), collapse = ":") else paste0(c("Query", query_group), collapse = ":"),
     row_title_side = row_title_side,
-    column_title = if (flip) paste0(c("Query", query_group), collapse = ":") else paste0(c("Ref", ref_group), collapse = ":"),
+    column_title = column_title %||% if (flip) paste0(c("Query", query_group), collapse = ":") else paste0(c("Ref", ref_group), collapse = ":"),
     column_title_side = column_title_side,
     row_title_rot = row_title_rot,
     column_title_rot = column_title_rot,
@@ -10665,13 +10873,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
 
   if (isTRUE(fix)) {
-    p <- panel_fix_single(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
+    p <- panel_fix_overall(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
   } else {
     p <- wrap_plots(gTree)
   }
 
   return(list(
     plot = p,
+    features = features,
     simil_matrix = simil_matrix,
     simil_name = simil_name,
     cell_metadata = cell_metadata
@@ -10680,116 +10889,36 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
 #' Heatmap plot for dynamic features along lineages
 #'
-#' @param srt
-#' @param lineages
-#' @param feature_from
-#' @param exp_method
-#' @param slot
-#' @param assay
-#' @param use_fitted
-#' @param lib_normalize
-#' @param libsize
-#' @param min_expcells
-#' @param r.sq
-#' @param dev.expl
-#' @param padjust
-#' @param cell_density
-#' @param order_by
-#' @param decreasing
-#' @param feature_split
-#' @param n_split
-#' @param feature_split_by
-#' @param split_method
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param pseudotime_label
-#' @param pseudotime_label_color
-#' @param pseudotime_label_linetype
-#' @param pseudotime_label_linewidth
-#' @param heatmap_palette
-#' @param pseudotime_palette
-#' @param cell_annotation
-#' @param cell_annotation_palette
-#' @param cell_annotation_palcolor
-#' @param feature_annotation
-#' @param feature_annotation_palette
-#' @param feature_annotation_palcolor
-#' @param reverse_ht
-#' @param use_raster
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param features
-#' @param border
-#' @param flip
-#' @param family
-#' @param cluster_features_by
-#' @param cluster_rows
-#' @param cluster_row_slices
-#' @param cluster_columns
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param anno_keys
-#' @param anno_features
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param convert_species
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param show_termid
-#' @param topWord
-#' @param min_word_length
-#' @param exclude_words
-#' @param heatmap_palcolor
-#' @param pseudotime_palcolor
-#' @param feature_split_palette
-#' @param feature_split_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation_params
-#' @param separate_annotation
-#' @param separate_annotation_palette
-#' @param separate_annotation_palcolor
-#' @param separate_annotation_params
-#' @param raster_device
-#' @param ht_params
-#' @param limits
-#' @param raster_by_magick
-#' @param db_combine
+#' @inheritParams GroupHeatmap
+#' @param srt A Seurat object.
+#' @param lineages A character vector specifying the lineages to plot.
+#' @param features A character vector specifying the features to plot. By default, this parameter is set to NULL, and the dynamic features will be determined by the parameters  \code{min_expcells}, \code{r.sq}, \code{dev.expl}, \code{padjust} and \code{num_intersections}.
+#' @param use_fitted A logical indicating whether to use fitted values. Default is FALSE.
+#' @param border A logical indicating whether to add a border to the heatmap. Default is TRUE.
+#' @param flip A logical indicating whether to flip the heatmap. Default is FALSE.
+#' @param min_expcells A numeric value specifying the minimum number of expected cells. Default is 20.
+#' @param r.sq A numeric value specifying the R-squared threshold. Default is 0.2.
+#' @param dev.expl A numeric value specifying the deviance explained threshold. Default is 0.2.
+#' @param padjust A numeric value specifying the p-value adjustment threshold. Default is 0.05.
+#' @param num_intersections This parameter is a numeric vector used to determine the number of intersections among lineages. It helps in selecting which dynamic features will be used. By default, when this parameter is set to NULL, all dynamic features that pass the specified threshold will be used for each lineage.
+#' @param cell_density A numeric value is used to define the cell density within each cell bin. By default, this parameter is set to 1, which means that all cells will be included within each cell bin.
+#' @param cell_bins A numeric value specifying the number of cell bins. Default is 100.
+#' @param order_by A character vector specifying the order of the heatmap. Default is "peaktime".
+#' @param family A character specifying the model used to calculate the dynamic features if needed. By default, this parameter is set to NULL, and the appropriate family will be automatically determined.
+#' @param cluster_features_by A character vector specifying which lineage to use when clustering features. By default, this parameter is set to NULL, which means that all lineages will be used.
+#' @param pseudotime_label A numeric vector specifying the pseudotime label. Default is NULL.
+#' @param pseudotime_label_color A character string specifying the pseudotime label color. Default is "black".
+#' @param pseudotime_label_linetype A numeric value specifying the pseudotime label line type. Default is 2.
+#' @param pseudotime_label_linewidth A numeric value specifying the pseudotime label line width. Default is 3.
+#' @param pseudotime_palette A character vector specifying the color palette to use for pseudotime.
+#' @param pseudotime_palcolor A list specifying the colors to use for the pseudotime in the heatmap.
+#' @param separate_annotation A character vector of names of annotations to be displayed in separate annotation blocks. Each name should match a column name in the metadata of the Seurat object.
+#' @param separate_annotation_palette A character vector specifying the color palette to use for separate annotations.
+#' @param separate_annotation_palcolor A list specifying the colors to use for each level of the separate annotations.
+#' @param separate_annotation_params A list of other parameters to be passed to the HeatmapAnnotation function when creating the separate annotation blocks.
+#' @param reverse_ht A logical indicating whether to reverse the heatmap. Default is NULL.
+#'
+#' @seealso \code{\link{RunDynamicFeatures}} \code{\link{RunDynamicEnrichment}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -10824,7 +10953,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' )
 #' ht3$plot
 #'
-#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 #' ht4 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
@@ -10834,11 +10963,11 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   split_method = "mfuzz",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
-#'   cell_annotation_palette = c("Paired", "jama", "Purples"),
+#'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(height = grid::unit(2, "cm")),
-#'   feature_annotation = c("TF", "SP"),
+#'   separate_annotation_params = list(height = unit(10, "mm")),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
 #'   pseudotime_label_color = "red"
@@ -10854,11 +10983,11 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   split_method = "mfuzz",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
-#'   cell_annotation_palette = c("Paired", "jama", "Purples"),
+#'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(width = grid::unit(2, "cm")),
-#'   feature_annotation = c("TF", "SP"),
+#'   separate_annotation_params = list(width = unit(10, "mm")),
+#'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
 #'   pseudotime_label_color = "red",
@@ -10880,24 +11009,25 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @importFrom Seurat GetAssayData NormalizeData DefaultAssay
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation width.Legends height.Legends decorate_annotation row_order %v%
-#' @importFrom stats kmeans
+#' @importFrom stats kmeans sd
 #' @importFrom patchwork wrap_plots
-#' @importFrom grid gpar grid.lines grid.text
+#' @importFrom grid gpar grid.lines grid.text unit
 #' @importFrom gtable gtable_add_padding
 #' @importFrom Matrix t
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate reframe distinct n .data "%>%"
-#' @importFrom rlang %||%
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate reframe distinct n .data
+#' @importFrom proxyC dist
 #' @export
-DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineages, use_fitted = FALSE, border = TRUE, flip = FALSE,
-                           min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, cell_density = 1, order_by = c("peaktime", "valleytime"),
-                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL,
+DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, border = TRUE, flip = FALSE,
+                           min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, num_intersections = NULL,
+                           cell_density = 1, cell_bins = 100, order_by = c("peaktime", "valleytime"),
+                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL,
                            lib_normalize = identical(slot, "counts"), libsize = NULL, family = NULL,
                            cluster_features_by = NULL, cluster_rows = FALSE, cluster_row_slices = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
-                           row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
-                           feature_split = NULL, feature_split_by = NULL, n_split = NULL,
+                           row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
+                           feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
                            split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"), decreasing = FALSE,
-                           fuzzification = NULL, show_fuzzification = FALSE,
+                           fuzzification = NULL,
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                            terms_width = unit(4, "in"), terms_fontsize = 8,
                            keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -10905,16 +11035,15 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                            IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
                            db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                            GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
-                           exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
+                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, words_excluded = NULL,
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            pseudotime_label = NULL, pseudotime_label_color = "black", pseudotime_label_linetype = 2, pseudotime_label_linewidth = 3,
-                           heatmap_palette = "RdBu", heatmap_palcolor = NULL,
+                           heatmap_palette = "viridis", heatmap_palcolor = NULL,
                            pseudotime_palette = "cividis", pseudotime_palcolor = NULL,
-                           feature_split_palette = "jama", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = list(),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = list(),
-                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = grid::unit(2, "cm")) else list(height = grid::unit(2, "cm")),
+                           feature_split_palette = "simspec", feature_split_palcolor = NULL,
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
+                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            reverse_ht = NULL, use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -10932,6 +11061,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     exp_method <- match.arg(exp_method)
     exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
+  exp_name <- exp_legend_title %||% exp_name
 
   assay <- assay %||% DefaultAssay(srt)
   if (any(!lineages %in% colnames(srt@meta.data))) {
@@ -10944,9 +11074,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         stop("lineages: ", l, " is not in the meta data of the Seurat object")
       }
     }
-  }
-  if (any(!feature_from %in% lineages)) {
-    stop("feature_from must be a subset of the lineages")
   }
   if (is.null(feature_split_by)) {
     feature_split_by <- lineages
@@ -10973,7 +11100,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(pseudotime_label_linewidth) == 1) {
       pseudotime_label_linewidth <- rep(pseudotime_label_linewidth, length(pseudotime_label))
     }
-    if (length(unique(length(pseudotime_label), length(pseudotime_label_color), length(pseudotime_label_linetype), length(pseudotime_label_linewidth))) != 1) {
+    npal <- unique(c(length(pseudotime_label), length(pseudotime_label_color), length(pseudotime_label_linetype), length(pseudotime_label_linewidth)))
+    if (length(npal[npal != 0]) > 1) {
       stop("Parameters for the pseudotime_label must be the same length!")
     }
   }
@@ -10984,7 +11112,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -10998,7 +11127,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -11012,7 +11142,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(separate_annotation_palcolor) == 1) {
       separate_annotation_palcolor <- rep(separate_annotation_palcolor, length(separate_annotation))
     }
-    if (length(unique(length(separate_annotation_palette), length(separate_annotation_palcolor), length(separate_annotation))) != 1) {
+    npal <- unique(c(length(separate_annotation_palette), length(separate_annotation_palcolor), length(separate_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("separate_annotation_palette and separate_annotation_palcolor must be the same length as separate_annotation")
     }
     if (any(!unique(unlist(separate_annotation)) %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -11051,12 +11182,12 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     srt@meta.data[cell_union, lineages, drop = FALSE]
   )
   if (cell_density != 1) {
-    cell_bin <- cut(Pseudotime_assign, breaks = seq(min(Pseudotime_assign, na.rm = TRUE), max(Pseudotime_assign, na.rm = TRUE), length.out = 100), include.lowest = TRUE)
-    ncell_bin <- ceiling(max(table(cell_bin), na.rm = TRUE) * cell_density)
-    message("ncell/bin=", ncell_bin, "(100bins)")
-    cell_keep <- unlist(sapply(levels(cell_bin), function(x) {
-      cells <- names(Pseudotime_assign)[cell_bin == x]
-      out <- sample(cells, size = min(length(cells), ncell_bin))
+    bins <- cut(Pseudotime_assign, breaks = seq(min(Pseudotime_assign, na.rm = TRUE), max(Pseudotime_assign, na.rm = TRUE), length.out = cell_bins), include.lowest = TRUE)
+    ncells <- ceiling(max(table(bins), na.rm = TRUE) * cell_density)
+    message("ncell/bin=", ncells, "(", cell_bins, "bins)")
+    cell_keep <- unlist(sapply(levels(bins), function(x) {
+      cells <- names(Pseudotime_assign)[bins == x]
+      out <- sample(cells, size = min(length(cells), ncells))
       return(out)
     }))
     cell_metadata <- cell_metadata[cell_keep, , drop = FALSE]
@@ -11091,9 +11222,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       }
       DynamicFeatures <- DynamicFeatures[DynamicFeatures$exp_ncells > min_expcells & DynamicFeatures$r.sq > r.sq & DynamicFeatures$dev.expl > dev.expl & DynamicFeatures$padjust < padjust, , drop = FALSE]
       dynamic[[l]] <- DynamicFeatures
-      if (l %in% feature_from) {
-        features <- c(features, DynamicFeatures[["features"]])
-      }
+      features <- c(features, DynamicFeatures[["features"]])
     }
     message(length(unique(features)), " features from ", paste0(lineages, collapse = ","), " passed the threshold (exp_ncells>", min_expcells, " & r.sq>", r.sq, " & dev.expl>", dev.expl, " & padjust<", padjust, "): \n", paste0(head(features, 10), collapse = ","), "...")
   } else {
@@ -11112,7 +11241,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     }
   }
 
-  features <- unique(features)
+  all_calculated <- Reduce(intersect, lapply(lineages, function(l) rownames(srt@tools[[paste0("DynamicFeatures_", l)]][["DynamicFeatures"]])))
+  features_tab <- table(features)
+  features <- names(features_tab)[which(features_tab %in% (num_intersections %||% seq_along(lineages)))]
+  if (!all(features %in% all_calculated)) {
+    message("Some features were missing in at least one lineage: \n", paste0(head(features[!features %in% all_calculated], 10), collapse = ","), "...")
+    features <- intersect(features, all_calculated)
+  }
   gene <- features[features %in% rownames(srt@assays[[assay]])]
   meta <- features[features %in% colnames(srt@meta.data)]
   if (length(gene) == 0 && length(meta) == 0) {
@@ -11147,7 +11282,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     Y_libsize <- colSums(slot(srt@assays[[assay]], "counts"))
     for (l in lineages) {
       cells <- gsub(pattern = l, replacement = "", x = cell_order_list[[l]])
-      mat_tmp <- as.matrix(rbind(slot(srt@assays[[assay]], slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
+      mat_tmp <- as_matrix(rbind(slot(srt@assays[[assay]], slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
       if (isTRUE(lib_normalize) && min(mat_tmp, na.rm = TRUE) >= 0) {
         if (!is.null(libsize)) {
           libsize_use <- libsize
@@ -11314,7 +11449,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           nm <- paste0(cellan, ":", l)
           funbody <- paste0(
             "
-            g <- as_grob(subplots_list[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+            g <- as_grob(subplots_list[['", nm, "']] + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
             g$name <- '", nm, "';
             grid.draw(g);
             grid.rect(gp = gpar(fill = 'transparent', col = 'black'));
@@ -11360,7 +11495,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           nm <- paste0(paste0(cellan, collapse = ","), ":", l)
           funbody <- paste0(
             "
-            g <- as_grob(subplots_list[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+            g <- as_grob(subplots_list[['", nm, "']] + theme_void() + theme(plot.title = element_blank(), plot.subtitle = element_blank(), legend.position = 'none'));
             g$name <- '", nm, "';
             grid.draw(g);
             grid.rect(gp = gpar(fill = 'transparent', col = 'black'));
@@ -11404,15 +11539,15 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          status <- tryCatch(check_R("e1071"), error = identity)
           if (inherits(status, "error")) {
-            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            warning("The e1071 package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz", quietly = TRUE)
-            eset <- new("ExpressionSet", exprs = mat_split)
-            eset <- Mfuzz::standardise(eset)
-            min_fuzzification <- Mfuzz::mestimate(eset)
+            mat_split_tmp <- mat_split
+            colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
+            mat_split_tmp <- standardise(mat_split_tmp)
+            min_fuzzification <- mestimate(mat_split_tmp)
             if (is.null(fuzzification)) {
               fuzzification <- min_fuzzification + 0.1
             } else {
@@ -11420,12 +11555,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                 warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
               }
             }
-            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            cl <- e1071::cmeans(mat_split_tmp, centers = n_split, method = "cmeans", m = fuzzification)
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-            }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
             }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
@@ -11442,19 +11574,22 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           row_split <- feature_split <- km$cluster
         }
         if (split_method == "hclust") {
-          hc <- hclust(stats::dist(mat_split))
+          hc <- hclust(as.dist(dist(mat_split)))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
         if (split_method == "hclust-peaktime") {
           feature_y <- feature_metadata[rownames(mat_split), order_by]
           names(feature_y) <- rownames(mat_split)
-          hc <- hclust(stats::dist(feature_y))
+          hc <- hclust(as.dist(dist(feature_y)))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
       }
       df <- data.frame(row_split = row_split, order_by = feature_metadata[names(row_split), order_by])
       df_order <- aggregate(df, by = list(row_split), FUN = mean)
       df_order <- df_order[order(df_order[["order_by"]], decreasing = decreasing), , drop = FALSE]
+      if (!is.null(split_order)) {
+        df_order <- df_order[split_order, , drop = FALSE]
+      }
       split_levels <- c()
       for (i in seq_len(nrow(df_order))) {
         raw_nm <- df_order[i, "row_split"]
@@ -11517,7 +11652,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   if (isTRUE(cluster_rows) && !is.null(cluster_features_by)) {
     mat_cluster <- mat[, unlist(cell_order_list[cluster_features_by]), drop = FALSE]
     if (is.null(row_split)) {
-      dend <- as.dendrogram(hclust(dist(mat_cluster)))
+      dend <- as.dendrogram(hclust(as.dist(dist(mat_cluster))))
       dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
       cluster_rows <- dend_ordered
     } else {
@@ -11589,8 +11724,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       ha_list[[l]] <- anno_simple(
         x = is.na(feature_metadata[, paste0(l, order_by)]) + 0,
         col = c("0" = "#181830", "1" = "transparent"),
-        width = unit(0.5, "cm"),
-        height = unit(0.5, "cm"),
+        width = unit(5, "mm"),
+        height = unit(5, "mm"),
         which = ifelse(flip, "column", "row")
       )
     }
@@ -11672,8 +11807,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, db_combine = db_combine, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
     db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize,
     GO_simplify = GO_simplify, GO_simplify_cutoff = GO_simplify_cutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
-    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
-    exclude_words = exclude_words
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, words_excluded = words_excluded
   )
   res <- enrichment$res
   ha_right <- enrichment$ha_right
@@ -11694,9 +11828,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       name = l,
       matrix = if (flip) t(mat[, cell_order_list[[l]], drop = FALSE]) else mat[, cell_order_list[[l]], drop = FALSE],
       col = colors,
-      row_title = if (flip) l else character(0),
+      row_title = row_title %||% if (flip) l else character(0),
       row_title_side = row_title_side,
-      column_title = if (flip) character(0) else l,
+      column_title = column_title %||% if (flip) character(0) else l,
       column_title_side = if (flip) "top" else column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
@@ -11741,6 +11875,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("\nThe size of the heatmap is fixed because certain elements are not scalable.\nThe width and height of the heatmap are determined by the size of the current viewport.\nIf you want to have more control over the size, you can manually set the parameters 'width' and 'height'.\n")
+    }
   } else {
     fix <- FALSE
   }
@@ -11868,7 +12005,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   }
 
   if (isTRUE(fix)) {
-    p <- panel_fix_single(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
+    p <- panel_fix_overall(gTree, width = as.numeric(ht_width), height = as.numeric(ht_height), units = units)
   } else {
     p <- wrap_plots(gTree)
   }
@@ -11884,48 +12021,53 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   ))
 }
 
-#' Plot for dynamic features along lineages.
+#' DynamicPlot
 #'
-#' @param srt
-#' @param features
-#' @param lineages
-#' @param slot
-#' @param assay
-#' @param family
-#' @param libsize
-#' @param exp_method
-#' @param lib_normalize
-#' @param group.by
-#' @param compare_lineages
-#' @param compare_features
-#' @param add_line
-#' @param add_interval
-#' @param line.size
-#' @param line_palette
-#' @param line_palcolor
-#' @param add_point
-#' @param pt.size
-#' @param point_palette
-#' @param point_palcolor
-#' @param add_rug
-#' @param aspect.ratio
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param cells
-#' @param flip
-#' @param reverse
-#' @param x_order
-#' @param theme_use
-#' @param theme_args
-#' @param seed
+#' Plot dynamic features across pseudotime.
+#'
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to plot.
+#' @param lineages A character vector specifying the lineages to plot.
+#' @param group.by A character specifying a metadata column to group the cells by. Default is NULL.
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#' @param slot A character string specifying the slot to use for the analysis. Default is "counts".
+#' @param assay A character string specifying the assay to use for the analysis. Default is NULL.
+#' @param family A character specifying the model used to calculate the dynamic features if needed. By default, this parameter is set to NULL, and the appropriate family will be automatically determined.
+#' @param exp_method A character specifying the method to transform the expression values. Default is "log1p" with options "log1p", "raw", "zscore", "fc", "log2fc".
+#' @param lib_normalize A boolean specifying whether to normalize the expression values using library size. By default, if the \code{slot} is counts, this parameter is set to TRUE. Otherwise, it is set to FALSE.
+#' @param libsize A numeric vector specifying the library size for each cell. Default is NULL.
+#' @param compare_lineages A boolean specifying whether to compare the lineages in the plot. Default is TRUE.
+#' @param compare_features A boolean specifying whether to compare the features in the plot. Default is FALSE.
+#' @param add_line A boolean specifying whether to add lines to the plot. Default is TRUE.
+#' @param add_interval A boolean specifying whether to add confidence intervals to the plot. Default is TRUE.
+#' @param line.size A numeric specifying the size of the lines. Default is 1.
+#' @param line_palette A character string specifying the name of the palette to use for the line colors. Default is "Dark2".
+#' @param line_palcolor A vector specifying the colors to use for the line palette. Default is NULL.
+#' @param add_point A boolean specifying whether to add points to the plot. Default is TRUE.
+#' @param pt.size A numeric specifying the size of the points. Default is 1.
+#' @param point_palette A character string specifying the name of the palette to use for the point colors. Default is "Paired".
+#' @param point_palcolor A vector specifying the colors to use for the point palette. Default is NULL.
+#' @param add_rug A boolean specifying whether to add rugs to the plot. Default is TRUE.
+#' @param flip A boolean specifying whether to flip the x-axis. Default is FALSE.
+#' @param reverse A boolean specifying whether to reverse the x-axis. Default is FALSE.
+#' @param x_order A character specifying the order of the x-axis values. Default is c("value", "rank").
+#' @param aspect.ratio A numeric specifying the aspect ratio of the plot. Default is NULL.
+#' @param legend.position A character string specifying the position of the legend in the plot. Default is "right".
+#' @param legend.direction A character string specifying the direction of the legend in the plot. Default is "vertical".
+#' @param theme_use A character string specifying the name of the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list specifying the arguments to pass to the theme function. Default is list().
+#' @param combine A boolean specifying whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow A numeric specifying the number of rows in the combined plot. Default is NULL.
+#' @param ncol A numeric specifying the number of columns in the combined plot. Default is NULL.
+#' @param byrow A boolean specifying whether to fill plots by row in the combined plot. Default is TRUE.
+#' @param seed A numeric specifying the random seed. Default is 11.
+#'
+#' @seealso \code{\link{RunDynamicFeatures}}
 #'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 #' DynamicPlot(
 #'   srt = pancreas_sub,
 #'   lineages = "Lineage1",
@@ -11955,8 +12097,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 #' @importFrom ggnewscale new_scale_fill new_scale_color
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats runif
+#' @importFrom reshape2 melt
 #' @export
-DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, slot = "counts", assay = NULL, family = NULL,
+DynamicPlot <- function(srt, lineages, features, group.by = NULL, cells = NULL, slot = "counts", assay = NULL, family = NULL,
                         exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"), lib_normalize = identical(slot, "counts"), libsize = NULL,
                         compare_lineages = TRUE, compare_features = FALSE,
                         add_line = TRUE, add_interval = TRUE, line.size = 1, line_palette = "Dark2", line_palcolor = NULL,
@@ -12017,10 +12160,10 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
       upr_matrix <- cbind(upr_matrix, srt_tmp@tools[[paste0("DynamicFeatures_", l)]][["upr_matrix"]][, feature_calcu, drop = FALSE])
       lwr_matrix <- cbind(lwr_matrix, srt_tmp@tools[[paste0("DynamicFeatures_", l)]][["lwr_matrix"]][, feature_calcu, drop = FALSE])
     }
-    raw_matrix_list[[l]] <- as.matrix(raw_matrix[, features, drop = FALSE])
-    fitted_matrix_list[[l]] <- as.matrix(fitted_matrix[, features, drop = FALSE])
-    upr_matrix_list[[l]] <- as.matrix(upr_matrix[, features, drop = FALSE])
-    lwr_matrix_list[[l]] <- as.matrix(lwr_matrix[, features, drop = FALSE])
+    raw_matrix_list[[l]] <- as_matrix(raw_matrix[, features, drop = FALSE])
+    fitted_matrix_list[[l]] <- as_matrix(fitted_matrix[, features, drop = FALSE])
+    upr_matrix_list[[l]] <- as_matrix(upr_matrix[, features, drop = FALSE])
+    lwr_matrix_list[[l]] <- as_matrix(lwr_matrix[, features, drop = FALSE])
     cell_union <- unique(c(cell_union, rownames(raw_matrix)))
   }
 
@@ -12102,25 +12245,25 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
     colnames(raw)[1] <- "Pseudotime"
     raw[["Cell"]] <- rownames(raw)
     raw[["Value"]] <- "raw"
-    raw <- reshape2::melt(raw, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
+    raw <- melt(raw, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
 
     fitted <- as.data.frame(cbind(cell_metadata[rownames(fitted_matrix), c(l, "x_assign")], fitted_matrix))
     colnames(fitted)[1] <- "Pseudotime"
     fitted[["Cell"]] <- rownames(fitted)
     fitted[["Value"]] <- "fitted"
-    fitted <- reshape2::melt(fitted, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
+    fitted <- melt(fitted, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
 
     upr <- as.data.frame(cbind(cell_metadata[rownames(upr_matrix), c(l, "x_assign")], upr_matrix))
     colnames(upr)[1] <- "Pseudotime"
     upr[["Cell"]] <- rownames(upr)
     upr[["Value"]] <- "upr"
-    upr <- reshape2::melt(upr, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
+    upr <- melt(upr, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
 
     lwr <- as.data.frame(cbind(cell_metadata[rownames(lwr_matrix), c(l, "x_assign")], lwr_matrix))
     colnames(lwr)[1] <- "Pseudotime"
     lwr[["Cell"]] <- rownames(lwr)
     lwr[["Value"]] <- "lwr"
-    lwr <- reshape2::melt(lwr, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
+    lwr <- melt(lwr, id.vars = c("Cell", "Pseudotime", "x_assign", "Value"), value.name = "exp", variable.name = "Features")
 
     raw[["upr"]] <- NA
     raw[["lwr"]] <- NA
@@ -12326,20 +12469,37 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
   }
 }
 
+GroupTreePlot <- function() {
+
+}
+
 #' Projection Plot
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param query_group
-#' @param ref_group
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_param
-#' @param ref_param
-#' @param xlim
-#' @param ylim
-#' @param pt.size
-#' @param stroke.highlight
+#' This function generates a projection plot, which can be used to compare two groups of cells in a dimensionality reduction space.
+#'
+#' @param srt_query An object of class Seurat storing the query group cells.
+#' @param srt_ref An object of class Seurat storing the reference group cells.
+#' @param query_group The grouping variable for the query group cells.
+#' @param ref_group The grouping variable for the reference group cells.
+#' @param query_reduction The name of the reduction in the query group cells.
+#' @param ref_reduction The name of the reduction in the reference group cells.
+#' @param query_param A list of parameters for customizing the query group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).
+#' @param ref_param A list of parameters for customizing the reference group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).
+#' @param xlim The x-axis limits for the plot. If not provided, the limits will be calculated based on the data.
+#' @param ylim The y-axis limits for the plot. If not provided, the limits will be calculated based on the data.
+#' @param pt.size The size of the points in the plot.
+#' @param stroke.highlight The size of the stroke highlight for cells.
+#'
+#' @examples
+#' data("panc8_sub")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
+#'
+#' # Projection
+#' srt_query <- RunKNNMap(srt_query = srt_query, srt_ref = srt_ref, ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom ggplot2 scale_x_continuous scale_y_continuous ggplot_build theme geom_point aes scale_fill_identity facet_null
 #' @importFrom ggnewscale new_scale_fill new_scale_color
@@ -12349,13 +12509,16 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @importFrom patchwork wrap_plots
 #' @export
 ProjectionPlot <- function(srt_query, srt_ref,
-                           query_group = "orig.ident", ref_group = "orig.ident",
-                           query_reduction = "ref.umap", ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] %||% NULL,
-                           query_param = list(palette = "Dark2"), ref_param = list(palette = "Paired"),
+                           query_group = NULL, ref_group = NULL,
+                           query_reduction = "ref.embeddings", ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] %||% NULL,
+                           query_param = list(palette = "Set1", cells.highlight = TRUE), ref_param = list(palette = "Paired"),
                            xlim = NULL, ylim = NULL, pt.size = 0.8, stroke.highlight = 0.5) {
   if (is.null(ref_reduction)) {
     stop("Please specify the ref_reduction.")
   }
+  query_param[["show_stat"]] <- FALSE
+  ref_param[["show_stat"]] <- FALSE
+
   if (is.null(xlim)) {
     ref_xlim <- range(srt_ref[[ref_reduction]]@cell.embeddings[, 1])
     query_xlim <- range(srt_query[[query_reduction]]@cell.embeddings[, 1])
@@ -12371,24 +12534,23 @@ ProjectionPlot <- function(srt_query, srt_ref,
     srt = srt_ref, reduction = ref_reduction, group.by = ref_group,
     ref_param
   )) +
-    guides(color = guide_legend(title = paste0("Ref: ", ref_group), override.aes = list(size = 4.5)))
+    guides(color = guide_legend(title = paste0("Ref: ", ref_group), override.aes = list(size = 4)))
   p1legend <- get_legend(p1)
   # p1legend <- gtable_filter(ggplot_gtable(ggplot_build(p1)), "guide-box")
 
-  suppressMessages(expr = {
-    p2 <- do.call(CellDimPlot, args = c(
-      srt = srt_query, reduction = query_reduction, group.by = query_group,
-      query_param
-    )) +
-      scale_x_continuous(limits = xlim) +
-      scale_y_continuous(limits = ylim)
-  })
+
+  p2 <- do.call(CellDimPlot, args = c(
+    srt = srt_query, reduction = query_reduction, group.by = query_group,
+    query_param
+  )) +
+    scale_x_continuous(limits = xlim) +
+    scale_y_continuous(limits = ylim)
   p2data <- ggplot_build(p2)$data[[1]]
   color <- p2data$colour
   names(color) <- p2$data$group.by
   p2 <- p2 + guides(color = guide_legend(
     title = paste0("Query: ", query_group),
-    override.aes = list(size = 4.5, shape = 21, color = "black", fill = na.omit(color[levels(p2$data$group.by)]))
+    override.aes = list(size = 4, shape = 21, color = "black", fill = na.omit(color[levels(p2$data$group.by)]))
   ))
   p2legend <- get_legend(p2)
   # p2legend <- gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
@@ -12422,77 +12584,175 @@ ProjectionPlot <- function(srt_query, srt_ref,
 
 #' EnrichmentPlot
 #'
-#' @param plot_type Type of plot to be visualized.
-#' @param topTerm Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.
-#' @param topWord Number of features to plot if \code{plot_type="wordcloud"}.
-#' @param pvalueCutoff pvalueCutoff
-#' @param padjustCutoff padjustCutoff
-#' @param palette palette
-#' @param combine combine
-#' @param nrow nrow
-#' @param ncol ncol
-#' @param byrow byrow
-#' @param db
-#' @param character_width
-#' @param lineheight
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param res
-#' @param group_use
-#' @param word_type
-#' @param word_size
-#' @param min_word_length
-#' @param exclude_words
-#' @param aspect.ratio
-#' @param legend.position
-#' @param legend.direction
-#' @param palcolor
-#' @param only_sig
-#' @param theme_use
-#' @param theme_args
-#' @param seed
+#' This function generates various types of plots for enrichment (over-representation) analysis.
+#'
+#' @param srt A Seurat object containing the results of RunDEtest and RunEnrichment.
+#' If specified, enrichment results will be extracted from the Seurat object automatically.
+#' If not specified, the \code{res} arguments must be provided.
+#' @param group_by A character vector specifying the grouping variable in the Seurat object. This argument is only used if \code{srt} is specified.
+#' @param test.use A character vector specifying the test to be used in differential expression analysis. This argument is only used if \code{srt} is specified.
+#' @param res Enrichment results generated by RunEnrichment function. If provided, 'srt', 'test.use' and 'group_by' are ignored.
+#' @param db The database to use for enrichment plot. Default is "GO_BP".
+#' @param plot_type The type of plot to generate. Options are: "bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison". Default is "bar".
+#' @param split_by The splitting variable(s) for the plot. Can be "Database", "Groups", or both. Default is c("Database", "Groups") for plots.
+#' @param color_by The variable used for coloring. Default is "Database".
+#' @param group_use The group(s) to be used for enrichment plot. Default is NULL.
+#' @param id_use List of IDs to be used to display specific terms in the enrichment plot. Default value is NULL.
+#' @param pvalueCutoff The p-value cutoff. Default is NULL. Only work when \code{padjustCutoff} is NULL.
+#' @param padjustCutoff The p-adjusted cutoff. Default is 0.05.
+#' @param topTerm The number of top terms to display. Default is 6, or 100 if 'plot_type' is "enrichmap".
+#' @param compare_only_sig Whether to compare only significant terms. Default is FALSE.
+#' @param topWord The number of top words to display for wordcloud. Default is 100.
+#' @param word_type The type of words to display in wordcloud. Options are "term" and "feature". Default is "term".
+#' @param word_size The size range for words in wordcloud. Default is c(2, 8).
+#' @param words_excluded Words to be excluded from the wordcloud. The default value is NULL, which means that the built-in words (SCP::words_excluded) will be used.
+#' @param network_layout The layout algorithm to use for network plot. Options are "fr", "kk","random", "circle", "tree", "grid", or other algorithm from 'igraph' package. Default is "fr".
+#' @param network_labelsize The label size for network plot. Default is 5.
+#' @param network_blendmode The blend mode for network plot. Default is "blend".
+#' @param network_layoutadjust Whether to adjust the layout of the network plot to avoid overlapping words. Default is TRUE.
+#' @param network_adjscale The scale for adjusting network plot layout. Default is 60.
+#' @param network_adjiter The number of iterations for adjusting network plot layout. Default is 100.
+#' @param enrichmap_layout The layout algorithm to use for enrichmap plot. Options are "fr", "kk","random", "circle", "tree", "grid", or other algorithm from 'igraph' package. Default is "fr".
+#' @param enrichmap_cluster The clustering algorithm to use for enrichmap plot. Options are "walktrap", "fast_greedy", or other algorithm from 'igraph' package. Default is "fast_greedy".
+#' @param enrichmap_label  The label type for enrichmap plot. Options are "term" and "feature". Default is "term".
+#' @param enrichmap_labelsize The label size for enrichmap plot. Default is 5.
+#' @param enrlichmap_nlabel The number of labels to display for each cluster in enrichmap plot. Default is 4.
+#' @param enrichmap_show_keyword Whether to show the keyword of terms or features in enrichmap plot. Default is FALSE.
+#' @param enrichmap_mark The mark shape for enrichmap plot. Options are "ellipse" and "hull". Default is "ellipse".
+#' @param enrichmap_expand The expansion factor for enrichmap plot. Default is c(0.5, 0.5).
+#' @param character_width  The maximum width of character of descriptions. Default is 50.
+#' @param lineheight The line height for y-axis labels. Default is 0.5.
+#' @param palette The color palette to use. Default is "Spectral".
+#' @param palcolor Custom colors for palette. Default is NULL.
+#' @param aspect.ratio The aspect ratio of the plot. Default is 1.
+#' @param legend.position The position of the legend. Default is "right".
+#' @param legend.direction The direction of the legend. Default is "vertical".
+#' @param theme_use The theme to use for the plot. Default is "theme_scp".
+#' @param theme_args The arguments to pass to the theme. Default is an empty list.
+#' @param combine Whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow The number of rows in the combined plot. Default is NULL, calculated based on the number of plots.
+#' @param ncol The number of columns in the combined plot. Default is NULL, calculated based on the number of plots.
+#' @param byrow  Whether to fill the combined plot by row. Default is TRUE.
+#' @param seed The random seed to use. Default is 11.
+#'
+#' @seealso \code{\link{RunEnrichment}}
 #'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = "GO_BP", group_by = "CellType", species = "Mus_musculus")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "bar")
+#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("GO_BP", "GO_CC"), group_by = "CellType", species = "Mus_musculus")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "bar")
 #' EnrichmentPlot(pancreas_sub,
-#'   db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"),
+#'   db = "GO_BP", group_by = "CellType", group_use = "Endocrine",
 #'   plot_type = "bar", character_width = 30,
 #'   theme_use = ggplot2::theme_classic, theme_args = list(base_size = 10)
 #' )
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_sig = TRUE)
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", color_by = "Groups", ncol = 2)
+#' EnrichmentPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups", palette = "Set1",
+#'   id_use = list(
+#'     "Ductal" = c("GO:0002181", "GO:0045787", "GO:0006260", "GO:0050679"),
+#'     "Ngn3 low EP" = c("GO:0050678", "GO:0051101", "GO:0072091", "GO:0006631"),
+#'     "Ngn3 high EP" = c("GO:0035270", "GO:0030325", "GO:0008637", "GO:0030856"),
+#'     "Pre-endocrine" = c("GO:0090276", "GO:0031018", "GO:0030073", "GO:1903532"),
+#'     "Endocrine" = c("GO:0009914", "GO:0030073", "GO:0009743", "GO:0042593")
+#'   )
+#' )
 #'
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
+#'
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = "Groups"
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups",
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = c("Database", "Groups")
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = c("Groups", "Database")
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups", palette = "Set1"
+#' )
+#'
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "dot", palette = "GdRd")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "lollipop", palette = "GdRd")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "wordcloud")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "wordcloud", word_type = "feature")
+#'
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", id_use = c("GO:0050678", "GO:0035270", "GO:0090276", "GO:0030073"))
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", network_layoutadjust = FALSE)
+#' EnrichmentPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network",
+#'   topTerm = 4, network_blendmode = "average",
+#'   theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
+#' ) %>% panel_fix(height = 5)
+#'
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap", enrichmap_expand = c(2, 1))
+#' EnrichmentPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
+#'   enrichmap_show_keyword = TRUE, character_width = 10
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
+#'   topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "feature", enrlichmap_nlabel = 3, character_width = 10,
+#'   theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
+#' ) %>% panel_fix(height = 4)
 #'
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("MP", "DO"), group_by = "CellType", convert_species = TRUE, species = "Mus_musculus")
 #' EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = "Endocrine", ncol = 1)
 #'
-#' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar scale_color_manual guide_none
-#' @importFrom dplyr group_by filter arrange desc across mutate reframe distinct n .data
+#' @importFrom ggplot2 ggplot geom_bar geom_text geom_label labs scale_fill_manual scale_y_continuous scale_linewidth facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar scale_color_manual guide_none draw_key_point  scale_color_identity scale_fill_identity .pt
+#' @importFrom dplyr %>% group_by filter arrange desc across mutate slice_head reframe distinct n .data
 #' @importFrom stats formula
 #' @importFrom patchwork wrap_plots
+#' @importFrom ggforce geom_mark_ellipse geom_mark_hull
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom grid grobTree convertUnit unit
+#' @importFrom igraph as_data_frame graph_from_data_frame V layout_with_dh layout_with_drl layout_with_fr layout_with_gem layout_with_graphopt layout_with_kk layout_with_lgl layout_with_mds layout_in_circle layout_as_tree layout_on_grid cluster_fast_greedy cluster_infomap cluster_leiden cluster_louvain cluster_spinglass cluster_walktrap cluster_fluid_communities
 #' @export
 #'
-EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
-                           res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
-                           plot_type = c("bar", "lollipop", "wordcloud", "comparison"), palette = "Spectral", palcolor = NULL,
-                           topTerm = 6, topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8), min_word_length = 3, only_sig = FALSE,
-                           exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
-                           aspect.ratio = 1, character_width = 50, lineheight = 0.7,
-                           legend.position = "right", legend.direction = "vertical",
+EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
+                           plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison"),
+                           split_by = c("Database", "Groups"), color_by = "Database",
+                           group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
+                           topTerm = ifelse(plot_type == "enrichmap", 100, 6), compare_only_sig = FALSE,
+                           topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8), words_excluded = NULL,
+                           network_layout = "fr", network_labelsize = 5, network_blendmode = "blend",
+                           network_layoutadjust = TRUE, network_adjscale = 60, network_adjiter = 100,
+                           enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = c("term", "feature"), enrichmap_labelsize = 5,
+                           enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = c("ellipse", "hull"), enrichmap_expand = c(0.5, 0.5),
+                           character_width = 50, lineheight = 0.5,
+                           palette = "Spectral", palcolor = NULL,
+                           aspect.ratio = 1, legend.position = "right", legend.direction = "vertical",
                            theme_use = "theme_scp", theme_args = list(),
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, seed = 11) {
   set.seed(seed)
   plot_type <- match.arg(plot_type)
   word_type <- match.arg(word_type)
+  enrichmap_label <- match.arg(enrichmap_label)
+  enrichmap_mark <- match.arg(enrichmap_mark)
+  words_excluded <- words_excluded %||% SCP::words_excluded
+
+  if (any(!split_by %in% c("Database", "Groups"))) {
+    stop("'split_by' must be either 'Database', 'Groups', or both of them")
+  }
+  if (plot_type %in% c("network", "enrichmap") & length(split_by) == 1) {
+    warning("When 'plot_type' is 'network' or 'enrichmap', the 'split_by' parameter does not take effect.", immediate. = TRUE)
+    split_by <- c("Database", "Groups")
+  }
 
   if (is.null(res)) {
     if (is.null(group_by)) {
@@ -12502,139 +12762,227 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
     if (!slot %in% names(srt@tools)) {
       stop("No enrichment result found. You may perform RunEnrichment first.")
     }
-    res <- srt@tools[[slot]][["enrichment"]]
+    enrichment <- srt@tools[[slot]][["enrichment"]]
   } else {
-    res <- res[["enrichment"]]
+    enrichment <- res[["enrichment"]]
   }
 
   if (is.null(pvalueCutoff) && is.null(padjustCutoff)) {
     stop("One of 'pvalueCutoff' or 'padjustCutoff' must be specified")
   }
-  if (!is.factor(res[["Database"]])) {
-    res[["Database"]] <- factor(res[["Database"]], levels = unique(res[["Database"]]))
+  if (!is.factor(enrichment["Groups"])) {
+    enrichment[["Groups"]] <- factor(enrichment[["Groups"]], levels = unique(enrichment[["Groups"]]))
   }
-  if (!is.factor(res["Groups"])) {
-    res[["Groups"]] <- factor(res[["Groups"]], levels = unique(res[["Groups"]]))
+  if (length(db[!db %in% enrichment[["Database"]]]) > 0) {
+    stop(paste0(db[!db %in% enrichment[["Database"]]], " is not in the enrichment result."))
   }
-  if (length(db[!db %in% res[["Database"]]]) > 0) {
-    stop(paste0(db[!db %in% res[["Database"]]], " is not in the enrichment result."))
+  if (!is.factor(enrichment[["Database"]])) {
+    enrichment[["Database"]] <- factor(enrichment[["Database"]], levels = unique(enrichment[["Database"]]))
   }
   if (!is.null(group_use)) {
-    res <- res[res[["Groups"]] %in% group_use, , drop = FALSE]
+    enrichment <- enrichment[enrichment[["Groups"]] %in% group_use, , drop = FALSE]
+  }
+  if (length(id_use) > 0) {
+    topTerm <- Inf
+    if (is.list(id_use)) {
+      if (is.null(names(id_use))) {
+        stop("'id_use' must be named when it is a list.")
+      }
+      if (!all(names(id_use) %in% enrichment[["Groups"]])) {
+        stop(paste0("Names in 'id_use' is invalid: ", paste0(names(id_use)[!names(id_use) %in% enrichment[["Groups"]]], collapse = ",")))
+      }
+      enrichment_list <- list()
+      for (i in seq_along(id_use)) {
+        enrichment_list[[i]] <- enrichment[enrichment[["ID"]] %in% id_use[[i]] & enrichment[["Groups"]] %in% names(id_use)[i], , drop = FALSE]
+      }
+      enrichment <- do.call(rbind, enrichment_list)
+    } else {
+      enrichment <- enrichment[enrichment[["ID"]] %in% unlist(id_use), , drop = FALSE]
+    }
   }
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
-  pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
-  padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
+
+  pvalueCutoff <- ifelse(is.null(pvalueCutoff), Inf, pvalueCutoff)
+  padjustCutoff <- ifelse(is.null(padjustCutoff), Inf, padjustCutoff)
 
   if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-    res_sim <- res[res[["Database"]] %in% gsub("_sim", "", db), , drop = FALSE]
+    enrichment_sim <- enrichment[enrichment[["Database"]] %in% gsub("_sim", "", db), , drop = FALSE]
   }
-  res <- res[res[["Database"]] %in% db, , drop = FALSE]
-  res_sig <- res[res[[metric]] < metric_value, , drop = FALSE]
-  res_sig <- res_sig[order(res_sig[[metric]]), , drop = FALSE]
-  if (nrow(res_sig) == 0) {
+  enrichment <- enrichment[enrichment[["Database"]] %in% db, , drop = FALSE]
+
+  enrichment_sig <- enrichment[enrichment[[metric]] < metric_value | enrichment[["ID"]] %in% unlist(id_use), , drop = FALSE]
+  enrichment_sig <- enrichment_sig[order(enrichment_sig[[metric]]), , drop = FALSE]
+  if (nrow(enrichment_sig) == 0) {
     stop(
       "No term enriched using the threshold: ",
       paste0("pvalueCutoff = ", pvalueCutoff), "; ",
       paste0("padjustCutoff = ", padjustCutoff)
     )
   }
-  df_list <- split.data.frame(res_sig, ~ Database + Groups)
+  df_list <- split(enrichment_sig, formula(paste0("~", split_by, collapse = "+")))
   df_list <- df_list[lapply(df_list, nrow) > 0]
 
+  facet <- switch(paste0(split_by, collapse = "~"),
+    "Groups" = formula(paste0("Database ~ Groups")),
+    "Database" = formula(paste0("Groups ~ Database")),
+    formula(paste0(split_by, collapse = "~"))
+  )
+
   if (plot_type == "comparison") {
+    # comparison -------------------------------------------------------------------------------------------------
     ids <- NULL
     for (i in seq_along(df_list)) {
       df <- df_list[[i]]
-      ids <- unique(c(ids, df[head(seq_len(nrow(df)), topTerm), "ID"]))
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+      ids <- unique(c(ids, df[, "ID"]))
     }
     if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-      res_sub <- subset(res_sim, ID %in% ids)
-      res_sub[["Database"]] <- paste0(res_sub[["Database"]], "_sim")
+      enrichment_sub <- subset(enrichment_sim, ID %in% ids)
+      enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
     } else {
-      res_sub <- subset(res, ID %in% ids)
+      enrichment_sub <- subset(enrichment, ID %in% ids)
     }
-    res_sub[["GeneRatio"]] <- sapply(res_sub[["GeneRatio"]], function(x) {
+    enrichment_sub[["Database"]] <- factor(enrichment_sub[["Database"]], levels = db)
+    enrichment_sub[["GeneRatio"]] <- sapply(enrichment_sub[["GeneRatio"]], function(x) {
       sp <- strsplit(x, "/")[[1]]
       GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
     })
-    res_sub[["BgRatio"]] <- sapply(res_sub[["BgRatio"]], function(x) {
+    enrichment_sub[["BgRatio"]] <- sapply(enrichment_sub[["BgRatio"]], function(x) {
       sp <- strsplit(x, "/")[[1]]
       BgRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
       return(BgRatio)
     })
-    res_sub[["EnrichmentScore"]] <- res_sub[["GeneRatio"]] / res_sub[["BgRatio"]]
-    res_sub[["Description"]] <- capitalize(res_sub[["Description"]])
-    res_sub[["Description"]] <- str_wrap(res_sub[["Description"]], width = character_width)
-    terms <- setNames(res_sub[["Description"]], res_sub[["ID"]])
-    res_sub[["Description"]] <- factor(res_sub[["Description"]], levels = rev(terms[ids]))
-    if (isTRUE(only_sig)) {
-      res_sub <- res_sub[res_sub[[metric]] < metric_value, , drop = FALSE]
+    enrichment_sub[["EnrichmentScore"]] <- enrichment_sub[["GeneRatio"]] / enrichment_sub[["BgRatio"]]
+    enrichment_sub[["Description"]] <- capitalize(enrichment_sub[["Description"]])
+    enrichment_sub[["Description"]] <- str_wrap(enrichment_sub[["Description"]], width = character_width)
+    terms <- setNames(enrichment_sub[["Description"]], enrichment_sub[["ID"]])
+    enrichment_sub[["Description"]] <- factor(enrichment_sub[["Description"]], levels = unique(rev(terms[ids])))
+    if (isTRUE(compare_only_sig)) {
+      enrichment_sub <- enrichment_sub[enrichment_sub[[metric]] < metric_value, , drop = FALSE]
     }
-    p <- ggplot(res_sub, aes(x = Groups, y = Description)) +
+    p <- ggplot(enrichment_sub, aes(x = Groups, y = Description)) +
       geom_point(aes(size = GeneRatio, fill = .data[[metric]], color = ""), shape = 21) +
       scale_size_area(name = "GeneRatio", max_size = 6, n.breaks = 4) +
       guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
       scale_fill_gradientn(
         name = paste0(metric),
-        limits = c(0, min(pvalueCutoff, padjustCutoff)),
+        limits = c(0, min(metric_value, 1)),
         n.breaks = 3,
         colors = palette_scp(palette = palette, palcolor = palcolor, reverse = TRUE),
         na.value = "grey80",
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, order = 2)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 2)
       ) +
       scale_color_manual(values = NA, na.value = "black") +
-      guides(colour = if (isTRUE(only_sig)) guide_none() else guide_legend("Non-sig", override.aes = list(colour = "black", fill = "grey80", size = 3))) +
+      guides(colour = if (isTRUE(compare_only_sig)) guide_none() else guide_legend("Non-sig", override.aes = list(colour = "black", fill = "grey80", size = 3))) +
       facet_grid(Database ~ ., scales = "free") +
       do.call(theme_use, theme_args) +
       theme(
         aspect.ratio = aspect.ratio,
-        panel.grid.major = element_line(colour = "grey80", linetype = 2),
-        strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
         legend.position = legend.position,
         legend.direction = legend.direction,
+        panel.grid.major = element_line(colour = "grey80", linetype = 2),
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(
           lineheight = lineheight, hjust = 1,
-          face = ifelse(grepl("\n", levels(res_sub[["Description"]])), "italic", "plain")
+          face = ifelse(grepl("\n", levels(enrichment_sub[["Description"]])), "italic", "plain")
         )
       )
     plist <- list(p)
   } else if (plot_type == "bar") {
+    # bar -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = rev(df[["Description"]]))
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(rev(df[["Description"]])))
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["metric"]],
-        fill = .data[["Database"]],
-        label = .data[["Count"]]
+        fill = .data[[color_by]], label = .data[["Count"]]
       )) +
         geom_bar(width = 0.9, stat = "identity", color = "black") +
+        geom_text(hjust = -0.5, size = 3.5, color = "white", fontface = "bold") +
         geom_text(hjust = -0.5, size = 3.5) +
         labs(x = "", y = paste0("-log10(", metric, ")")) +
         scale_fill_manual(
-          values = palette_scp(levels(df[["Database"]]), palette = palette, palcolor = palcolor),
+          values = palette_scp(levels(df[[color_by]]), palette = palette, palcolor = palcolor),
           na.value = "grey80",
           guide = "none"
         ) +
         scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]], na.rm = TRUE)), expand = expansion(0, 0)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
+          axis.text.y = element_text(
+            lineheight = lineheight, hjust = 1,
+            face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
+          )
+        )
+      return(p)
+    }))
+  } else if (plot_type == "dot") {
+    # dot -------------------------------------------------------------------------------------------------
+    plist <- suppressWarnings(lapply(df_list, function(df) {
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
+      df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
+        sp <- strsplit(x, "/")[[1]]
+        GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
+      })
+      df <- df[order(df[["GeneRatio"]], decreasing = TRUE), ]
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(rev(df[["Description"]])))
+
+      p <- ggplot(df, aes(
+        x = .data[["Description"]], y = .data[["GeneRatio"]]
+      )) +
+        geom_point(aes(fill = .data[["metric"]], size = .data[["Count"]]), color = "black", shape = 21) +
+        labs(x = "", y = "GeneRatio") +
+        scale_size(name = "Count", range = c(3, 6), scales::breaks_extended(n = 4)) +
+        guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
+        scale_fill_gradientn(
+          name = paste0("-log10(", metric, ")"),
+          n.breaks = 3,
+          colors = palette_scp(palette = palette, palcolor = palcolor),
+          na.value = "grey80",
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+        ) +
+        scale_y_continuous(limits = c(0, 1.3 * max(df[["GeneRatio"]], na.rm = TRUE)), expand = expansion(0, 0)) +
+        facet_grid(facet, scales = "free") +
+        coord_flip() +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
           axis.text.y = element_text(
             lineheight = lineheight, hjust = 1,
             face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
@@ -12643,8 +12991,15 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       return(p)
     }))
   } else if (plot_type == "lollipop") {
+    # lollipop -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
         sp <- strsplit(x, "/")[[1]]
         GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
@@ -12654,48 +13009,46 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         BgRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
         return(BgRatio)
       })
-      df[["EnrichmentScore"]] <- df[["GeneRatio"]] / df[["BgRatio"]]
+      df[["FoldEnrichment"]] <- df[["GeneRatio"]] / df[["BgRatio"]]
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[["EnrichmentScore"]]), "Description"])
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[order(df[["FoldEnrichment"]]), "Description"]))
 
       p <- ggplot(df, aes(
-        x = .data[["Description"]], y = .data[["EnrichmentScore"]],
+        x = .data[["Description"]], y = .data[["FoldEnrichment"]],
         fill = .data[["metric"]]
       )) +
-        geom_point(aes(size = .data[["GeneRatio"]]), shape = 21, color = "white", stroke = 1) +
-        geom_segment(aes(yend = 0, xend = .data[["Description"]], color = .data[["metric"]]), linewidth = 2, lineend = "butt") +
+        geom_blank() +
+        geom_segment(
+          aes(y = 0, xend = .data[["Description"]], yend = .data[["FoldEnrichment"]]),
+          color = "black", linewidth = 2
+        ) +
+        geom_segment(
+          aes(y = 0, xend = .data[["Description"]], yend = .data[["FoldEnrichment"]], color = .data[["metric"]]),
+          linewidth = 1
+        ) +
+        geom_point(aes(size = .data[["GeneRatio"]]), shape = 21, color = "black") +
         scale_size(name = "GeneRatio", range = c(3, 6), scales::breaks_extended(n = 4)) +
         guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
-        scale_y_continuous(limits = c(0, 1.2 * max(df[["EnrichmentScore"]], na.rm = TRUE)), expand = expansion(0, 0)) +
-        labs(x = "", y = "Enrichment Score") +
+        scale_y_continuous(limits = c(0, 1.2 * max(df[["FoldEnrichment"]], na.rm = TRUE)), expand = expansion(0, 0)) +
+        labs(x = "", y = "Fold Enrichment") +
         scale_fill_gradientn(
           name = paste0("-log10(", metric, ")"),
           n.breaks = 3,
-          colors = c("gold", "red3"),
+          colors = palette_scp(palette = palette, palcolor = palcolor),
           na.value = "grey80",
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0),
+          aesthetics = c("color", "fill")
         ) +
-        scale_color_gradientn(
-          name = paste0("-log10(", metric, ")"),
-          n.breaks = 3,
-          colors = c("gold", "red3"),
-          na.value = "grey80",
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1)
-        ) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          panel.background = element_rect(fill = "#1A365C"),
-          panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
           axis.text.y = element_text(
             lineheight = lineheight, hjust = 1,
             face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
@@ -12703,53 +13056,335 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         )
       return(p)
     }))
+  } else if (plot_type == "network") {
+    # network -------------------------------------------------------------------------------------------------
+    plist <- suppressWarnings(lapply(df_list, function(df) {
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
+      df$geneID <- strsplit(df$geneID, "/")
+      df_unnest <- unnest(df, cols = "geneID")
+
+      nodes <- rbind(
+        data.frame("ID" = df[["Description"]], class = "term", metric = df[["metric"]]),
+        data.frame("ID" = unique(df_unnest$geneID), class = "gene", metric = 0)
+      )
+      nodes$Database <- df$Database[1]
+      nodes$Groups <- df$Groups[1]
+      edges <- as.data.frame(df_unnest[, c("Description", "geneID")])
+      colnames(edges) <- c("from", "to")
+      edges[["weight"]] <- 1
+      graph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+      if (network_layout %in% c("circle", "tree", "grid")) {
+        layout <- switch(network_layout,
+          "circle" = layout_in_circle(graph),
+          "tree" = layout_as_tree(graph),
+          "grid" = layout_on_grid(graph)
+        )
+      } else {
+        layout <- do.call(paste0("layout_with_", network_layout), list(graph))
+      }
+      df_graph <- as_data_frame(graph, what = "both")
+
+      df_nodes <- df_graph$vertices
+      if (isTRUE(network_layoutadjust)) {
+        width <- nchar(df_nodes$name)
+        width[df_nodes$class == "term"] <- 8
+        layout <- adjustlayout(
+          graph = graph, layout = layout, width = width, height = 2,
+          scale = network_adjscale, iter = network_adjiter
+        )
+      }
+      df_nodes[["dim1"]] <- layout[, 1]
+      df_nodes[["dim2"]] <- layout[, 2]
+
+      df_edges <- df_graph$edges
+      df_edges[["from_dim1"]] <- df_nodes[df_edges[["from"]], "dim1"]
+      df_edges[["from_dim2"]] <- df_nodes[df_edges[["from"]], "dim2"]
+      df_edges[["to_dim1"]] <- df_nodes[df_edges[["to"]], "dim1"]
+      df_edges[["to_dim2"]] <- df_nodes[df_edges[["to"]], "dim2"]
+
+      colors <- palette_scp(levels(df[["Description"]]), palette = palette, palcolor = palcolor)
+      df_edges[["color"]] <- colors[df_edges$from]
+      node_colors <- aggregate(df_unnest$Description, by = list(df_unnest$geneID), FUN = function(x) blendcolors(colors = colors[x], mode = network_blendmode))
+      colors <- c(colors, setNames(node_colors[, 2], node_colors[, 1]))
+      label_colors <- ifelse(colSums(col2rgb(colors)) > 255 * 2, "black", "white")
+      df_nodes[["color"]] <- colors[df_nodes$name]
+      df_nodes[["label_color"]] <- label_colors[df_nodes$name]
+      df_nodes[["label"]] <- NA
+      df_nodes[levels(df[["Description"]]), "label"] <- seq_len(nlevels(df[["Description"]]))
+
+      draw_key_cust <- function(data, params, size) {
+        data_text <- data
+        data_text$label <- which(levels(df[["Description"]]) %in% names(colors)[colors == data_text$fill])
+        data_text$colour <- "black"
+        data_text$alpha <- 1
+        data_text$size <- 11 / .pt
+        grobTree(
+          draw_key_point(data, list(color = "white", shape = 21)),
+          ggrepel:::shadowtextGrob(label = data_text$label, bg.colour = "black", bg.r = 0.1, gp = gpar(col = "white", fontface = "bold"))
+        )
+      }
+
+      p <- ggplot() +
+        geom_segment(data = df_edges, aes(x = from_dim1, y = from_dim2, xend = to_dim1, yend = to_dim2, color = color), alpha = 1, lineend = "round", show.legend = FALSE) +
+        geom_label(data = df_nodes[df_nodes$class == "gene", ], aes(x = dim1, y = dim2, label = name, fill = color, color = label_color), size = 3, show.legend = FALSE) +
+        geom_point(data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2), size = 8, color = "black", fill = "black", stroke = 1, shape = 21, show.legend = FALSE) +
+        geom_point(data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2, fill = color), size = 7, color = "white", stroke = 1, shape = 21, key_glyph = draw_key_cust) +
+        geom_text_repel(
+          data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2, label = label),
+          fontface = "bold", min.segment.length = 0, segment.color = "black",
+          point.size = NA, max.overlaps = 100, force = 0, color = "white", bg.color = "black", bg.r = 0.1, size = network_labelsize
+        ) +
+        scale_color_identity(guide = "none") +
+        scale_fill_identity(
+          name = "Term:", guide = "legend",
+          labels = levels(df[["Description"]]),
+          breaks = colors[levels(df[["Description"]])]
+        ) +
+        guides(color = guide_legend(override.aes = list(color = "transparent"))) +
+        labs(x = "", y = "") +
+        facet_grid(facet, scales = "free") +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
+      return(p)
+    }))
+  } else if (plot_type == "enrichmap") {
+    # enrichmap -------------------------------------------------------------------------------------------------
+    plist <- suppressWarnings(lapply(df_list, function(df) {
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
+      df$geneID <- strsplit(df$geneID, "/")
+      rownames(df) <- df[["ID"]]
+
+      nodes <- df
+      edges <- as.data.frame(t(combn(nodes$ID, 2)))
+      colnames(edges) <- c("from", "to")
+      edges[["weight"]] <- mapply(function(x, y) length(intersect(df[[x, "geneID"]], df[[y, "geneID"]])), edges$from, edges$to)
+      edges <- edges[edges[["weight"]] > 0, , drop = FALSE]
+      graph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+      if (enrichmap_layout %in% c("circle", "tree", "grid")) {
+        layout <- switch(enrichmap_layout,
+          "circle" = layout_in_circle(graph),
+          "tree" = layout_as_tree(graph),
+          "grid" = layout_on_grid(graph)
+        )
+      } else {
+        layout <- do.call(paste0("layout_with_", enrichmap_layout), list(graph))
+      }
+      clusters <- do.call(paste0("cluster_", enrichmap_cluster), list(graph))
+      df_graph <- as_data_frame(graph, what = "both")
+
+      df_nodes <- df_graph$vertices
+      df_nodes[["dim1"]] <- layout[, 1]
+      df_nodes[["dim2"]] <- layout[, 2]
+      df_nodes[["clusters"]] <- factor(paste0("C", clusters$membership), paste0("C", unique(sort(clusters$membership))))
+
+      if (isTRUE(enrichmap_show_keyword)) {
+        df_keyword1 <- df_nodes %>%
+          mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), "\\s|\\n", perl = TRUE)) %>%
+          unnest(cols = "keyword") %>%
+          group_by(.data[["keyword"]], Database, Groups, clusters) %>%
+          reframe(
+            keyword = capitalize(.data[["keyword"]]),
+            score = sum(-(log10(.data[[metric]]))),
+            count = n(),
+            Database = .data[["Database"]],
+            Groups = .data[["Groups"]],
+            .groups = "keep"
+          ) %>%
+          filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+          filter(nchar(.data[["keyword"]]) >= 1) %>%
+          filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
+          distinct() %>%
+          group_by(Database, Groups, clusters) %>%
+          arrange(desc(score)) %>%
+          slice_head(n = enrlichmap_nlabel) %>%
+          reframe(keyword = paste0(.data[["keyword"]], collapse = " ")) %>%
+          as.data.frame()
+        rownames(df_keyword1) <- as.character(df_keyword1[["clusters"]])
+        df_keyword1[["keyword"]] <- str_wrap(df_keyword1[["keyword"]], width = character_width)
+        df_keyword1[["label"]] <- paste0(df_keyword1[["clusters"]], ":\n", df_keyword1[["keyword"]])
+      } else {
+        if (enrichmap_label == "term") {
+          df_nodes[["Description"]] <- str_wrap(df_nodes[["Description"]], width = character_width)
+        }
+        df_keyword1 <- df_nodes %>%
+          group_by(Database, Groups, clusters) %>%
+          arrange(desc(metric)) %>%
+          reframe(keyword = Description) %>%
+          distinct() %>%
+          group_by(Database, Groups, clusters) %>%
+          slice_head(n = enrlichmap_nlabel) %>%
+          reframe(keyword = paste0(.data[["keyword"]], collapse = "\n")) %>%
+          as.data.frame()
+        rownames(df_keyword1) <- as.character(df_keyword1[["clusters"]])
+        df_keyword1[["label"]] <- paste0(df_keyword1[["clusters"]], ":\n", df_keyword1[["keyword"]])
+      }
+
+      df_keyword2 <- df_nodes %>%
+        mutate(keyword = .data[["geneID"]]) %>%
+        unnest(cols = "keyword") %>%
+        group_by(.data[["keyword"]], Database, Groups, clusters) %>%
+        reframe(
+          keyword = .data[["keyword"]],
+          score = sum(-(log10(.data[[metric]]))),
+          count = n(),
+          Database = .data[["Database"]],
+          Groups = .data[["Groups"]],
+          .groups = "keep"
+        ) %>%
+        distinct() %>%
+        group_by(Database, Groups, clusters) %>%
+        arrange(desc(score)) %>%
+        slice_head(n = enrlichmap_nlabel) %>%
+        reframe(keyword = paste0(.data[["keyword"]], collapse = " ")) %>%
+        as.data.frame()
+      rownames(df_keyword2) <- as.character(df_keyword2[["clusters"]])
+      df_keyword2[["keyword"]] <- str_wrap(df_keyword2[["keyword"]], width = character_width)
+      df_keyword2[["label"]] <- paste0(df_keyword2[["clusters"]], ":\n", df_keyword2[["keyword"]])
+
+      df_nodes[["keyword1"]] <- df_keyword1[as.character(df_nodes$clusters), "keyword"]
+      df_nodes[["keyword2"]] <- df_keyword2[as.character(df_nodes$clusters), "keyword"]
+
+      df_edges <- df_graph$edges
+      df_edges[["from_dim1"]] <- df_nodes[df_edges[["from"]], "dim1"]
+      df_edges[["from_dim2"]] <- df_nodes[df_edges[["from"]], "dim2"]
+      df_edges[["to_dim1"]] <- df_nodes[df_edges[["to"]], "dim1"]
+      df_edges[["to_dim2"]] <- df_nodes[df_edges[["to"]], "dim2"]
+
+      if (enrichmap_mark == "hull") {
+        check_R("concaveman")
+      }
+      mark_layer <- do.call(
+        switch(enrichmap_mark,
+          "ellipse" = "geom_mark_ellipse",
+          "hull" = "geom_mark_hull"
+        ),
+        list(
+          data = df_nodes, aes(
+            x = dim1, y = dim2, color = clusters, fill = clusters,
+            label = clusters, description = if (enrichmap_label == "term") keyword1 else keyword2
+          ),
+          expand = unit(3, "mm"),
+          alpha = 0.1,
+          label.margin = margin(1, 1, 1, 1, "mm"),
+          label.fontsize = enrichmap_labelsize * 2,
+          label.fill = "grey95",
+          label.minwidth = unit(character_width, "in"),
+          label.buffer = unit(0, "mm"),
+          con.size = 1,
+          con.cap = 0
+        )
+      )
+
+      p <- ggplot() +
+        mark_layer +
+        geom_segment(data = df_edges, aes(x = from_dim1, y = from_dim2, xend = to_dim1, yend = to_dim2, linewidth = weight), alpha = 0.1, lineend = "round") +
+        geom_point(data = df_nodes, aes(x = dim1, y = dim2, size = Count, fill = clusters), color = "black", shape = 21) +
+        labs(x = "", y = "") +
+        scale_size(name = "Count", range = c(2, 6), scales::breaks_extended(n = 4)) +
+        guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
+        scale_linewidth(name = "Intersection", range = c(0.3, 3), scales::breaks_extended(n = 4)) +
+        guides(linewidth = guide_legend(override.aes = list(alpha = 1, color = "grey"), order = 2)) +
+        scale_fill_manual(
+          name = switch(enrichmap_label,
+            "term" = "Feature:",
+            "feature" = "Term:"
+          ),
+          values = palette_scp(levels(df_nodes[["clusters"]]), palette = palette, palcolor = palcolor),
+          labels = if (enrichmap_label == "term") df_keyword2[levels(df_nodes[["clusters"]]), "label"] else df_keyword1[levels(df_nodes[["clusters"]]), "label"],
+          na.value = "grey80",
+          aesthetics = c("colour", "fill")
+        ) +
+        guides(fill = guide_legend(override.aes = list(alpha = 1, color = "black", shape = NA), byrow = TRUE, order = 3)) +
+        guides(color = guide_none()) +
+        scale_x_continuous(expand = expansion(c(enrichmap_expand[1], enrichmap_expand[1]), 0)) +
+        scale_y_continuous(expand = expansion(c(enrichmap_expand[2], enrichmap_expand[2]), 0)) +
+        facet_grid(facet, scales = "free") +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
+      return(p)
+    }))
   } else if (plot_type == "wordcloud") {
+    # wordcloud -------------------------------------------------------------------------------------------------
     check_R("ggwordcloud")
     check_R("jokergoo/simplifyEnrichment")
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
-        if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-          df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-          if (nrow(df0 > 0)) {
-            df <- df0 %>%
+        df_groups <- split(df, list(df$Database, df$Groups))
+        df_groups <- df_groups[sapply(df_groups, nrow) > 0]
+        for (i in seq_along(df_groups)) {
+          df_sub <- df_groups[[i]]
+          if (all(df_sub$Database %in% c("GO", "GO_BP", "GO_CC", "GO_MF"))) {
+            df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df_sub[["ID"]])
+            if (nrow(df0 > 0)) {
+              df_sub <- df0 %>%
+                reframe(
+                  keyword = .data[["keyword"]],
+                  score = -(log10(.data[["padj"]])),
+                  count = .data[["n_term"]],
+                  Database = df_sub[["Database"]][1],
+                  Groups = df_sub[["Groups"]][1]
+                ) %>%
+                filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+                filter(nchar(.data[["keyword"]]) >= 1) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
+                distinct() %>%
+                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                as.data.frame()
+              df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+            } else {
+              df_sub <- NULL
+            }
+          } else {
+            df_sub <- df_sub %>%
+              mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
+              unnest(cols = "keyword") %>%
+              group_by(.data[["keyword"]], Database, Groups) %>%
               reframe(
                 keyword = .data[["keyword"]],
-                score = -(log10(.data[["padj"]])),
-                count = .data[["n_term"]],
-                Database = df[["Database"]][1],
-                Groups = df[["Groups"]][1]
+                score = sum(-(log10(.data[[metric]]))),
+                count = n(),
+                Database = .data[["Database"]],
+                Groups = .data[["Groups"]],
+                .groups = "keep"
               ) %>%
               filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
-              filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-              filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+              filter(nchar(.data[["keyword"]]) >= 1) %>%
+              filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
               as.data.frame()
-            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-          } else {
-            return(NULL)
+            df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
           }
-        } else {
-          df <- df %>%
-            mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
-            unnest(cols = "keyword") %>%
-            group_by(.data[["keyword"]], Database, Groups) %>%
-            reframe(
-              keyword = .data[["keyword"]],
-              score = sum(-(log10(.data[[metric]]))),
-              count = n(),
-              Database = .data[["Database"]],
-              Groups = .data[["Groups"]],
-              .groups = "keep"
-            ) %>%
-            filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
-            filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-            filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-            distinct() %>%
-            mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            as.data.frame()
-          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+          df_groups[[i]] <- df_sub
         }
+        df <- do.call(rbind, df_groups)
       } else {
         df <- df %>%
           mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
@@ -12774,11 +13409,11 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         ggwordcloud::geom_text_wordcloud(rm_outside = TRUE, eccentricity = 1, shape = "square", show.legend = TRUE, grid_margin = 3) +
         scale_color_gradientn(
           name = "Score:", colours = colors, values = rescale(colors_value),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
         scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
@@ -12802,58 +13437,120 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
   }
 }
 
+#' @importFrom igraph degree neighbors
+adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 100) {
+  w <- width / 2
+  layout[, 1] <- layout[, 1] / diff(range(layout[, 1])) * scale
+  layout[, 2] <- layout[, 2] / diff(range(layout[, 2])) * scale
+
+  adjusted <- c()
+  # for (i in seq_len(iter)) {
+  for (v in order(degree(graph), decreasing = TRUE)) {
+    adjusted <- c(adjusted, v)
+    neighbors <- as.numeric(neighbors(graph, V(graph)[v]))
+    neighbors <- setdiff(neighbors, adjusted)
+    x <- layout[v, 1]
+    y <- layout[v, 2]
+    r <- w[v]
+    for (neighbor in neighbors) {
+      nx <- layout[neighbor, 1]
+      ny <- layout[neighbor, 2]
+      ndist <- sqrt((nx - x)^2 + (ny - y)^2)
+      nr <- w[neighbor]
+      expect <- r + nr
+      if (ndist < expect) {
+        dx <- (x - nx) * (expect - ndist) / ndist
+        dy <- (y - ny) * (expect - ndist) / ndist
+        layout[neighbor, 1] <- nx - dx
+        layout[neighbor, 2] <- ny - dy
+        adjusted <- c(adjusted, neighbor)
+      }
+    }
+  }
+  # }
+
+  for (i in seq_len(iter)) {
+    dist_matrix <- as_matrix(dist(layout))
+    nearest_neighbors <- apply(dist_matrix, 2, function(x) which(x == min(x[x > 0])), simplify = FALSE)
+    # nearest_neighbors <- apply(dist_matrix, 2, function(x) {
+    #   head(order(x), 3)[-1]
+    # }, simplify = FALSE)
+    for (v in sample(seq_len(nrow(layout)))) {
+      neighbors <- unique(nearest_neighbors[[v]])
+      x <- layout[v, 1]
+      y <- layout[v, 2]
+      r <- w[v]
+      for (neighbor in neighbors) {
+        nx <- layout[neighbor, 1]
+        ny <- layout[neighbor, 2]
+        nr <- w[neighbor]
+        if (abs(nx - x) < (r + nr) && abs(ny - y) < height) {
+          dx <- r + nr - (nx - x)
+          dy <- height - (ny - y)
+          if (sample(c(1, 0), 1) == 1) {
+            dx <- 0
+          } else {
+            dy <- 0
+          }
+          layout[neighbor, 1] <- nx - dx
+          layout[neighbor, 2] <- ny - dy
+        }
+      }
+    }
+  }
+  return(layout)
+}
+
 #' GSEA Plot
 #'
-#' @param res
-#' @param geneSetID
-#' @param base_size
-#' @param rel_heights
-#' @param subplots
-#' @param n_coregene
-#' @param sample_coregene
-#' @param features_label
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label.size
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param db
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param rel_width
-#' @param palette
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param group_use
-#' @param plot_type
-#' @param palcolor
-#' @param only_pos
-#' @param only_sig
-#' @param linewidth
-#' @param line_alpha
-#' @param line_color
-#' @param aspect.ratio
-#' @param character_width
-#' @param lineheight
-#' @param seed
+#' This function generates various types of plots for Gene Set Enrichment Analysis (GSEA) results.
+#'
+#' @inheritParams EnrichmentPlot
+#' @param srt A Seurat object containing the results of RunDEtest and RunGSEA.
+#' If specified, GSEA results will be extracted from the Seurat object automatically.
+#' If not specified, the \code{res} arguments must be provided.
+#' @param res Enrichment results generated by RunGSEA function. If provided, 'srt', 'test.use' and 'group_by' are ignored.
+#' @param plot_type The type of plot to generate. Options are: "line", "comparison", "bar", "network", "enrichmap", "wordcloud". Default is "line".
+#' @param direction The direction of enrichment to include in the plot. Must be one of "pos", "neg", or "both". The default value is "both".
+#' @param line_width The linewidth for the line plot.
+#' @param line_alpha The alpha value for the line plot.
+#' @param line_color The color for the line plot.
+#' @param n_coregene The number of core genes to label in the line plot.
+#' @param sample_coregene Whether to randomly sample core genes for labeling in the line plot.
+#' @param features_label A character vector of feature names to include as labels in the line plot.
+#' @param label.fg The color of the labels.
+#' @param label.bg The background color of the labels.
+#' @param label.bg.r The radius of the rounding of the label's background.
+#' @param label.size The size of the labels.
+#'
+#' @seealso \code{\link{RunGSEA}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
-#'   panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
+#'   panel_fix_overall(height = 6) # As the plot is created by combining, we can adjust the overall height and width directly.
+#'
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_sig = TRUE)
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, only_sig = TRUE)
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", direction = "neg")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", direction = "both")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
+#'
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", direction = "both")
+#' GSEAPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", group_use = "Ductal",
+#'   plot_type = "bar", topTerm = 20, direction = "both", palcolor = c("red3", "steelblue")
+#' )
+#'
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "network")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "enrichmap")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "wordcloud")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "wordcloud", word_type = "feature")
+#'
 #' @importFrom ggplot2 ggplot aes theme theme_classic alpha element_blank element_rect margin geom_line geom_point geom_rect geom_linerange geom_hline geom_vline geom_segment annotate ggtitle labs xlab ylab scale_x_continuous scale_y_continuous scale_color_manual scale_alpha_manual guides guide_legend guide_none
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom grDevices colorRamp
@@ -12863,18 +13560,35 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' @importFrom gtable gtable_add_rows gtable_add_grob
 #' @importFrom grid textGrob
 #' @export
-GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
-                     res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
-                     plot_type = c("line", "comparison"), palette = "Spectral", palcolor = NULL,
-                     topTerm = 6, geneSetID = NULL, only_pos = FALSE, only_sig = FALSE,
-                     subplots = 1:3, rel_heights = c(1.5, 0.5, 1), rel_width = 3,
-                     linewidth = 1.5, line_alpha = 1, line_color = "#6BB82D",
+GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
+                     plot_type = c("line", "bar", "network", "enrichmap", "wordcloud", "comparison"),
+                     group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
+                     topTerm = ifelse(plot_type == "enrichmap", 100, 6), direction = c("pos", "neg", "both"), compare_only_sig = FALSE,
+                     topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8), words_excluded = NULL,
+                     line_width = 1.5, line_alpha = 1, line_color = "#6BB82D",
                      n_coregene = 10, sample_coregene = FALSE, features_label = NULL,
                      label.fg = "black", label.bg = "white", label.bg.r = 0.1, label.size = 4,
-                     aspect.ratio = NULL, base_size = 12, character_width = 50, lineheight = 0.7,
+                     network_layout = "fr", network_labelsize = 5, network_blendmode = "blend",
+                     network_layoutadjust = TRUE, network_adjscale = 60, network_adjiter = 100,
+                     enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = c("term", "feature"), enrichmap_labelsize = 5,
+                     enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = c("ellipse", "hull"), enrichmap_expand = c(0.5, 0.5),
+                     character_width = 50, lineheight = 0.5,
+                     palette = "Spectral", palcolor = NULL,
+                     aspect.ratio = NULL, legend.position = "right", legend.direction = "vertical",
+                     theme_use = "theme_scp", theme_args = list(),
                      combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, seed = 11) {
   set.seed(seed)
   plot_type <- match.arg(plot_type)
+  word_type <- match.arg(word_type)
+  direction <- match.arg(direction)
+  enrichmap_label <- match.arg(enrichmap_label)
+  enrichmap_mark <- match.arg(enrichmap_mark)
+  words_excluded <- words_excluded %||% SCP::words_excluded
+
+  subplots <- 1:3
+  rel_heights <- c(1.5, 0.5, 1)
+  rel_width <- 3
+
   if (is.null(res)) {
     if (is.null(group_by)) {
       stop("'group_by' must be provided.")
@@ -12910,9 +13624,28 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
   if (length(db[!db %in% enrichment[["Database"]]]) > 0) {
     stop(paste0(db[!db %in% enrichment[["Database"]]], " is not in the enrichment result."))
   }
+  if (length(id_use) > 0) {
+    topTerm <- Inf
+    if (is.list(id_use)) {
+      if (is.null(names(id_use))) {
+        stop("'id_use' must be named when it is a list.")
+      }
+      if (!all(names(id_use) %in% enrichment[["Groups"]])) {
+        stop(paste0("Names in 'id_use' is invalid: ", paste0(names(id_use)[!names(id_use) %in% enrichment[["Groups"]]], collapse = ",")))
+      }
+      enrichment_list <- list()
+      for (i in seq_along(id_use)) {
+        enrichment_list[[i]] <- enrichment[enrichment[["ID"]] %in% id_use[[i]] & enrichment[["Groups"]] %in% names(id_use)[i], , drop = FALSE]
+      }
+      enrichment <- do.call(rbind, enrichment_list)
+    } else {
+      enrichment <- enrichment[enrichment[["ID"]] %in% unlist(id_use), , drop = FALSE]
+    }
+  }
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
+
   pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
   padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
 
@@ -12923,40 +13656,56 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
 
   plist <- NULL
   if (plot_type == "comparison") {
-    ids <- NULL
-    for (i in group_use) {
-      df <- enrichment[enrichment[["Groups"]] == i, , drop = FALSE]
-      df <- df[df[["pvalue"]] <= pvalueCutoff & df[["p.adjust"]] <= padjustCutoff, , drop = FALSE]
-      df <- df[order(df[[metric]]), , drop = FALSE]
-      df_up <- df[df[["NES"]] > 0, , drop = FALSE]
-      ID_up <- df_up[head(order(df_up[[metric]]), topTerm), "ID"]
-      df_down <- df[df[["NES"]] < 0, , drop = FALSE]
-      ID_down <- df_down[head(order(df_down[[metric]]), topTerm), "ID"]
-      if (isTRUE(only_pos)) {
-        ids <- unique(c(ids, head(c(ID_up), topTerm)))
-      } else {
-        ids <- unique(c(ids, head(c(ID_up, ID_down), topTerm)))
+    # comparison -------------------------------------------------------------------------------------------------
+    if (length(id_use) > 0) {
+      ids <- unlist(id_use)
+    } else {
+      ids <- NULL
+      for (i in group_use) {
+        df <- enrichment[enrichment[["Groups"]] == i, , drop = FALSE]
+        df <- df[df[[metric]] < metric_value, , drop = FALSE]
+        df <- df[order(df[[metric]]), , drop = FALSE]
+        df_up <- df[df[["NES"]] > 0, , drop = FALSE]
+        ID_up <- df_up[head(order(df_up[[metric]]), topTerm), "ID"]
+        df_down <- df[df[["NES"]] < 0, , drop = FALSE]
+        ID_down <- df_down[head(order(df_down[[metric]]), topTerm), "ID"]
+        ids <- switch(direction,
+          "pos" = unique(c(ids, head(ID_up, topTerm))),
+          "neg" = unique(c(ids, head(ID_down, topTerm))),
+          "both" = unique(c(ids, head(
+            c(
+              head(ID_up, ceiling(topTerm / 2)),
+              head(ID_down, ceiling(topTerm / 2))
+            ),
+            topTerm
+          )))
+        )
       }
     }
+
     if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-      res_sub <- subset(enrichment_sim, ID %in% ids)
-      res_sub[["Database"]] <- paste0(res_sub[["Database"]], "_sim")
+      enrichment_sub <- subset(enrichment_sim, ID %in% ids)
+      enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
     } else {
-      res_sub <- subset(enrichment, ID %in% ids)
+      enrichment_sub <- subset(enrichment, ID %in% ids)
     }
-    res_sub[["Description"]] <- capitalize(res_sub[["Description"]])
-    res_sub[["Description"]] <- str_wrap(res_sub[["Description"]], width = character_width)
-    terms <- setNames(res_sub[["Description"]], res_sub[["ID"]])
-    res_sub[["Description"]] <- factor(res_sub[["Description"]], levels = rev(terms[ids]))
-    res_sub[["Significant"]] <- res_sub[[metric]] < metric_value
-    res_sub[["Significant"]] <- factor(res_sub[["Significant"]], levels = c("TRUE", "FALSE"))
-    if (isTRUE(only_sig)) {
-      res_sub <- res_sub[res_sub[["Significant"]] == "TRUE", , drop = FALSE]
+    enrichment_sub[["Database"]] <- factor(enrichment_sub[["Database"]], levels = db)
+    enrichment_sub[["Description"]] <- capitalize(enrichment_sub[["Description"]])
+    enrichment_sub[["Description"]] <- str_wrap(enrichment_sub[["Description"]], width = character_width)
+    terms <- setNames(enrichment_sub[["Description"]], enrichment_sub[["ID"]])
+    enrichment_sub[["Description"]] <- factor(enrichment_sub[["Description"]], levels = unique(rev(terms[ids])))
+    enrichment_sub[["Significant"]] <- enrichment_sub[[metric]] < metric_value
+    enrichment_sub[["Significant"]] <- factor(enrichment_sub[["Significant"]], levels = c("TRUE", "FALSE"))
+    if (isTRUE(compare_only_sig)) {
+      enrichment_sub <- enrichment_sub[enrichment_sub[["Significant"]] == "TRUE", , drop = FALSE]
     }
-    if (isTRUE(only_pos)) {
-      res_sub <- res_sub[res_sub[["NES"]] > 0, , drop = FALSE]
-    }
-    suppressWarnings(p <- ggplot(res_sub, aes(x = Groups, y = Description)) +
+    enrichment_sub <- switch(direction,
+      "pos" = enrichment_sub[enrichment_sub[["NES"]] > 0, , drop = FALSE],
+      "neg" = enrichment_sub[enrichment_sub[["NES"]] < 0, , drop = FALSE],
+      "both" = enrichment_sub
+    )
+
+    p <- ggplot(enrichment_sub, aes(x = Groups, y = Description)) +
       geom_point(aes(size = setSize, fill = NES, color = Significant), shape = 21, stroke = 0.8) +
       scale_size_area(name = "setSize", max_size = 6, n.breaks = 4) +
       guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 2)) +
@@ -12964,49 +13713,59 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       scale_fill_gradientn(
         name = "NES",
         n.breaks = 4,
-        limits = c(-max(abs(res_sub[["NES"]])), max(abs(res_sub[["NES"]]))),
+        limits = c(-max(abs(enrichment_sub[["NES"]])), max(abs(enrichment_sub[["NES"]]))),
         colors = palette_scp(palette = palette, palcolor = palcolor),
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, order = 1)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       ) +
       scale_color_manual(
         name = paste0("Significant\n(", metric, "<", metric_value, ")", collapse = ""), values = c("TRUE" = "black", "FALSE" = "grey90"),
-        guide = if (isTRUE(only_sig)) guide_none() else guide_legend()
+        guide = if (isTRUE(compare_only_sig)) guide_none() else guide_legend()
       ) +
       facet_grid(Database ~ ., scales = "free") +
-      theme_scp(
+      do.call(theme_use, theme_args) +
+      theme(
         aspect.ratio = aspect.ratio,
-        base_size = base_size,
+        legend.position = legend.position,
+        legend.direction = legend.direction,
         panel.grid.major = element_line(colour = "grey80", linetype = 2),
-        strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-        legend.position = "right",
-        legend.direction = "vertical",
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(
           lineheight = lineheight, hjust = 1,
-          face = ifelse(grepl("\n", levels(res_sub[["Description"]])), "italic", "plain")
+          face = ifelse(grepl("\n", levels(enrichment_sub[["Description"]])), "italic", "plain")
         )
-      ))
+      )
     plist <- list(p)
   } else if (plot_type == "line") {
+    # line -------------------------------------------------------------------------------------------------
     for (nm in names(res)) {
       res_enrich <- res[[nm]]
-      if (is.null(geneSetID)) {
+      if (is.null(id_use)) {
         geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
         geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
         geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, , drop = FALSE]
         geneSetID_up <- geneSetID_up[head(order(geneSetID_up[[metric]]), topTerm), "ID"]
         geneSetID_down <- geneSetID_filter[geneSetID_filter[["NES"]] < 0, , drop = FALSE]
         geneSetID_down <- geneSetID_down[head(order(geneSetID_down[[metric]]), topTerm), "ID"]
-        if (isTRUE(only_pos)) {
-          geneSetID_use <- head(c(geneSetID_up), topTerm)
-        } else {
-          geneSetID_use <- head(c(geneSetID_up, geneSetID_down), topTerm)
-        }
+        geneSetID_use <- switch(direction,
+          "pos" = unique(head(geneSetID_up, topTerm)),
+          "neg" = unique(head(geneSetID_down, topTerm)),
+          "both" = unique(head(
+            c(
+              head(geneSetID_up, ceiling(topTerm / 2)),
+              head(geneSetID_down, ceiling(topTerm / 2))
+            ),
+            topTerm
+          ))
+        )
       } else {
-        geneSetID_use <- geneSetID
+        if (is.list(id_use)) {
+          geneSetID_use <- intersect(res_enrich@result[["ID"]], id_use[[unique(res_enrich@result$Groups)]])
+        } else {
+          geneSetID_use <- id_use
+        }
       }
       if (length(geneSetID_use) == 1) {
-        gsdata <- gsInfo(object = res_enrich, geneSetID = geneSetID_use)
+        gsdata <- gsInfo(object = res_enrich, id_use = geneSetID_use)
       } else {
         gsdata <- do.call(rbind, lapply(geneSetID_use, gsInfo, object = res_enrich))
       }
@@ -13023,20 +13782,23 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         stat[[metric]] <= 0.001 & stat[[metric]] > 0.0001 ~ "*** ",
         stat[[metric]] <= 0.0001 ~ "****"
       )
-      gsdata$p.sig <- stat[gsdata$Description, "p.sig"]
-      gsdata[["Description"]] <- capitalize(gsdata[["Description"]])
-      gsdata$DescriptionP <- paste(gsdata$p.sig, gsdata$Description)
-      gsdata$DescriptionP <- factor(gsdata$DescriptionP, levels = unique(gsdata$DescriptionP))
+      gsdata[["NES"]] <- stat[gsdata$Description, "NES"]
+      gsdata[[metric]] <- stat[gsdata$Description, metric]
+      gsdata[["p.sig"]] <- stat[gsdata$Description, "p.sig"]
+      gsdata[["DescriptionP"]] <- capitalize(gsdata[["Description"]])
+      gsdata[["DescriptionP"]] <- str_wrap(gsdata[["DescriptionP"]], width = character_width)
+      gsdata[["DescriptionP"]] <- paste0(gsdata[["DescriptionP"]], "\n(NES=", round(gsdata[["NES"]], 3), ", ", metric, "=", format(gsdata[[metric]], digits = 3, scientific = TRUE), ", ", gsdata[["p.sig"]], ")")
+      gsdata[["DescriptionP"]] <- factor(gsdata[["DescriptionP"]], levels = unique(gsdata[["DescriptionP"]]))
       p <- ggplot(gsdata, aes(x = x)) +
         xlab(NULL) +
-        theme_classic(base_size) +
+        theme_classic(base_size = 12) +
         theme(
           panel.grid.major = element_line(colour = "grey90", linetype = 2),
           panel.grid.minor = element_line(colour = "grey90", linetype = 2)
         ) +
         scale_x_continuous(expand = c(0.01, 0))
       es_layer <- geom_line(aes(y = runningScore, color = DescriptionP),
-        linewidth = linewidth, alpha = line_alpha
+        linewidth = line_width, alpha = line_alpha
       )
       bg_dat <- data.frame(xmin = -Inf, xmax = Inf, ymin = c(0, -Inf), ymax = c(Inf, 0), fill = c(alpha("#C40003", 0.2), alpha("#1D008F", 0.2)))
       p1 <- p +
@@ -13067,7 +13829,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         geom_linerange(aes(ymin = ymin, ymax = ymax, color = DescriptionP), alpha = line_alpha) +
         xlab(NULL) +
         ylab(NULL) +
-        theme_classic(base_size) +
+        theme_classic(base_size = 12) +
         theme(
           legend.position = "none",
           plot.margin = margin(t = -0.1, b = 0, r = 0.2, l = 0.2, unit = "cm"),
@@ -13099,16 +13861,18 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
 
         if ((is.numeric(n_coregene) && n_coregene > 1) || length(features_label) > 0) {
           if (length(features_label) == 0) {
-            features_label <- unlist(strsplit(gsdata$CoreGene[1], "/"))
-            n_coregene <- min(n_coregene, length(features_label))
+            features_label_tmp <- unlist(strsplit(gsdata$CoreGene[1], "/"))
+            n_coregene <- min(n_coregene, length(features_label_tmp))
             if (isTRUE(sample_coregene)) {
-              features_label <- sample(features_label, n_coregene, replace = FALSE)
+              features_label_tmp <- sample(features_label_tmp, n_coregene, replace = FALSE)
             } else {
-              features_label <- gsdata$GeneName[gsdata$GeneName %in% features_label][1:n_coregene]
+              features_label_tmp <- gsdata$GeneName[gsdata$GeneName %in% features_label_tmp][1:n_coregene]
             }
+          } else {
+            features_label_tmp <- features_label
           }
-          df_gene <- gsdata[gsdata$position == 1 & gsdata$GeneName %in% features_label, , drop = FALSE]
-          gene_drop <- features_label[!features_label %in% df_gene$GeneName]
+          df_gene <- gsdata[gsdata$position == 1 & gsdata$GeneName %in% features_label_tmp, , drop = FALSE]
+          gene_drop <- features_label_tmp[!features_label_tmp %in% df_gene$GeneName]
           if (length(gene_drop) > 0) {
             warning("Gene ", paste(gene_drop, collapse = ","), " is not in the geneset of the ", gsdata$Description[1], immediate. = TRUE)
           }
@@ -13210,17 +13974,11 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       }
       legend <- get_legend(
         p1 +
-          guides(color = guide_legend(
-            ncol = 2,
-            label.theme = element_text(size = base_size),
-            override.aes = list(size = 3)
-          )) +
+          guides(color = guide_legend(title = "Term:", byrow = TRUE)) +
+          do.call(theme_use, theme_args) +
           theme(
-            legend.position = "bottom",
-            legend.spacing = unit(0, "cm"),
-            legend.background = element_blank(),
-            legend.box.margin = margin(0, 0, 0, 0),
-            legend.margin = margin(0, 0, 0, 0)
+            legend.position = legend.position,
+            legend.direction = legend.direction
           )
       )
       plotlist <- list(p1 + theme(legend.position = "none"), p2, p3)[subplots]
@@ -13233,19 +13991,542 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         plotlist <- lapply(plotlist[subplots], as_grob)
         rel_heights <- rel_heights[subplots]
         for (i in seq_along(plotlist)) {
-          plotlist[[i]] <- panel_fix_single(plotlist[[i]], height = rel_heights[i], units = "null", margin = 0, respect = TRUE, return_grob = TRUE)
-          plotlist[[i]] <- panel_fix_single(plotlist[[i]], width = rel_width, units = "null", margin = 0, respect = TRUE, return_grob = TRUE)
+          plotlist[[i]] <- panel_fix_overall(plotlist[[i]], height = rel_heights[i], units = "null", margin = 0, respect = TRUE, return_grob = TRUE)
+          plotlist[[i]] <- panel_fix_overall(plotlist[[i]], width = rel_width, units = "null", margin = 0, respect = TRUE, return_grob = TRUE)
         }
         p_out <- do.call(rbind, c(plotlist, size = "first"))
 
         if (length(geneSetID_use) > 1) {
-          p_out <- add_grob(p_out, legend, "top")
+          p_out <- add_grob(p_out, legend, legend.position)
         }
         lab <- textGrob(label = nm, rot = -90, hjust = 0.5)
         p_out <- add_grob(p_out, lab, "right", clip = "off")
         p_out <- wrap_plots(p_out)
         plist[[nm]] <- p_out
       }
+    }
+  } else if (plot_type == "bar") {
+    # bar -------------------------------------------------------------------------------------------------
+    for (nm in names(res)) {
+      res_enrich <- res[[nm]]
+      if (is.null(id_use)) {
+        geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
+        geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
+        geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, , drop = FALSE]
+        geneSetID_up <- geneSetID_up[head(order(geneSetID_up[[metric]]), topTerm), "ID"]
+        geneSetID_down <- geneSetID_filter[geneSetID_filter[["NES"]] < 0, , drop = FALSE]
+        geneSetID_down <- geneSetID_down[head(order(geneSetID_down[[metric]]), topTerm), "ID"]
+        geneSetID_use <- switch(direction,
+          "pos" = unique(head(geneSetID_up, topTerm)),
+          "neg" = unique(head(geneSetID_down, topTerm)),
+          "both" = unique(head(
+            c(
+              head(geneSetID_up, ceiling(topTerm / 2)),
+              head(geneSetID_down, ceiling(topTerm / 2))
+            ),
+            topTerm
+          ))
+        )
+      } else {
+        if (is.list(id_use)) {
+          geneSetID_use <- intersect(res_enrich@result[["ID"]], id_use[[unique(res_enrich@result$Groups)]])
+        } else {
+          geneSetID_use <- id_use
+        }
+      }
+      if (length(geneSetID_use) == 0) {
+        plist[[nm]] <- NULL
+        next
+      }
+      stat <- res_enrich[geneSetID_use, , drop = FALSE]
+      stat <- stat[order(stat[["NES"]]), , drop = FALSE]
+      rownames(stat) <- stat[, "Description"]
+      stat[["Description"]] <- capitalize(stat[["Description"]])
+      stat[["Description"]] <- str_wrap(stat[["Description"]], width = character_width)
+      stat[["Description"]] <- factor(stat[["Description"]], levels = unique(stat[["Description"]]))
+      stat[["Direction"]] <- ifelse(stat[["NES"]] > 0, "Pos", "Neg")
+      stat[["Direction"]] <- factor(stat[["Direction"]], levels = c("Pos", "Neg"))
+
+      p <- ggplot(stat, aes(
+        x = .data[["NES"]], y = .data[["Description"]]
+      )) +
+        geom_vline(xintercept = 0) +
+        geom_col(aes(fill = .data[["Direction"]], alpha = -log10(.data[[metric]])), color = "black") +
+        geom_text(
+          aes(
+            x = 0, y = .data[["Description"]], label = .data[["Description"]],
+            hjust = ifelse(.data[["NES"]] > 0, 1, 0),
+          ),
+          nudge_x = ifelse(stat[["NES"]] > 0, -0.05, 0.05),
+          lineheight = lineheight,
+          fontface = ifelse(grepl("\n", levels(stat[["Description"]])), "italic", "plain")
+        ) +
+        scale_fill_manual(
+          values = palette_scp(x = rev(levels(stat[["Direction"]])), palette = palette, palcolor = rev(palcolor)),
+          guide = if (direction == "both") guide_legend(order = 1) else guide_none()
+        ) +
+        facet_grid(Database ~ Groups, scales = "free") +
+        coord_cartesian(xlim = c(-max(abs(stat[["NES"]])), max(abs(stat[["NES"]])))) +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction,
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank()
+        )
+      plist[[nm]] <- p
+    }
+  } else if (plot_type == "network") {
+    # network -------------------------------------------------------------------------------------------------
+    for (nm in names(res)) {
+      res_enrich <- res[[nm]]
+      if (is.null(id_use)) {
+        geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
+        geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
+        geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, , drop = FALSE]
+        geneSetID_up <- geneSetID_up[head(order(geneSetID_up[[metric]]), topTerm), "ID"]
+        geneSetID_down <- geneSetID_filter[geneSetID_filter[["NES"]] < 0, , drop = FALSE]
+        geneSetID_down <- geneSetID_down[head(order(geneSetID_down[[metric]]), topTerm), "ID"]
+        geneSetID_use <- switch(direction,
+          "pos" = unique(head(geneSetID_up, topTerm)),
+          "neg" = unique(head(geneSetID_down, topTerm)),
+          "both" = unique(head(
+            c(
+              head(geneSetID_up, ceiling(topTerm / 2)),
+              head(geneSetID_down, ceiling(topTerm / 2))
+            ),
+            topTerm
+          ))
+        )
+      } else {
+        if (is.list(id_use)) {
+          geneSetID_use <- intersect(res_enrich@result[["ID"]], id_use[[unique(res_enrich@result$Groups)]])
+        } else {
+          geneSetID_use <- id_use
+        }
+      }
+      if (length(geneSetID_use) == 0) {
+        plist[[nm]] <- NULL
+        next
+      }
+      df <- res_enrich[geneSetID_use, , drop = FALSE]
+      df$p.sig <- case_when(
+        df[[metric]] > 0.05 ~ "ns  ",
+        df[[metric]] <= 0.05 & df[[metric]] > 0.01 ~ "*   ",
+        df[[metric]] <= 0.01 & df[[metric]] > 0.001 ~ "**  ",
+        df[[metric]] <= 0.001 & df[[metric]] > 0.0001 ~ "*** ",
+        df[[metric]] <= 0.0001 ~ "****"
+      )
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
+      df[["Description"]] <- paste0(df[["Description"]], "\n(NES=", round(df[["NES"]], 3), ", ", metric, "=", format(df[[metric]], digits = 3, scientific = TRUE), ", ", df[["p.sig"]], ")")
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
+      df[["geneID"]] <- strsplit(df[["core_enrichment"]], "/")
+      df_unnest <- unnest(df, cols = "geneID")
+
+      nodes <- rbind(
+        data.frame("ID" = df[["Description"]], class = "term", metric = df[["metric"]]),
+        data.frame("ID" = unique(df_unnest$geneID), class = "gene", metric = 0)
+      )
+      nodes$Database <- df$Database[1]
+      nodes$Groups <- df$Groups[1]
+      edges <- as.data.frame(df_unnest[, c("Description", "geneID")])
+      colnames(edges) <- c("from", "to")
+      edges[["weight"]] <- 1
+      graph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+      if (network_layout %in% c("circle", "tree", "grid")) {
+        layout <- switch(network_layout,
+          "circle" = layout_in_circle(graph),
+          "tree" = layout_as_tree(graph),
+          "grid" = layout_on_grid(graph)
+        )
+      } else {
+        layout <- do.call(paste0("layout_with_", network_layout), list(graph))
+      }
+      df_graph <- as_data_frame(graph, what = "both")
+
+      df_nodes <- df_graph$vertices
+      if (isTRUE(network_layoutadjust)) {
+        width <- nchar(df_nodes$name)
+        width[df_nodes$class == "term"] <- 8
+        layout <- adjustlayout(
+          graph = graph, layout = layout, width = width, height = 2,
+          scale = network_adjscale, iter = network_adjiter
+        )
+      }
+      df_nodes[["dim1"]] <- layout[, 1]
+      df_nodes[["dim2"]] <- layout[, 2]
+
+      df_edges <- df_graph$edges
+      df_edges[["from_dim1"]] <- df_nodes[df_edges[["from"]], "dim1"]
+      df_edges[["from_dim2"]] <- df_nodes[df_edges[["from"]], "dim2"]
+      df_edges[["to_dim1"]] <- df_nodes[df_edges[["to"]], "dim1"]
+      df_edges[["to_dim2"]] <- df_nodes[df_edges[["to"]], "dim2"]
+
+      colors <- palette_scp(levels(df[["Description"]]), palette = palette, palcolor = palcolor)
+      df_edges[["color"]] <- colors[df_edges$from]
+      node_colors <- aggregate(df_unnest$Description, by = list(df_unnest$geneID), FUN = function(x) blendcolors(colors = colors[x], mode = network_blendmode))
+      colors <- c(colors, setNames(node_colors[, 2], node_colors[, 1]))
+      label_colors <- ifelse(colSums(col2rgb(colors)) > 255 * 2, "black", "white")
+      df_nodes[["color"]] <- colors[df_nodes$name]
+      df_nodes[["label_color"]] <- label_colors[df_nodes$name]
+      df_nodes[["label"]] <- NA
+      df_nodes[levels(df[["Description"]]), "label"] <- seq_len(nlevels(df[["Description"]]))
+
+      draw_key_cust <- function(data, params, size) {
+        data_text <- data
+        data_text$label <- which(levels(df[["Description"]]) %in% names(colors)[colors == data_text$fill])
+        data_text$colour <- "black"
+        data_text$alpha <- 1
+        data_text$size <- 11 / .pt
+        grobTree(
+          draw_key_point(data, list(color = "white", shape = 21)),
+          ggrepel:::shadowtextGrob(label = data_text$label, bg.colour = "black", bg.r = 0.1, gp = gpar(col = "white", fontface = "bold"))
+        )
+      }
+
+      p <- ggplot() +
+        geom_segment(data = df_edges, aes(x = from_dim1, y = from_dim2, xend = to_dim1, yend = to_dim2, color = color), alpha = 1, lineend = "round", show.legend = FALSE) +
+        geom_label(data = df_nodes[df_nodes$class == "gene", ], aes(x = dim1, y = dim2, label = name, fill = color, color = label_color), size = 3, show.legend = FALSE) +
+        geom_point(data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2), size = 8, color = "black", fill = "black", stroke = 1, shape = 21, show.legend = FALSE) +
+        geom_point(data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2, fill = color), size = 7, color = "white", stroke = 1, shape = 21, key_glyph = draw_key_cust) +
+        geom_text_repel(
+          data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2, label = label),
+          fontface = "bold", min.segment.length = 0, segment.color = "black",
+          point.size = NA, max.overlaps = 100, force = 0, color = "white", bg.color = "black", bg.r = 0.1, size = network_labelsize
+        ) +
+        scale_color_identity(guide = "none") +
+        scale_fill_identity(
+          name = "Term:", guide = "legend",
+          labels = levels(df[["Description"]]),
+          breaks = colors[levels(df[["Description"]])]
+        ) +
+        guides(fill = guide_legend(title = "Term:", byrow = TRUE)) +
+        labs(x = "", y = "") +
+        facet_grid(Database ~ Groups, scales = "free") +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
+      plist[[nm]] <- p
+    }
+  } else if (plot_type == "enrichmap") {
+    # enrichmap -------------------------------------------------------------------------------------------------
+    for (nm in names(res)) {
+      res_enrich <- res[[nm]]
+      if (is.null(id_use)) {
+        geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
+        geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
+        geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, , drop = FALSE]
+        geneSetID_up <- geneSetID_up[head(order(geneSetID_up[[metric]]), topTerm), "ID"]
+        geneSetID_down <- geneSetID_filter[geneSetID_filter[["NES"]] < 0, , drop = FALSE]
+        geneSetID_down <- geneSetID_down[head(order(geneSetID_down[[metric]]), topTerm), "ID"]
+        geneSetID_use <- switch(direction,
+          "pos" = unique(head(geneSetID_up, topTerm)),
+          "neg" = unique(head(geneSetID_down, topTerm)),
+          "both" = unique(head(
+            c(
+              head(geneSetID_up, ceiling(topTerm / 2)),
+              head(geneSetID_down, ceiling(topTerm / 2))
+            ),
+            topTerm
+          ))
+        )
+      } else {
+        if (is.list(id_use)) {
+          geneSetID_use <- intersect(res_enrich@result[["ID"]], id_use[[unique(res_enrich@result$Groups)]])
+        } else {
+          geneSetID_use <- id_use
+        }
+      }
+      if (length(geneSetID_use) == 0) {
+        plist[[nm]] <- NULL
+        next
+      }
+      df <- res_enrich[geneSetID_use, , drop = FALSE]
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
+      df[["Direction"]] <- ifelse(df[["NES"]] > 0, "Pos", "Neg")
+      df[["Direction"]] <- factor(df[["Direction"]], levels = c("Pos", "Neg"))
+      df[["geneID"]] <- strsplit(df[["core_enrichment"]], "/")
+      df[["Count"]] <- sapply(df[["geneID"]], length)
+      rownames(df) <- df[["ID"]]
+
+      nodes <- df
+      edges <- as.data.frame(t(combn(nodes$ID, 2)))
+      colnames(edges) <- c("from", "to")
+      edges[["weight"]] <- mapply(function(x, y) length(intersect(df[[x, "geneID"]], df[[y, "geneID"]])), edges$from, edges$to)
+      edges <- edges[edges[["weight"]] > 0, , drop = FALSE]
+      graph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+      if (enrichmap_layout %in% c("circle", "tree", "grid")) {
+        layout <- switch(enrichmap_layout,
+          "circle" = layout_in_circle(graph),
+          "tree" = layout_as_tree(graph),
+          "grid" = layout_on_grid(graph)
+        )
+      } else {
+        layout <- do.call(paste0("layout_with_", enrichmap_layout), list(graph))
+      }
+      clusters <- do.call(paste0("cluster_", enrichmap_cluster), list(graph))
+      df_graph <- as_data_frame(graph, what = "both")
+
+      df_nodes <- df_graph$vertices
+      df_nodes[["dim1"]] <- layout[, 1]
+      df_nodes[["dim2"]] <- layout[, 2]
+      df_nodes[["clusters"]] <- factor(paste0("C", clusters$membership), paste0("C", unique(sort(clusters$membership))))
+
+      if (isTRUE(enrichmap_show_keyword)) {
+        df_keyword1 <- df_nodes %>%
+          mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), "\\s|\\n", perl = TRUE)) %>%
+          unnest(cols = "keyword") %>%
+          group_by(.data[["keyword"]], Database, Groups, clusters) %>%
+          reframe(
+            keyword = capitalize(.data[["keyword"]]),
+            score = sum(-(log10(.data[[metric]]))),
+            count = n(),
+            Database = .data[["Database"]],
+            Groups = .data[["Groups"]],
+            .groups = "keep"
+          ) %>%
+          filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+          filter(nchar(.data[["keyword"]]) >= 1) %>%
+          filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
+          distinct() %>%
+          group_by(Database, Groups, clusters) %>%
+          arrange(desc(score)) %>%
+          slice_head(n = enrlichmap_nlabel) %>%
+          reframe(keyword = paste0(.data[["keyword"]], collapse = " ")) %>%
+          as.data.frame()
+        rownames(df_keyword1) <- as.character(df_keyword1[["clusters"]])
+        df_keyword1[["keyword"]] <- str_wrap(df_keyword1[["keyword"]], width = character_width)
+        df_keyword1[["label"]] <- paste0(df_keyword1[["clusters"]], ":\n", df_keyword1[["keyword"]])
+      } else {
+        if (enrichmap_label == "term") {
+          df_nodes[["Description"]] <- str_wrap(df_nodes[["Description"]], width = character_width)
+        }
+        df_keyword1 <- df_nodes %>%
+          group_by(Database, Groups, clusters) %>%
+          arrange(desc(metric)) %>%
+          reframe(keyword = Description) %>%
+          distinct() %>%
+          group_by(Database, Groups, clusters) %>%
+          slice_head(n = enrlichmap_nlabel) %>%
+          reframe(keyword = paste0(.data[["keyword"]], collapse = "\n")) %>%
+          as.data.frame()
+        rownames(df_keyword1) <- as.character(df_keyword1[["clusters"]])
+        df_keyword1[["label"]] <- paste0(df_keyword1[["clusters"]], ":\n", df_keyword1[["keyword"]])
+      }
+
+      df_keyword2 <- df_nodes %>%
+        mutate(keyword = .data[["geneID"]]) %>%
+        unnest(cols = "keyword") %>%
+        group_by(.data[["keyword"]], Database, Groups, clusters) %>%
+        reframe(
+          keyword = .data[["keyword"]],
+          score = sum(-(log10(.data[[metric]]))),
+          count = n(),
+          Database = .data[["Database"]],
+          Groups = .data[["Groups"]],
+          .groups = "keep"
+        ) %>%
+        distinct() %>%
+        group_by(Database, Groups, clusters) %>%
+        arrange(desc(score)) %>%
+        slice_head(n = enrlichmap_nlabel) %>%
+        reframe(keyword = paste0(.data[["keyword"]], collapse = " ")) %>%
+        as.data.frame()
+      rownames(df_keyword2) <- as.character(df_keyword2[["clusters"]])
+      df_keyword2[["keyword"]] <- str_wrap(df_keyword2[["keyword"]], width = character_width)
+      df_keyword2[["label"]] <- paste0(df_keyword2[["clusters"]], ":\n", df_keyword2[["keyword"]])
+
+      df_nodes[["keyword1"]] <- df_keyword1[as.character(df_nodes$clusters), "keyword"]
+      df_nodes[["keyword2"]] <- df_keyword2[as.character(df_nodes$clusters), "keyword"]
+
+      df_edges <- df_graph$edges
+      df_edges[["from_dim1"]] <- df_nodes[df_edges[["from"]], "dim1"]
+      df_edges[["from_dim2"]] <- df_nodes[df_edges[["from"]], "dim2"]
+      df_edges[["to_dim1"]] <- df_nodes[df_edges[["to"]], "dim1"]
+      df_edges[["to_dim2"]] <- df_nodes[df_edges[["to"]], "dim2"]
+
+      if (enrichmap_mark == "hull") {
+        check_R("concaveman")
+      }
+      mark_layer <- do.call(
+        switch(enrichmap_mark,
+          "ellipse" = "geom_mark_ellipse",
+          "hull" = "geom_mark_hull"
+        ),
+        list(
+          data = df_nodes, aes(
+            x = dim1, y = dim2, color = clusters, fill = clusters,
+            label = clusters, description = if (enrichmap_label == "term") keyword1 else keyword2
+          ),
+          expand = unit(3, "mm"),
+          alpha = 0.1,
+          label.margin = margin(1, 1, 1, 1, "mm"),
+          label.fontsize = enrichmap_labelsize * 2,
+          label.fill = "grey95",
+          label.minwidth = unit(character_width, "in"),
+          label.buffer = unit(0, "mm"),
+          con.size = 1,
+          con.cap = 0
+        )
+      )
+
+      p <- ggplot() +
+        mark_layer +
+        geom_segment(data = df_edges, aes(x = from_dim1, y = from_dim2, xend = to_dim1, yend = to_dim2, linewidth = weight), alpha = 0.1, lineend = "round") +
+        geom_point(data = df_nodes, aes(x = dim1, y = dim2, size = Count, fill = clusters), color = "black", shape = 21) +
+        labs(x = "", y = "") +
+        scale_size(name = "Count", range = c(2, 6), scales::breaks_extended(n = 4)) +
+        guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
+        scale_linewidth(name = "Intersection", range = c(0.3, 3), scales::breaks_extended(n = 4)) +
+        guides(linewidth = guide_legend(override.aes = list(alpha = 1, color = "grey"), order = 2)) +
+        scale_fill_manual(
+          name = switch(enrichmap_label,
+            "term" = "Feature:",
+            "feature" = "Term:"
+          ),
+          values = palette_scp(levels(df_nodes[["clusters"]]), palette = palette, palcolor = palcolor),
+          labels = if (enrichmap_label == "term") df_keyword2[levels(df_nodes[["clusters"]]), "label"] else df_keyword1[levels(df_nodes[["clusters"]]), "label"],
+          na.value = "grey80",
+          aesthetics = c("colour", "fill")
+        ) +
+        guides(fill = guide_legend(override.aes = list(alpha = 1, color = "black", shape = NA), byrow = TRUE, order = 3)) +
+        guides(color = guide_none()) +
+        scale_x_continuous(expand = expansion(c(enrichmap_expand[1], enrichmap_expand[1]), 0)) +
+        scale_y_continuous(expand = expansion(c(enrichmap_expand[2], enrichmap_expand[2]), 0)) +
+        facet_grid(Database ~ Groups, scales = "free") +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
+      plist[[nm]] <- p
+    }
+  } else if (plot_type == "wordcloud") {
+    # wordcloud -------------------------------------------------------------------------------------------------
+    check_R("ggwordcloud")
+    check_R("jokergoo/simplifyEnrichment")
+    for (nm in names(res)) {
+      res_enrich <- res[[nm]]
+      if (is.null(id_use)) {
+        geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
+        geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
+        geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, "ID"]
+        geneSetID_down <- geneSetID_filter[geneSetID_filter[["NES"]] < 0, "ID"]
+        geneSetID_use <- switch(direction,
+          "pos" = unique(geneSetID_up),
+          "neg" = unique(geneSetID_down),
+          "both" = unique(c(geneSetID_up, geneSetID_down))
+        )
+      } else {
+        if (is.list(id_use)) {
+          geneSetID_use <- intersect(res_enrich@result[["ID"]], id_use[[unique(res_enrich@result$Groups)]])
+        } else {
+          geneSetID_use <- id_use
+        }
+      }
+      if (length(geneSetID_use) == 0) {
+        plist[[nm]] <- NULL
+        next
+      }
+      df <- res_enrich[geneSetID_use, , drop = FALSE]
+
+      if (word_type == "term") {
+        df_groups <- split(df, list(df$Database, df$Groups))
+        df_groups <- df_groups[sapply(df_groups, nrow) > 0]
+        for (i in seq_along(df_groups)) {
+          df_sub <- df_groups[[i]]
+          if (all(df_sub$Database %in% c("GO", "GO_BP", "GO_CC", "GO_MF"))) {
+            df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df_sub[["ID"]])
+            if (nrow(df0 > 0)) {
+              df_sub <- df0 %>%
+                reframe(
+                  keyword = .data[["keyword"]],
+                  score = -(log10(.data[["padj"]])),
+                  count = .data[["n_term"]],
+                  Database = df_sub[["Database"]][1],
+                  Groups = df_sub[["Groups"]][1]
+                ) %>%
+                filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+                filter(nchar(.data[["keyword"]]) >= 1) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
+                distinct() %>%
+                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                as.data.frame()
+              df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+            } else {
+              df_sub <- NULL
+            }
+          } else {
+            df_sub <- df_sub %>%
+              mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
+              unnest(cols = "keyword") %>%
+              group_by(.data[["keyword"]], Database, Groups) %>%
+              reframe(
+                keyword = .data[["keyword"]],
+                score = sum(-(log10(.data[[metric]]))),
+                count = n(),
+                Database = .data[["Database"]],
+                Groups = .data[["Groups"]],
+                .groups = "keep"
+              ) %>%
+              filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+              filter(nchar(.data[["keyword"]]) >= 1) %>%
+              filter(!tolower(.data[["keyword"]]) %in% tolower(words_excluded)) %>%
+              distinct() %>%
+              mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+              as.data.frame()
+            df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+          }
+          df_groups[[i]] <- df_sub
+        }
+        df <- do.call(rbind, df_groups)
+      } else {
+        df <- df %>%
+          mutate(keyword = strsplit(as.character(.data[["core_enrichment"]]), "/")) %>%
+          unnest(cols = "keyword") %>%
+          group_by(.data[["keyword"]], Database, Groups) %>%
+          reframe(
+            keyword = .data[["keyword"]],
+            score = sum(-(log10(.data[[metric]]))),
+            count = n(),
+            Database = .data[["Database"]],
+            Groups = .data[["Groups"]],
+            .groups = "keep"
+          ) %>%
+          distinct() %>%
+          mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+          as.data.frame()
+        df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+      }
+      colors <- palette_scp(df[["score"]], type = "continuous", palette = palette, palcolor = palcolor, matched = FALSE)
+      colors_value <- seq(min(df[["score"]], na.rm = TRUE), quantile(df[["score"]], 0.99, na.rm = TRUE) + 0.001, length.out = 100)
+      p <- ggplot(df, aes(label = .data[["keyword"]], size = .data[["count"]], color = .data[["score"]], angle = .data[["angle"]])) +
+        ggwordcloud::geom_text_wordcloud(rm_outside = TRUE, eccentricity = 1, shape = "square", show.legend = TRUE, grid_margin = 3) +
+        scale_color_gradientn(
+          name = "Score:", colours = colors, values = rescale(colors_value),
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+        ) +
+        scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
+        guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
+        facet_grid(Database ~ Groups, scales = "free") +
+        coord_flip() +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
+      plist[[nm]] <- p
     }
   }
 
@@ -13261,12 +14542,12 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
   }
 }
 
-gsInfo <- function(object, geneSetID) {
+gsInfo <- function(object, id_use) {
   geneList <- object@geneList
-  if (is.numeric(geneSetID)) {
-    geneSetID <- object@result[geneSetID, "ID"]
+  if (is.numeric(id_use)) {
+    id_use <- object@result[id_use, "ID"]
   }
-  geneSet <- object@geneSets[[geneSetID]]
+  geneSet <- object@geneSets[[id_use]]
   exponent <- object@params[["exponent"]]
   df <- gseaScores(geneList, geneSet, exponent)
   df$ymin <- 0
@@ -13276,8 +14557,8 @@ gsInfo <- function(object, geneSetID) {
   df$ymin[pos] <- -h
   df$ymax[pos] <- h
   df$geneList <- geneList
-  df$Description <- object@result[geneSetID, "Description"]
-  df$CoreGene <- object@result[geneSetID, "core_enrichment"]
+  df$Description <- object@result[id_use, "Description"]
+  df$CoreGene <- object@result[id_use, "core_enrichment"]
   if (length(object@gene2Symbol) == length(object@geneList)) {
     df$GeneName <- object@gene2Symbol
   } else {
@@ -13424,13 +14705,10 @@ patchworkGrob <- function(x, BPPARAM = BiocParallel::SerialParam(), ...) {
   gtable
 }
 
-#' @importFrom gridGraphics echoGrob
 #' @importFrom grid grobTree
 #' @importFrom ggplot2 ggplotGrob
 as_grob <- function(plot, ...) {
-  if (inherits(plot, "recordedplot")) {
-    gridGraphics::echoGrob(plot)
-  } else if (inherits(plot, "gList")) {
+  if (inherits(plot, "gList")) {
     grobTree(plot)
   } else if (inherits(plot, "patchwork")) {
     patchworkGrob(plot, ...)
@@ -13476,7 +14754,7 @@ get_legend <- function(plot) {
 #' @importFrom gtable is.gtable gtable_add_rows gtable_add_cols gtable_add_grob
 add_grob <- function(gtable, grob, position = c("top", "bottom", "left", "right", "none"), space = NULL, clip = "on") {
   position <- match.arg(position)
-  if (position == "none") {
+  if (position == "none" || is.null(grob)) {
     return(gtable)
   }
 

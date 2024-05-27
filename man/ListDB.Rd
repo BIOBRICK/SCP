@@ -4,20 +4,21 @@
 \alias{ListDB}
 \title{ListDB}
 \usage{
-ListDB(
-  species = c("Homo_sapiens", "Mus_musculus"),
-  db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-    "ProteinComplex", "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme",
-    "TF", "SP", "CellTalk", "CellChat")
-)
+ListDB(species = "Homo_sapiens", db = NULL)
 }
 \arguments{
-\item{db}{}
+\item{species}{The species for which to retrieve database information. Default is "Homo_sapiens".}
+
+\item{db}{The pattern to match against the database names. Default is NULL, which matches all databases.}
 }
 \description{
-ListDB
+Retrieves information about databases based on a given species and database name.
 }
 \examples{
 ListDB(species = "Homo_sapiens")
+ListDB(species = "Mus_musculus", db = "GO_BP")
 
+}
+\seealso{
+\code{\link{PrepareDB}}
 }

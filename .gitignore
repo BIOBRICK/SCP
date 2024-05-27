@@ -7,3 +7,7 @@ SCExplorer
 docs
 renv
 renv.lock
+tmaps
+src/*.so
+src/*.o
+test.R
